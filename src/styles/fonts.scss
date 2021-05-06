@@ -1,0 +1,61 @@
+// Fonts
+//
+// Location of all the font-families and font-related css
+//
+// Best practices:
+// 1. Avoid loading as many fonts as possible, e.x font styles, font families
+// 2. Optimize the font, remove the characters set that the site won't use: languages
+// 3. Include the unicode range in case you couldn't remove the characters. Included just Latin by default
+// 4. Change fonts just changing the font-weight
+
+@import 'vars';
+
+$base-path: '../assets/fonts/' !default;
+
+@font-face {
+  font-family: 'WorkSansLight';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('#{$base-path}WorkSans/WorkSans-Light.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'WorkSansRegular';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('#{$base-path}WorkSans/WorkSans-Regular.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'WorkSansMedium';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('#{$base-path}WorkSans/WorkSans-Medium.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'WorkSansSemiBold';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('#{$base-path}WorkSans/WorkSans-SemiBold.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'WorkSansBold';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('#{$base-path}WorkSans/WorkSans-Bold.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'WorkExtraBold';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('#{$base-path}WorkSans/WorkSans-ExtraBold.woff') format('woff');
+}
