@@ -32,7 +32,6 @@ function Landing() {
     animateIn();
   }, [animateIn]);
 
-
   return (
     <main className={styles.Landing}>
       <Head />
@@ -45,18 +44,10 @@ function Landing() {
         </h2>
 
         <div className={styles.row}>
-        
-          <a
-            href="/gallery"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href="/gallery" className={styles.card} target="_blank" rel="noopener noreferrer">
             <h3>Enter gallery button title</h3>
             <p>Maybe a subtitle</p>
           </a>
-
-         
         </div>
         <p>thumbnails go here ⬇</p>
         <ul className={styles.routes}>
