@@ -30,11 +30,12 @@ We recommend you spending at least half a day thinking about what artwork you wo
 -----------------------------------
 
 How to get the project running with the nextjs boilerplate:
-    *   do not use the latest version of node! v14.16.1 is guaranteed to work, recommendation is to stick with a 14 or 15.
-    *   you can use `nvm` to install and switch so for example if you're using the same version as me then go to the command line tool and `nvm install v14.16.1` then type `nvm use v14.16.1`
-    *   once you got that covered, `npm install`
-    *   `npm run dev`
-    *   launch chrome in [localhost:3000](http://localhost:3000)
-    *   make sure you have ESLint set up too
-    *   if you run into problems with linter warnings, add the `--no-verify` flag at the end of your git commit command.
-    *   good luck <3
+  * do not use the latest version of node! v14.16.1 is guaranteed to work, recommendation is to stick with a 14 or 15.
+  * you can use `nvm` to install and switch so for example if you're using the same version as me then go to the command line tool and `nvm install v14.16.1` then type `nvm use v14.16.1`
+  * once you got that covered, `npm install`
+  * `npm run dev`
+  * launch chrome in [localhost:3000](http://localhost:3000)
+  * make sure you have ESLint set up too
+  * if you run into problems with linter warnings, add the `--no-verify` flag at the end of your git commit command.
+   
+  good luck <3
