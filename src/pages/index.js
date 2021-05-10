@@ -34,22 +34,21 @@ function Landing() {
   return (
     <main className={styles.Landing}>
       <Head />
-
       <section className={styles.hero} ref={containerRef}>
-        <div className={styles.row}>
-          <h1 className={styles.title}>WE3 Creative Gallery</h1>
-        </div>
-        <div className={styles.row}>
-          <ul className={styles.routes}>
-            {Object.values(gallery).map(({ path, title }) => (
-              <li key={path} className={styles.card}>
-                <Link href={path}>
-                  <a aria-label="Home">{path === '/' ? '' : <>{title}</>}</a>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <h1 className={styles.title}>WE3 Creative Gallery</h1>
+        <ul className={styles.row}>
+          {Object.values(gallery).map(({ path, title, author, thumbnail }) => (
+            <li key={path} className={styles.card}>
+              <Link href={path}>
+                <a aria-label="Home" className={styles.card}>
+                  <h3>{path === '/' ? '' : <>{title}</>}</h3>
+                  <img src={thumbnail} alt="thumbnail" />
+                  <p>{path === '/' ? '' : <>{author}</>}</p>
+                </a>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </section>
     </main>
   );

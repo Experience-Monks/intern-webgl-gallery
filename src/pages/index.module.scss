@@ -34,29 +34,40 @@
 
       > li {
         margin: px(10);
-
         .card {
+          position: relative;
           display: block;
           width: px(220);
-          height: 100%;
-          padding: px(18) px(18) px(24);
-          border: 1px solid #9b9b9b;
+          height: px(220);
+          //padding: px(18) px(18) px(24);
+          //border: 1px solid #9b9b9b;
           text-align: left;
           text-decoration: none;
-          color: #434343;
+          color: $white;
 
           &:hover {
             border-color: #067df7;
           }
 
+          > img {
+            width: 100%;
+            height: 100%;
+          }
+
           > h3 {
+            position: absolute;
             font-size: px(18);
+            top: 20;
           }
 
           > p {
             padding: px(12) 0 0;
             font-size: px(13);
             color: #333;
+          }
+
+          > h1 {
+            top: 0;
           }
         }
       }
