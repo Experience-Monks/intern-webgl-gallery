@@ -5,21 +5,10 @@ import Link from 'next/link';
 
 import styles from './Nav.module.scss';
 
-import SvgThreeLogo from '../../assets/svgs/svg-three-logo.svg';
-
-import jam3LogoSrc from '../../assets/images/threeLogo.jpeg';
-import githubLogoSrc from '../../assets/images/github-icon-64b.png';
+import jam3LogoSrc from '../../assets/images/jamlogoanim.gif';
 
 import routes from '../../data/routes';
-
-const LINKS = [
-  { href: 'https://jam3.com', label: 'Jam3', src: jam3LogoSrc },
-  { href: 'https://github.com/jam3', label: 'GitHub', src: githubLogoSrc }
-].map((link) => ({
-  ...link,
-  key: `nav-link-${link.href}-${link.label}`
-}));
-
+import galleryworks from '../../data/gallery';
 function Nav() {
   return (
     <nav className={classnames(styles.Nav)}>
@@ -28,18 +17,17 @@ function Nav() {
           {Object.values(routes).map(({ path, title }) => (
             <li key={path}>
               <Link href={path}>
-                <a aria-label="Home">{path === '/' ? <SvgThreeLogo className={styles.threeLogo} /> : <>{title}</>}</a>
+                <a aria-label="Home">
+                  {path === '/' ? <img className={styles.threeLogo} src={jam3LogoSrc} alt="Jam3" /> : <>{title}</>}
+                </a>
               </Link>
             </li>
           ))}
-        </ul>
-
-        <ul className={styles.links}>
-          {LINKS.map(({ key, href, label, src }) => (
-            <li key={key}>
-              <a href={href} target="_blank" rel="noopener noreferrer" aria-label={label}>
-                <img src={src} alt={label} />
-              </a>
+          {Object.values(galleryworks).map(({ path, title }) => (
+            <li key={path}>
+              <Link href={path}>
+                <a aria-label="Home">{title}</a>
+              </Link>
             </li>
           ))}
         </ul>

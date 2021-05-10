@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { gsap } from 'gsap';
 
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import styles from './index.module.scss';
 
 import Head from '../components/Head/Head';
@@ -11,10 +12,14 @@ import { setLandingLoaded } from '../redux/modules/app';
 
 import gallery from '../data/gallery';
 
+const P5Wrapper = dynamic(import('react-p5-wrapper'), {
+  ssr: false,
+  loading: () => <div className="sketch-holder">Loading...</div>
+});
+
 function Landing() {
   const containerRef = useRef();
   const dispatch = useDispatch();
-
   const animateInInit = useCallback(() => {
     gsap.set(containerRef.current, { autoAlpha: 0 });
   }, []);
@@ -35,30 +40,30 @@ function Landing() {
   return (
     <main className={styles.Landing}>
       <Head />
+      <style jsx>
+        {`
+          .sketch {
+            font-family: 'Girassol', cursive;
+          }
+        `}
+      </style>
 
+      <P5Wrapper className={styles.sketch} sketch={require(`./landing`).default(600, 600)} />
       <section className={styles.hero} ref={containerRef}>
-        <h1 className={styles.title}>Landing page</h1>
-
-        <h2 className={styles.description}>
-          DELETE LATER**To get started, edit <code>pages/index.js</code> and save to reload.
-        </h2>
-
         <div className={styles.row}>
-          <a href="/gallery" className={styles.card} target="_blank" rel="noopener noreferrer">
-            <h3>Enter gallery button title</h3>
-            <p>Maybe a subtitle</p>
-          </a>
+          <h1 className={styles.title}>WE3 Creative Gallery</h1>
         </div>
-        <p>thumbnails go here ⬇</p>
-        <ul className={styles.routes}>
-          {Object.values(gallery).map(({ path, title }) => (
-            <li key={path}>
-              <Link href={path}>
-                <a aria-label="Home">{path === '/' ? '' : <>{title}</>}</a>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <div className={styles.row}>
+          <ul className={styles.routes}>
+            {Object.values(gallery).map(({ path, title }) => (
+              <li key={path}>
+                <Link href={path}>
+                  <a aria-label="Home">{path === '/' ? '' : <>{title}</>}</a>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
       </section>
     </main>
   );

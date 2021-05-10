@@ -7,7 +7,8 @@
   width: 100%;
   padding: 0 px(20);
   box-shadow: $element-shadow;
-  background-color: $white;
+  //background-color: $white;
+  color: $white;
   @include z-index(main-nav);
   @include flex-center-vert;
   height: $navbar-height-mobile;
@@ -30,7 +31,7 @@
         justify-content: flex-start;
 
         .threeLogo {
-          width: px(25);
+          width: px(75);
         }
       }
 
