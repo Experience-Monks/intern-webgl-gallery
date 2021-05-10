@@ -12,7 +12,7 @@ import { setLandingLoaded } from '../../../redux/modules/app';
 function Artwork() {
   const containerRef = useRef();
   const dispatch = useDispatch();
-
+  print("testing merge with print command");
   const animateInInit = useCallback(() => {
     gsap.set(containerRef.current, { autoAlpha: 0 });
   }, []);
