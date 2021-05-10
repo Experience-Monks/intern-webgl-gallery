@@ -9,9 +9,12 @@ import Head from '../../../components/Head/Head';
 import { withRedux } from '../../../redux/withRedux';
 import { setLandingLoaded } from '../../../redux/modules/app';
 
+
 function Landing() {
   const containerRef = useRef();
   const dispatch = useDispatch();
+
+  print("amna is trying to push this change");
 
   const animateInInit = useCallback(() => {
     gsap.set(containerRef.current, { autoAlpha: 0 });
