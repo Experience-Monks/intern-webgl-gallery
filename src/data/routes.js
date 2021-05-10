@@ -6,9 +6,5 @@ export default {
   About: {
     path: '/about/',
     title: 'About'
-  },
-  Gallery: {
-    path: '/gallery/',
-    title: 'Gallery'
   }
 };

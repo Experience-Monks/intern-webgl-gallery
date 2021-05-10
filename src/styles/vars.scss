@@ -22,6 +22,7 @@ $layout-desktopLg: map-get($layout, desktopLg) + px;
 // ====================================================================
 $white: #fff;
 $black: #000;
+$darkgray: #252525;
 
 // ====================================================================
 // General
@@ -29,7 +30,7 @@ $black: #000;
 // Global color variables, used usually in sections
 // Global variables used across the web app
 // ====================================================================
-$page-bg-color: $white;
+$page-bg-color: $darkgray; //$white;
 $element-shadow: 0 16px 16px 0 rgba(0, 0, 0, 0.04);
 $generic-fonts: WorkSansMedium, Helvetica, Arial, sans-serif;
 

@@ -59,3 +59,11 @@ $base-path: '../assets/fonts/' !default;
   font-display: swap;
   src: url('#{$base-path}WorkSans/WorkSans-ExtraBold.woff') format('woff');
 }
+
+@font-face {
+  font-family: 'Aldrich';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('#{$base-path}aldrich-v11-latin/aldrich-v11-latin-regular.woff') format('woff');
+}

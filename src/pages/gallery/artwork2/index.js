@@ -2,14 +2,14 @@ import React, { useRef, useCallback, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { gsap } from 'gsap';
 
-import styles from './../../index.module.scss';
+import styles from './../gallery.module.scss';
 
 import Head from '../../../components/Head/Head';
 
 import { withRedux } from '../../../redux/withRedux';
 import { setLandingLoaded } from '../../../redux/modules/app';
 
-function Landing() {
+function Artwork() {
   const containerRef = useRef();
   const dispatch = useDispatch();
 
@@ -32,14 +32,12 @@ function Landing() {
 
   return (
     <main className={styles.Landing}>
-      <Head />
-
+      <Head title="ARTWORK TITLE HERE" />
       <section className={styles.hero} ref={containerRef}>
-        <h1 className={styles.title}>stuff goes here</h1>
-
+        CODE GOES HERE
       </section>
     </main>
   );
 }
 
-export default withRedux(Landing);
+export default withRedux(Artwork);
