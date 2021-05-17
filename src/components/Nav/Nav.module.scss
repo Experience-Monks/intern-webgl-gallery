@@ -7,7 +7,7 @@
   width: 100%;
   padding: 0 px(20);
   box-shadow: $element-shadow;
-  //background-color: $white;
+  background-color: transparent;
   color: $white;
   @include z-index(main-nav);
   @include flex-center-vert;

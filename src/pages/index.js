@@ -10,6 +10,7 @@ import { withRedux } from '../redux/withRedux';
 import { setLandingLoaded } from '../redux/modules/app';
 
 import gallery from '../data/gallery';
+import ThreeReactComponent from './threeReactComponent';
 
 function Landing() {
   const containerRef = useRef();
@@ -34,6 +35,7 @@ function Landing() {
   return (
     <main className={styles.Landing}>
       <Head />
+      <ThreeReactComponent />
       <section className={styles.hero} ref={containerRef}>
         <h1 className={styles.title}>WE3 Creative Gallery</h1>
         <ul className={styles.row}>

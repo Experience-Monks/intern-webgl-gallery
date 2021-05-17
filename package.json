@@ -97,6 +97,7 @@
     "redux-devtools-extension": "2.13.8",
     "stylelint": "13.6.1",
     "stylelint-config-jam3": "0.1.4",
+    "three": "^0.128.0",
     "webp-loader": "0.6.0",
     "xss": "^1.0.8"
   },
