@@ -73,7 +73,9 @@ const nextJSConfig = {
   }
 };
 
-const nextPlugins = [[optimizedImages, optimizedImagesConfig]];
+const withTM = require('next-transpile-modules')(['three/build/three.module']);
+
+const nextPlugins = [[optimizedImages, optimizedImagesConfig], [withTM]];
 if (process.env.BUNDLE_ANALYZE === 'true') {
   const withBundleAnalyzer = require('@next/bundle-analyzer')({
     enabled: true

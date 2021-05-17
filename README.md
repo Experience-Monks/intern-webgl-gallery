@@ -36,6 +36,9 @@ How to get the project running with the nextjs boilerplate:
   * `npm run dev`
   * launch chrome in [localhost:3000](http://localhost:3000)
   * make sure you have ESLint set up too
-  * if you run into problems with linter warnings, add the `--no-verify` flag at the end of your git commit command.
+  * if you run into problems with linter warnings, add the `--no-verify` flag at the end of your git commit command. (especially for push and commit)
    
   good luck <3
+UPDATE FOR THREE.JS:
+Please avoid using specific modules such as GUI controls in this project it is unsuported. 
+If it gives you a warning that it needs a GSAP module then we can talk about it.
