@@ -1,27 +1,21 @@
-import React, { useRef, useCallback, useEffect, Component } from 'react';
+import React, { useRef, useCallback, useEffect } from 'react';
+
 import { useDispatch } from 'react-redux';
 import { gsap } from 'gsap';
-
+import dynamic from 'next/dynamic';
 import styles from './../gallery.module.scss';
 
 import Head from '../../../components/Head/Head';
 
 import { withRedux } from '../../../redux/withRedux';
 import { setLandingLoaded } from '../../../redux/modules/app';
-import Art from './artwork';
 
-class ArtCanvas extends Component {
-  componentDidMount() {
-    Art(this.scene);
-  }
-  render() {
-    return (
-      <>
-        <div ref={(element) => (this.scene = element)} />
-      </>
-    );
-  }
-}
+
+const ArtCanvas = dynamic(() => import('./artwork'), {
+  ssr: false
+}); 
+
+export const isBrowser = typeof window !== 'undefined';
 
 function Artwork() {
   const containerRef = useRef();
@@ -46,11 +40,11 @@ function Artwork() {
 
   return (
     <main className={styles.Landing}>
-      <Head title="ARTWORK TITLE HERE" />
-      <ArtCanvas />
-      <section className={styles.hero} ref={containerRef}>
-        PAGE INFO ETC GOES HERE
-      </section>
+      <Head title="MRN" />
+      <div id="scene-container" className={styles.canvasWrap}>
+        {isBrowser && <ArtCanvas></ArtCanvas>}
+      </div>
+      <section className={styles.hero} ref={containerRef}></section>
     </main>
   );
 }
