@@ -1,9 +1,12 @@
 @import 'shared';
 
 .Footer {
-  background-color: $black;
+  position: fixed;
+  bottom: 0;
+  //  background-color: $black;
   color: $white;
   padding: px(50) 0;
+  width: 100%;
 
   ul {
     li {

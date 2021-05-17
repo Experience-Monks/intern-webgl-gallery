@@ -4,7 +4,6 @@ import checkProps from '@jam3/react-check-extra-props';
 import dynamic from 'next/dynamic';
 
 import Nav from '../Nav/Nav';
-import Footer from '../Footer/Footer';
 
 const RotateScreen = dynamic(() => import('../RotateScreen/RotateScreen'), { ssr: false });
 
@@ -14,8 +13,6 @@ function Layout({ children }) {
       <Nav />
 
       {children}
-
-      <Footer />
 
       <RotateScreen />
     </>
