@@ -10,10 +10,9 @@ import Head from '../../../components/Head/Head';
 import { withRedux } from '../../../redux/withRedux';
 import { setLandingLoaded } from '../../../redux/modules/app';
 
-
 const ArtCanvas = dynamic(() => import('./artwork'), {
   ssr: false
-}); 
+});
 
 export const isBrowser = typeof window !== 'undefined';
 
