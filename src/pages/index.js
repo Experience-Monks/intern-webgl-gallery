@@ -44,7 +44,7 @@ function Landing() {
         {isBrowser && <ArtCanvas></ArtCanvas>}
       </div>
 
-      <section className={styles.hero} ref={containerRef}>
+      {/*<section className={styles.hero} ref={containerRef}>
         <h1 className={styles.title}>WE3 Creative Gallery</h1>
         <ul className={styles.row}>
           {Object.values(gallery).map(({ author }) => (
@@ -53,7 +53,7 @@ function Landing() {
             </li>
           ))}
         </ul>
-      </section>
+          </section> */}
     </main>
   );
 }

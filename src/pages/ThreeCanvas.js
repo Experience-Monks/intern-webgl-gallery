@@ -29,7 +29,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
-import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js';
+import { GlitchPass } from '../utils/threejs/GlitchPass.js';
 
 function Art() {
   const inputEl = useRef(null);
@@ -57,6 +57,7 @@ function Art() {
     let wireframe;
     let matLineBasic;
     let composer;
+    let redirect;
     const clock = new Clock();
     const params = {
       exposure: 1,
@@ -64,7 +65,7 @@ function Art() {
       bloomThreshold: 0,
       bloomRadius: 0
     };
-
+    const glitchPass = new GlitchPass();
     function onWindowResize() {
       camera.aspect = inputEl.current.offsetWidth / inputEl.current.offsetHeight;
       camera.updateProjectionMatrix();
@@ -76,9 +77,9 @@ function Art() {
 
     function onMouseClick(event) {
       console.log('mouse click');
-
+      glitchPass.activate();
       if (INTERSECTED) {
-        window.location = INTERSECTED.userData.url;
+        redirect = INTERSECTED.userData.url;
       }
     }
 
@@ -97,8 +98,8 @@ function Art() {
     function render() {
       //     camera.lookAt(scene.position);
 
-      camera.position.x += ( mouse.x - camera.position.x ) * 0.5;
-      camera.position.y += ( -mouse.y - camera.position.y ) * 1.5;
+      camera.position.x += (mouse.x - camera.position.x) * 0.5;
+      camera.position.y += (-mouse.y - camera.position.y) * 1.5;
       camera.lookAt(scene.position);
 
       raycaster.setFromCamera(mouse, camera);
@@ -120,6 +121,9 @@ function Art() {
         }
         INTERSECTED = null;
       }
+      if (glitchPass.isOver && redirect) {
+        window.location = redirect;
+      }
       renderer.render(scene, camera);
     }
 
@@ -133,6 +137,7 @@ function Art() {
       controls.enableZoom = true;
       controls.enablePan = false;
       controls.enableRotate = true;
+      const loader = new FontLoader();
 
       var xLen = 20;
       var offset = 5;
@@ -169,6 +174,7 @@ function Art() {
       composer = new EffectComposer(renderer);
       composer.addPass(renderScene);
       composer.addPass(bloomPass);
+      composer.addPass(glitchPass);
 
       camera.position.set(0, 0, 50);
       camera.lookAt(new Vector3(0, 0, 0));
