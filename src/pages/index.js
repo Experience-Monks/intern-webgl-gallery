@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { gsap } from 'gsap';
 
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import styles from './index.module.scss';
 
 import Head from '../components/Head/Head';
@@ -10,8 +11,12 @@ import { withRedux } from '../redux/withRedux';
 import { setLandingLoaded } from '../redux/modules/app';
 
 import gallery from '../data/gallery';
-import ThreeReactComponent from './threeReactComponent';
 
+const ArtCanvas = dynamic(() => import('./ThreeCanvas.js'), {
+  ssr: false
+});
+
+export const isBrowser = typeof window !== 'undefined';
 function Landing() {
   const containerRef = useRef();
   const dispatch = useDispatch();
@@ -35,23 +40,20 @@ function Landing() {
   return (
     <main className={styles.Landing}>
       <Head />
-      <ThreeReactComponent />
-      <section className={styles.hero} ref={containerRef}>
+      <div id="scene-container" className={styles.canvasWrap}>
+        {isBrowser && <ArtCanvas></ArtCanvas>}
+      </div>
+
+      {/*<section className={styles.hero} ref={containerRef}>
         <h1 className={styles.title}>WE3 Creative Gallery</h1>
         <ul className={styles.row}>
-          {Object.values(gallery).map(({ path, title, author, thumbnail }) => (
-            <li key={path} className={styles.card}>
-              <Link href={path}>
-                <a aria-label="Home" className={styles.card}>
-                  <h3>{path === '/' ? '' : <>{title}</>}</h3>
-                  <img src={thumbnail} alt="thumbnail" />
-                  <p>{path === '/' ? '' : <>{author}</>}</p>
-                </a>
-              </Link>
+          {Object.values(gallery).map(({ author }) => (
+            <li>
+              <p>{author}</p>
             </li>
           ))}
         </ul>
-      </section>
+          </section> */}
     </main>
   );
 }
