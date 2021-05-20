@@ -1,27 +1,28 @@
 @import 'shared';
 
 .Landing {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-
-  > div {
+  > .canvasWrap {
+    position: absolute;
     width: 100%;
-    > canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      bottom: 0;
+    height: 100%;
+    top: 0;
+    bottom: 0;
+    > div {
+      position: inherit;
+      width: 100%;
+      height: 100%;
+      
+      > canvas {
+        position: inherit;
+      }
     }
   }
-
   > .hero {
     position: fixed;
-    width: 100%;
-    color: $white;
-    top: 50%;
+    top: 25%;
     left: 50%;
     transform: translate(-50%, -50%);
+    color: $white;
 
     > .title {
       font-family: WorkSansSemiBold;
@@ -33,8 +34,6 @@
       line-height: 1.15;
       font-size: px(48);
     }
-
-    > .title,
     > .description {
       text-align: center;
     }
