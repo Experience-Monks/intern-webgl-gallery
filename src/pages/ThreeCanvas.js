@@ -22,14 +22,20 @@ import {
   LineBasicMaterial,
   LineSegments,
   ReinhardToneMapping,
-  FontLoader
+  Line,
+  BufferGeometry,
+  Object3D,
+  ShapeGeometry,
+  DoubleSide,
+  FontLoader,
+  MeshBasicMaterial
 } from 'three/build/three.module';
 
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { GlitchPass } from '../utils/threejs/GlitchPass.js';
+//import { OrbitControls } from '../utils/threejs/OrbitControls';
 
 function Art() {
   const inputEl = useRef(null);
@@ -48,7 +54,6 @@ function Art() {
     inputEl.current.addEventListener('resize', onWindowResize);
     inputEl.current.addEventListener('click', onMouseClick);
 
-    const controls = new OrbitControls(camera, inputEl.current);
     const raycaster = new Raycaster();
     const directionalLight = new DirectionalLight(0xff00ff, 0.5);
     const group = new Group();
@@ -58,14 +63,11 @@ function Art() {
     let matLineBasic;
     let composer;
     let redirect;
-    const clock = new Clock();
-    const params = {
-      exposure: 1,
-      bloomStrength: 1.5,
-      bloomThreshold: 0,
-      bloomRadius: 0
-    };
+
     const glitchPass = new GlitchPass();
+    let triggerEnter = false;
+    let begin = false;
+
     function onWindowResize() {
       camera.aspect = inputEl.current.offsetWidth / inputEl.current.offsetHeight;
       camera.updateProjectionMatrix();
@@ -76,10 +78,19 @@ function Art() {
     }
 
     function onMouseClick(event) {
-      console.log('mouse click');
+      console.log(camera.position.z);
       glitchPass.activate();
-      if (INTERSECTED) {
+      if (INTERSECTED && begin) {
         redirect = INTERSECTED.userData.url;
+      }
+
+      if (!INTERSECTED){
+        redirect = null;
+      }
+
+      if (!triggerEnter) {
+        triggerEnter = true;
+        camera.userData.targetZ = 80;
       }
     }
 
@@ -89,40 +100,46 @@ function Art() {
     }
 
     function animate() {
+      if (glitchPass.isOver && redirect && begin && !triggerEnter) {
+        window.location = redirect;
+      }
+
       requestAnimationFrame(animate);
       render();
-
       composer.render();
     }
 
     function render() {
-      //     camera.lookAt(scene.position);
-
       camera.position.x += (mouse.x - camera.position.x) * 0.5;
       camera.position.y += (-mouse.y - camera.position.y) * 1.5;
+      if (camera.position.z - camera.userData.targetZ > 5) {
+        camera.position.z -= 10 * 1.5;
+      } else if (camera.position.z - camera.userData.targetZ <= 5 && triggerEnter) {
+        triggerEnter = false;
+        begin = true;
+      }
       camera.lookAt(scene.position);
 
-      raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObjects(group.children);
+      if (begin) {
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(group.children);
 
-      if (intersects.length > 0) {
-        if (INTERSECTED !== intersects[0].object) {
+        if (intersects.length > 0) {
+          if (INTERSECTED !== intersects[0].object) {
+            if (INTERSECTED) {
+              INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
+            }
+
+            INTERSECTED = intersects[0].object;
+            INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
+            INTERSECTED.material.emissive.setHex(0x08fbff);
+          }
+        } else {
           if (INTERSECTED) {
             INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
           }
-
-          INTERSECTED = intersects[0].object;
-          INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
-          INTERSECTED.material.emissive.setHex(0x08fbff);
+          INTERSECTED = null;
         }
-      } else {
-        if (INTERSECTED) {
-          INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
-        }
-        INTERSECTED = null;
-      }
-      if (glitchPass.isOver && redirect) {
-        window.location = redirect;
       }
       renderer.render(scene, camera);
     }
@@ -134,10 +151,82 @@ function Art() {
       directionalLight.position.set(0, -1, 0);
       scene.add(directionalLight);
 
-      controls.enableZoom = true;
-      controls.enablePan = false;
-      controls.enableRotate = true;
       const loader = new FontLoader();
+      loader.load('assets/fonts/Press_Start_2P/PressStart.json', function (font) {
+        const color = 0x006699;
+
+        const matDark = new LineBasicMaterial({
+          color: color,
+          side: DoubleSide
+        });
+
+        const matLite = new MeshBasicMaterial({
+          color: color,
+          transparent: true,
+          opacity: 0.4,
+          side: DoubleSide
+        });
+
+        const message = 'WE3 \nGallery';
+        const shapes = font.generateShapes(message, 100);
+
+        const enterMessage = 'click anywhere to enter';
+        const enterShapes = font.generateShapes(enterMessage, 10);
+
+        const geometry = new ShapeGeometry(shapes);
+        const enterGeo = new ShapeGeometry(enterShapes);
+
+        geometry.computeBoundingBox();
+        enterGeo.computeBoundingBox();
+        const xMid = -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
+
+        geometry.translate(xMid, 0, 0);
+        enterGeo.translate(xMid, 100, 0);
+
+        // make shape ( N.B. edge view not visible )
+
+        const text = new Mesh(geometry, matLite);
+        text.position.z = -800;
+        text.position.y = 300;
+        scene.add(text);
+
+        const enterText = new Mesh(enterGeo, matLite);
+        enterText.position.z = 800;
+        enterText.position.y = -300;
+        scene.add(enterText);
+        // make line shape ( N.B. edge view remains visible )
+
+        const holeShapes = [];
+
+        for (let i = 0; i < shapes.length; i++) {
+          const shape = shapes[i];
+
+          if (shape.holes && shape.holes.length > 0) {
+            for (let j = 0; j < shape.holes.length; j++) {
+              const hole = shape.holes[j];
+              holeShapes.push(hole);
+            }
+          }
+        }
+
+        shapes.push.apply(shapes, holeShapes);
+
+        const lineText = new Object3D();
+
+        for (let i = 0; i < shapes.length; i++) {
+          const shape = shapes[i];
+
+          const points = shape.getPoints();
+          const geometry = new BufferGeometry().setFromPoints(points);
+
+          geometry.translate(xMid, 0, 0);
+
+          const lineMesh = new Line(geometry, matDark);
+          lineText.add(lineMesh);
+        }
+        lineText.position.z = 500;
+        scene.add(lineText);
+      });
 
       var xLen = 20;
       var offset = 5;
@@ -148,6 +237,7 @@ function Art() {
         mesh.userData.url = '/gallery/artwork' + (i + 1) + '/';
         mesh.userData.isSelected = false;
         mesh.position.x = (-xLen - offset) * (i - 1);
+        mesh.position.z = 10;
         group.add(mesh);
       }
       scene.add(group);
@@ -167,16 +257,17 @@ function Art() {
       const renderScene = new RenderPass(scene, camera);
 
       const bloomPass = new UnrealBloomPass(new Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-      bloomPass.threshold = params.bloomThreshold;
-      bloomPass.strength = params.bloomStrength;
-      bloomPass.radius = params.bloomRadius;
+      bloomPass.threshold = 0;
+      bloomPass.strength = 3;
+      bloomPass.radius = 0.1;
 
       composer = new EffectComposer(renderer);
       composer.addPass(renderScene);
       composer.addPass(bloomPass);
       composer.addPass(glitchPass);
 
-      camera.position.set(0, 0, 50);
+      camera.position.set(0, 50, 1300);
+      camera.userData.targetZ = 1300;
       camera.lookAt(new Vector3(0, 0, 0));
     }
 

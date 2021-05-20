@@ -62,6 +62,7 @@ GlitchPass.prototype = Object.assign(Object.create(Pass.prototype), {
       if (this.isActive) {
         this.isOver = true;
         this.isActive = false;
+        console.log('is done;');
       }
 
       this.uniforms['byp'].value = 1;
