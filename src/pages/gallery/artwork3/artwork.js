@@ -41,7 +41,7 @@ function Art() {
     scene.background = new Color(constants.options.backgroundColor);
 
     // CAMERA
-    const camera = new PerspectiveCamera(75, inputEl.current.offsetWidth / inputEl.current.offsetHeight, 0.1, 2000);
+    const camera = new PerspectiveCamera(75, inputEl.current.offsetWidth / inputEl.current.offsetHeight, 0.1, 1000);
     // camera.position.set(constants.options.cameraPosition);
     camera.updateProjectionMatrix();
     camera.lookAt(scene.position);
@@ -80,7 +80,7 @@ function Art() {
       controls.maxPolarAngle = Math.PI * 0.495;
       controls.target.set(0, 10, 0);
       controls.minDistance = 40.0;
-      controls.maxDistance = 200.0;
+      controls.maxDistance = 600.0;
       controls.update();
     }
 
@@ -158,30 +158,33 @@ function Art() {
     }
 
     function populateOneSet(seedOpts, set) {
-      let r;
-      const geometry = new SphereGeometry(Math.abs(r), 32, 32);
-      const material = new MeshPhongMaterial({
-        color: constants.colors.pink
-      });
+      let r, x, y, z;
       for (let i = 0; i < seedOpts.length; i++) {
-        r = seedOpts[i].r;
+        [r, x, y, z] = [seedOpts[i].r, seedOpts[i].x, seedOpts[i].y, seedOpts[i].z];
         bodySets[set][i] = world.add({
           type: 'sphere',
           size: [r, r, r],
-          pos: [seedOpts[i].x, seedOpts[i].y, seedOpts[i].z],
+          pos: [x, y, z],
           move: true,
           world: world
         });
-        meshSets[set][i] = new Mesh(geometry, material);
+        meshSets[set][i] = createSphere(scene, r, x, y, z, true);
         meshSets[set][i].scale.set(r, r, r);
         scene.add(meshSets[set][i]);
       }
     }
 
     function populate() {
+      /*
       for (let set = 0; set < NUM_SETS; set++) {
         populateOneSet(seedSets[set], set);
-      }
+      } */
+      const x = -150;
+      const y = 300;
+      const z = -150;
+      const r = 50;
+      meshSets[0].push(createSphere(scene, r, x, y, z, true));
+      bodySets[0].push(world.add({ type: 'sphere', size: [r, r, r], pos: [x, y, z], move: true, world: world }));
       console.log('finished populate');
       console.log('bodySets', bodySets, 'meshSets', meshSets);
     }
@@ -258,7 +261,7 @@ function Art() {
     }
 
     function loop() {
-      // updateOimoPhysics();
+      updateOimoPhysics();
       render();
       // checkCollision();
       requestAnimationFrame(loop);
@@ -271,7 +274,7 @@ function Art() {
     function run() {
       init(constants.options);
       initSceneHelper();
-      // initOimoPhysics();
+      initOimoPhysics();
       loop();
     }
 
