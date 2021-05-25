@@ -1,4 +1,4 @@
-var Complex = require('complex');
+import Complex from 'complex.js';
 
 /* multiples a scalar with a complex number */
 function mul_scalar(scalar, complex) {
