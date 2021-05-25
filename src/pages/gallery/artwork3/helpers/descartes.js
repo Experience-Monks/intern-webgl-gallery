@@ -1,3 +1,5 @@
+var Complex = require('complex');
+
 /* multiples a scalar with a complex number */
 function mul_scalar(scalar, complex) {
   const re = complex.re * scalar;
@@ -6,7 +8,7 @@ function mul_scalar(scalar, complex) {
 }
 
 /*
- * get center of a circle given 2 points and radius */
+ * get center of a circle given 2 points and radius
 function getCenter(p1, p2, r) {
   const x_a = 0.5 * (p2.re - p1.re);
   const y_a = 0.5 * (p2.im - p1.im);
@@ -20,11 +22,11 @@ function getCenter(p1, p2, r) {
   const y_4 = y_0 + (b * x_a) / a;
   const result = { right: new Complex(x_3, y_3), left: new Complex(x_4, y_4) };
   return result;
-}
+} */
 
 /* straight line (curvature = 0) is a degenerate circle */
 function isDegenerate(k) {
-  return k == 0;
+  return k === 0;
 }
 
 //----------------------------------
@@ -40,14 +42,14 @@ function kToR(K) {
  * returns sets of curvatures and centers of the two circles (inside, outside)
  */
 function descartes(tangentCircles) {
-  if (tangentCircles.length != 3) {
-    console.log("descartes only accepts 3 circles");
+  if (tangentCircles.length !== 3) {
+    console.log('descartes only accepts 3 circles');
     return;
   }
 
   let results = {
     curvatures: [],
-    centers: [],
+    centers: []
   };
 
   let _c1, _c2, _c3, c1, c2, c3;
@@ -63,7 +65,7 @@ function descartes(tangentCircles) {
   c2.z.im -= yShift;
   c3.z.re -= xShift;
   c3.z.im -= yShift;
-  console.log("after shifting: ", c1, c2, c3);
+  console.log('after shifting: ', c1, c2, c3);
 
   const kaugend1 = c1.k + c2.k + c3.k;
   const kaugend2 = 2 * Math.sqrt(c1.k * c2.k + c2.k * c3.k + c3.k * c1.k);
@@ -88,30 +90,28 @@ function descartes(tangentCircles) {
 
   /* signs for k and z do not neccessarily correspond to each other
    * but right now mixing them seem to give wack results */
-  const nume_sub = zaugend1.sub(zaugend2);
+  // const nume_sub = zaugend1.sub(zaugend2);
   const nume_add = zaugend1.add(zaugend2);
   const shift = new Complex(xShift, yShift);
-  console.log("shift", shift);
+  console.log('shift', shift);
 
   if (!isDegenerate(k4_sub)) {
-    let z4_sub1, z4_add1;
-    z4_sub1 = nume_sub.div(k4_sub);
-    z4_add1 = nume_add.div(k4_sub);
+    // let z4_sub1 = nume_sub.div(k4_sub);
+    let z4_add1 = nume_add.div(k4_sub);
     // results.centers.push(z4_sub1);
     results.centers.push(z4_add1.add(shift));
     results.curvatures.push(k4_sub);
   }
 
   if (!isDegenerate(k4_add)) {
-    let z4_sub2, z4_add2;
-    z4_sub2 = nume_sub.div(k4_add);
-    z4_add2 = nume_add.div(k4_add);
+    //let z4_sub2 = nume_sub.div(k4_add);
+    let z4_add2 = nume_add.div(k4_add);
     // results.centers.push(z4_sub2);
     results.centers.push(z4_add2.add(shift));
     results.curvatures.push(k4_add);
   }
 
-  console.log("descartes results", results);
+  console.log('descartes results', results);
   return results;
 }
 
