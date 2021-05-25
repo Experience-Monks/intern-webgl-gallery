@@ -1,5 +1,4 @@
 import React, { useRef, useEffect } from 'react';
-
 import {
   Scene,
   PerspectiveCamera,
@@ -10,13 +9,10 @@ import {
   ACESFilmicToneMapping,
   Color,
   AmbientLight,
-  SphereGeometry,
-  MeshPhongMaterial,
-  Mesh,
   GridHelper
 } from 'three/build/three.module';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { gsap, TweenMax } from 'gsap';
+import { gsap } from 'gsap';
 import * as OIMO from 'oimo';
 /* custom helper functions */
 import Circle from './helpers/circle.js';
@@ -123,6 +119,7 @@ function Art() {
     var bodySets = []; // rigid bodies, 2D array
     var grounds = [];
     var toggles = [];
+    var collideSets = [];
     const destPosSets = constants.destPosSets;
     const seedSets = constants.seedOpts;
     const NUM_SETS = seedSets.length;
@@ -140,6 +137,7 @@ function Art() {
       for (let i = 0; i < NUM_SETS; i++) {
         meshSets.push([]);
         bodySets.push([]);
+        collideSets.push(0);
         toggles.push({
           hasDescartes: false,
           animates: false
@@ -169,22 +167,14 @@ function Art() {
           world: world
         });
         meshSets[set][i] = createSphere(scene, r, x, y, z, true);
-        meshSets[set][i].scale.set(r, r, r);
         scene.add(meshSets[set][i]);
       }
     }
 
     function populate() {
-      /*
       for (let set = 0; set < NUM_SETS; set++) {
         populateOneSet(seedSets[set], set);
-      } */
-      const x = -150;
-      const y = 300;
-      const z = -150;
-      const r = 50;
-      meshSets[0].push(createSphere(scene, r, x, y, z, true));
-      bodySets[0].push(world.add({ type: 'sphere', size: [r, r, r], pos: [x, y, z], move: true, world: world }));
+      }
       console.log('finished populate');
       console.log('bodySets', bodySets, 'meshSets', meshSets);
     }
@@ -241,18 +231,24 @@ function Art() {
             bTween = gsap.isTweening(circB.position);
             if (aTween || bTween) {
               d = fns.dist(circA.position.x, circA.position.z, circB.position.x, circB.position.z);
-              rSum = circA.scale.x + circB.scale.x;
-              if (d < rSum) {
+              rSum = circA.geometry.parameters.radius + circB.geometry.parameters.radius;
+              if (d < rSum + constants.collisionPadding) {
                 if (aTween) {
-                  TweenMax.killTweensOf(circA.position);
+                  gsap.killTweensOf(circA.position);
+                  collideSets[set] += 1;
                 }
                 if (bTween) {
-                  TweenMax.killTweensOf(circB.position);
+                  gsap.killTweensOf(circB.position);
+                  collideSets[set] += 1;
                 }
               }
             }
           }
-        } else if (toggles[set].animated && !toggles[set].hasDescartes) {
+        }
+        const allCollided = collideSets[set] === meshSets[set].length;
+
+        if (toggles[set].animated && !toggles[set].hasDescartes && allCollided) {
+          console.log('going to insert descartes');
           const tangentCircles = fns.meshesToCircles(meshes);
           insertDescartes(tangentCircles);
           toggles[set].hasDescartes = true;
@@ -263,7 +259,7 @@ function Art() {
     function loop() {
       updateOimoPhysics();
       render();
-      // checkCollision();
+      checkCollision();
       requestAnimationFrame(loop);
     }
 
@@ -275,6 +271,7 @@ function Art() {
       init(constants.options);
       initSceneHelper();
       initOimoPhysics();
+      // testPopulate();
       loop();
     }
 

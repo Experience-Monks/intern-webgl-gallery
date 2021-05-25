@@ -1,11 +1,12 @@
 //----------------------------------
 //  ANIMATE
 //----------------------------------
-import { TweenLite, Power2 } from 'gsap';
+import { gsap, Power2 } from 'gsap';
 
 function animateOffscreenToCenter(instance, destPos) {
-  const duration = 3;
-  TweenLite.to(instance.position, duration, {
+  const time = 3;
+  gsap.to(instance.position, {
+    duration: time,
     x: destPos.x,
     y: destPos.y,
     z: destPos.z,

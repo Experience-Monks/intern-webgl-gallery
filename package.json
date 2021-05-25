@@ -72,7 +72,7 @@
     "focus-visible": "^5.1.0",
     "generate-robotstxt": "^8.0.3",
     "get-scroll": "^2.0.1",
-    "gsap": "3.6.0",
+    "gsap": "^3.6.0",
     "imagemin-gifsicle": "7.0.0",
     "imagemin-mozjpeg": "9.0.0",
     "imagemin-optipng": "8.0.0",

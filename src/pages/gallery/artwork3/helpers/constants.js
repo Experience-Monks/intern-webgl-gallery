@@ -40,13 +40,12 @@ const groundInfo = {
   pos: [0, -80, 0]
 };
 /* information for circle seeds */
-const destPosSets = [new Vector3(0, 0, 0)];
-/*
+const destPosSets = [
   new Vector3(300, 0, 300),
   new Vector3(-300, 0, -300),
   new Vector3(300, 0, -300),
   new Vector3(-300, 0, 300)
-];*/
+];
 const startY = 300;
 const seed = [
   {
@@ -68,6 +67,7 @@ const seed = [
     z: 300
   }
 ];
-const seedOpts = [seed];
+const collisionPadding = 5;
+const seedOpts = [seed, seed, seed, seed];
 
-export { colors, options, groundInfo, destPosSets, seedOpts };
+export { colors, options, groundInfo, destPosSets, seedOpts, collisionPadding };

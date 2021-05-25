@@ -8,6 +8,6 @@ export default class Circle {
 
   /* returns curvature */
   getK(radius) {
-    return 1 / radius;
+    return Math.abs(1 / radius);
   }
 }

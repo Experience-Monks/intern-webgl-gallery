@@ -4,15 +4,16 @@
 
 import { SphereGeometry, MeshPhongMaterial, BoxGeometry, MeshBasicMaterial, Mesh } from 'three/build/three.module';
 
-function createSphere(scene, radius, x, y, z, wireF = false) {
+function createSphere(scene, _radius, x, y, z, wireF = false) {
+  const radius = Math.abs(_radius);
   if (radius === undefined || x === undefined || y === undefined || z === undefined) {
     console.log('Undefined inputs to createSphere');
     return;
   }
-  const geometry = new SphereGeometry(Math.abs(radius), 32, 32);
+  const geometry = new SphereGeometry(radius, 32, 32);
   const material = new MeshPhongMaterial({
     color: 0xeeeeee,
-    wireframe: wireF
+    wireframe: true
   });
   const sphere = new Mesh(geometry, material);
   sphere.position.set(x, y, z);

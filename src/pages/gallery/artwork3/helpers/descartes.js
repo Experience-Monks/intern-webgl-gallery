@@ -8,7 +8,7 @@ function mul_scalar(scalar, complex) {
 }
 
 /*
- * get center of a circle given 2 points and radius
+ * get center of a circle given 2 points and radius*/
 function getCenter(p1, p2, r) {
   const x_a = 0.5 * (p2.re - p1.re);
   const y_a = 0.5 * (p2.im - p1.im);
@@ -22,7 +22,7 @@ function getCenter(p1, p2, r) {
   const y_4 = y_0 + (b * x_a) / a;
   const result = { right: new Complex(x_3, y_3), left: new Complex(x_4, y_4) };
   return result;
-} */
+}
 
 /* straight line (curvature = 0) is a degenerate circle */
 function isDegenerate(k) {
@@ -97,9 +97,9 @@ function descartes(tangentCircles) {
 
   if (!isDegenerate(k4_sub)) {
     // let z4_sub1 = nume_sub.div(k4_sub);
-    let z4_add1 = nume_add.div(k4_sub);
+    // let z4_add1 = nume_add.div(k4_sub);
     // results.centers.push(z4_sub1);
-    results.centers.push(z4_add1.add(shift));
+    // results.centers.push(z4_add1.add(shift));
     results.curvatures.push(k4_sub);
   }
 
@@ -115,4 +115,4 @@ function descartes(tangentCircles) {
   return results;
 }
 
-export { kToR, descartes };
+export { kToR, descartes, getCenter };
