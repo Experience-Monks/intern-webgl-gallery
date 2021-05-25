@@ -43,9 +43,7 @@ function Artwork() {
       <div id="scene-container" className={styles.canvasWrap}>
         {isBrowser && <ArtCanvas></ArtCanvas>}
       </div>
-      <section className={styles.hero} ref={containerRef}>
-        PAGE INFO ETC GOES HERE
-      </section>
+      <section className={styles.hero} ref={containerRef}></section>
     </main>
   );
 }
