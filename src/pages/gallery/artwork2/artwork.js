@@ -22,7 +22,6 @@ import {
   LineSegments,
   TubeGeometry,
   Mesh,
-  MeshLambertMaterial,
   MeshPhongMaterial,
   TextureLoader,
   Uniform
