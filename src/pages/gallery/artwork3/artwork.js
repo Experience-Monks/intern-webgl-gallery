@@ -103,11 +103,13 @@ function Art() {
         });
       });
       circObj.forEach((circle) => {
+        createSphere(scene, circle.r, circle.z.re, 0, circle.z.im, 10, true);
+        /*
         if (circle.type < 2) {
           createSphere(scene, circle.r, circle.z.re, 0, circle.z.im, 10, true);
         } else {
           createShapeAlong2DPath(scene, circle, createSphere, true, 10, 15);
-        }
+        } */
       });
     }
 
@@ -125,7 +127,7 @@ function Art() {
     var uniforms = {}; // for shaders
     const destPosSets = constants.destPosSets;
     const seedSets = constants.seedOpts;
-    const NUM_SETS = seedSets.length;
+    const NUM_SETS = 1;
 
     function initOimoPhysics() {
       world = new OIMO.World({ info: true, worldscale: 100 });

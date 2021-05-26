@@ -46,6 +46,7 @@ function descartes(tangentCircles) {
     console.log('descartes only accepts 3 circles');
     return;
   }
+  console.log('tangent circles:', tangentCircles);
 
   let results = {
     curvatures: [],
@@ -90,15 +91,15 @@ function descartes(tangentCircles) {
 
   /* signs for k and z do not neccessarily correspond to each other
    * but right now mixing them seem to give wack results */
-  // const nume_sub = zaugend1.sub(zaugend2);
+  const nume_sub = zaugend1.sub(zaugend2);
   const nume_add = zaugend1.add(zaugend2);
   const shift = new Complex(xShift, yShift);
   console.log('shift', shift);
 
   if (!isDegenerate(k4_sub)) {
-    // let z4_sub1 = nume_sub.div(k4_sub);
+    let z4_sub1 = nume_sub.div(k4_sub);
     // let z4_add1 = nume_add.div(k4_sub);
-    // results.centers.push(z4_sub1);
+    results.centers.push(z4_sub1.add(shift));
     // results.centers.push(z4_add1.add(shift));
     results.curvatures.push(k4_sub);
   }
