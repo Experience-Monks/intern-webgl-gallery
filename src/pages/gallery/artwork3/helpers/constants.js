@@ -11,12 +11,13 @@ const colors = {
 };
 const cameraPositions = {
   topDown: [0, 600, 0],
-  Angled: [0, 600, 600]
+  Angled: [0, 600, 600],
+  horizontal: [0, 0, 600]
 };
 const options = {
   backgroundColor: `lightblue`,
   antialias: true,
-  cameraPosition: cameraPositions.topDown,
+  cameraPosition: cameraPositions.horizontal,
   grid: {
     size: 1000,
     divisions: 50
@@ -36,7 +37,7 @@ const options = {
 //  OIMO PHYSICS
 //----------------------------------
 const groundInfo = {
-  size: [800, 40, 800],
+  size: [800, 20, 800],
   pos: [0, -80, 0]
 };
 /* information for circle seeds */
@@ -46,7 +47,7 @@ const destPosSets = [
   new Vector3(300, 0, -300),
   new Vector3(-300, 0, 300)
 ];
-const startY = 300;
+const startY = 500;
 const seed = [
   {
     r: 60,
@@ -67,7 +68,12 @@ const seed = [
     z: 300
   }
 ];
+const originSeed = [
+  { r: 60, x: -300 + Math.random(-10, 10), y: startY, z: -300 + Math.random(-10, 10) },
+  { r: 60, x: 300 + Math.random(-10, 10), y: startY, z: -300 + Math.random(0, 10) },
+  { r: 70, x: Math.random(-10, 10), y: startY, z: 300 + Math.random(-10, 10) }
+];
 const collisionPadding = 5;
-const seedOpts = [seed, seed, seed, seed];
+const seedOpts = [originSeed, originSeed, originSeed, originSeed];
 
 export { colors, options, groundInfo, destPosSets, seedOpts, collisionPadding };

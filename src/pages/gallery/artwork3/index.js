@@ -39,7 +39,7 @@ function Artwork() {
 
   return (
     <main className={styles.Landing}>
-      <Head title="ARTWORK TITLE HERE" />
+      <Head title="Kissing Circles" />
       <div id="scene-container" className={styles.canvasWrap}>
         {isBrowser && <ArtCanvas></ArtCanvas>}
       </div>

@@ -20,11 +20,13 @@ import Circle from './helpers/circle.js';
 import { descartes, kToR } from './helpers/descartes.js';
 import * as constants from './helpers/constants.js';
 import * as fns from './helpers/functions.js';
-import { createSphere, createStaticBox } from './helpers/createMesh.js';
-import animateToOrigin from './helpers/animate.js';
+import { createSphere, createMatcapSphere, createWireframeSphere, createStaticBox } from './helpers/createMesh.js';
+import animateToDest from './helpers/animate.js';
 import { vertexShader, fragmentShader } from './helpers/shader.glsl.js';
 
 const HAS_SHADERS = true;
+const HAS_WALLS = false;
+const HAS_GRIDS = false;
 
 function Art() {
   const inputEl = useRef(null);
@@ -36,11 +38,11 @@ function Art() {
 
     // SCENE
     const scene = new Scene();
-    scene.background = new Color(constants.options.backgroundColor);
+    scene.background = new Color('rgb(242, 179, 255)');
 
     // CAMERA
-    const camera = new PerspectiveCamera(75, inputEl.current.offsetWidth / inputEl.current.offsetHeight, 0.1, 1000);
-    camera.position.set(0, 500, 0);
+    const camera = new PerspectiveCamera(75, inputEl.current.offsetWidth / inputEl.current.offsetHeight, 0.1, 1500);
+    camera.position.set(0, 500, 20);
     camera.updateProjectionMatrix();
     camera.lookAt(scene.position);
 
@@ -103,13 +105,7 @@ function Art() {
         });
       });
       circObj.forEach((circle) => {
-        createSphere(scene, circle.r, circle.z.re, 0, circle.z.im, 10, true);
-        /*
-        if (circle.type < 2) {
-          createSphere(scene, circle.r, circle.z.re, 0, circle.z.im, 10, true);
-        } else {
-          createShapeAlong2DPath(scene, circle, createSphere, true, 10, 15);
-        } */
+        createWireframeSphere(scene, circle.r, circle.z.re, 0, circle.z.im);
       });
     }
 
@@ -157,10 +153,53 @@ function Art() {
       world.add({
         size: constants.groundInfo.size,
         pos: constants.groundInfo.pos,
-        world: world
+        world: world,
+        friction: 0.5
       });
       let box = createStaticBox(scene, constants.groundInfo.size, constants.groundInfo.pos, [0, 0, 0], 0xffffff);
       grounds.push(box);
+      if (HAS_WALLS) {
+        initWalls();
+      }
+    }
+
+    function initWalls() {
+      const sideBoxSize = [50, 800, 800];
+      const leftBoxPos = [400, 0, 0];
+      const rightBoxPos = [-400, 0, 0];
+      const horizBoxSize = [800, 800, 50];
+      const topBoxPos = [0, 0, -400];
+      const botBoxPos = [0, 0, 400];
+
+      let sideBoxRight = createStaticBox(scene, sideBoxSize, leftBoxPos, [0, 0, 0], 0xffffff);
+      let sideBoxLeft = createStaticBox(scene, sideBoxSize, rightBoxPos, [0, 0, 0], 0xffffff);
+      let sideBoxTop = createStaticBox(scene, horizBoxSize, topBoxPos, [0, 0, 0], 0xffffff);
+      let sideBoxBot = createStaticBox(scene, horizBoxSize, botBoxPos, [0, 0, 0], 0xffffff);
+      world.add({
+        size: sideBoxSize,
+        pos: leftBoxPos,
+        world: world,
+        friction: 0.5
+      });
+      world.add({
+        size: sideBoxSize,
+        pos: rightBoxPos,
+        world: world,
+        friction: 0.5
+      });
+      world.add({
+        size: horizBoxSize,
+        pos: topBoxPos,
+        world: world,
+        friction: 0.5
+      });
+      world.add({
+        size: horizBoxSize,
+        pos: botBoxPos,
+        world: world,
+        friction: 0.5
+      });
+      grounds.concat([sideBoxRight, sideBoxLeft, sideBoxBot, sideBoxTop]);
     }
 
     function generateUniforms() {
@@ -168,17 +207,17 @@ function Art() {
       uniforms.vBallPos0.value.y = meshSets[0][0].position.y;
       uniforms.vBallPos0.value.z = meshSets[0][0].position.z;
 
-      uniforms.vBallPos1.value.x = meshSets[1][0].position.x;
-      uniforms.vBallPos1.value.y = meshSets[1][0].position.y;
-      uniforms.vBallPos1.value.z = meshSets[1][0].position.z;
+      uniforms.vBallPos1.value.x = meshSets[1][1].position.x;
+      uniforms.vBallPos1.value.y = meshSets[1][1].position.y;
+      uniforms.vBallPos1.value.z = meshSets[1][1].position.z;
 
-      uniforms.vBallPos2.value.x = meshSets[2][0].position.x;
-      uniforms.vBallPos2.value.y = meshSets[2][0].position.y;
-      uniforms.vBallPos2.value.z = meshSets[2][0].position.z;
+      uniforms.vBallPos2.value.x = meshSets[2][2].position.x;
+      uniforms.vBallPos2.value.y = meshSets[2][2].position.y;
+      uniforms.vBallPos2.value.z = meshSets[2][2].position.z;
 
-      uniforms.vBallPos3.value.x = meshSets[3][0].position.x;
-      uniforms.vBallPos3.value.y = meshSets[3][0].position.y;
-      uniforms.vBallPos3.value.z = meshSets[3][0].position.z;
+      uniforms.vBallPos3.value.x = meshSets[3][2].position.x;
+      uniforms.vBallPos3.value.y = meshSets[3][2].position.y;
+      uniforms.vBallPos3.value.z = meshSets[3][2].position.z;
     }
 
     function updateGroundTexture() {
@@ -235,7 +274,7 @@ function Art() {
           move: true,
           world: world
         });
-        meshSets[set][i] = createSphere(scene, r, x, y, z, true);
+        meshSets[set][i] = createMatcapSphere(scene, r, x, y, z);
         scene.add(meshSets[set][i]);
       }
     }
@@ -254,7 +293,7 @@ function Art() {
         bodies = bodySets[set];
         if (bodies.every(fns.isAsleep) && !toggles[set].animated) {
           console.log('all bodies are asleep');
-          animateToOrigin(meshSets[set], destPosSets[set]);
+          animateToDest(meshSets[set], destPosSets[set]);
           toggles[set].animated = true;
         }
       }
@@ -341,7 +380,9 @@ function Art() {
 
     function run() {
       init(constants.options);
-      // initSceneHelper();
+      if (HAS_GRIDS) {
+        initSceneHelper();
+      }
       initOimoPhysics();
       // testPopulate();
       loop();
