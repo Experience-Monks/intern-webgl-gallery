@@ -1,4 +1,4 @@
-import { Object3D, Scene } from 'three';
+import { Object3D, Scene } from 'three/build/three.module';
 
 /**
  * Recursively dispose threejs objects
@@ -8,7 +8,7 @@ import { Object3D, Scene } from 'three';
  * @param {(Scene | Object3D)} parent
  * @returns
  */
-export default function disposeObjects(object: Scene | Object3D, parent: Scene | Object3D) {
+function disposeObjects(object, parent) {
   if (object === null || object === undefined) return;
   if (parent) parent.remove(object);
   if (object.dispose) {
@@ -30,4 +30,7 @@ export default function disposeObjects(object: Scene | Object3D, parent: Scene |
   }
   if (object.type === 'Scene') object.dispose();
   object = null;
+  console.log('object: ' + object);
 }
+
+export default disposeObjects();
