@@ -37,12 +37,12 @@ function Artwork() {
 
   return (
     <main className={styles.Landing}>
-      <Head title="AMNA'S ARTWORK TITLE HERE" />
-      <div id="scene-container" className={styles.canvasWrap}>
+      <Head title="Amna's" />
+      <div id="scene-container" className={styles.amna}>
         {isBrowser && <ArtCanvas></ArtCanvas>}
       </div>
-      <section className={styles.hero} ref={containerRef}>
-        PAGE INFO ETC GOES HERE
+      <section className={styles.ml12} ref={containerRef}>
+        A Thousand Splendid Suns
       </section>
     </main>
   );
