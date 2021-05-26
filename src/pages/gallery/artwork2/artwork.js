@@ -12,6 +12,7 @@ import {
   DirectionalLight,
   DefaultLoadingManager,
   sRGBEncoding,
+  EquirectangularReflectionMapping,
   ACESFilmicToneMapping,
   Fog,
   CatmullRomCurve3,
@@ -21,7 +22,9 @@ import {
   LineSegments,
   TubeGeometry,
   Mesh,
-  MeshLambertMaterial
+  MeshLambertMaterial,
+  MeshPhongMaterial,
+  TextureLoader
 } from 'three/build/three.module';
 
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js';
@@ -29,6 +32,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
 
 function Art() {
   const inputEl = useRef(null);
@@ -58,18 +62,20 @@ function Art() {
     var tubeGeo;
     var start = false;
     var curve;
-    const material = new MeshLambertMaterial({ color: 0xffffff, wireframe: false });
-    material.emissive.setHex(0xcf70c9);
+    const material = new MeshPhongMaterial({ color: 0xcf70c9, wireframe: false });
+    material.emissive.setHex(0xcfffc9);
     material.emissiveIntensity = 0.5;
     var mesh;
     var bloomPass;
+    var filmPass;
     var renderScene;
     var composer;
     var finished = false;
+    var envTexture;
 
     function onMouseClick(event) {
       console.log(camera.position);
-      start = !start;
+      if (!finished) start = !start;
       if (finished) finished = false;
     }
     function onWindowResize(event) {
@@ -134,8 +140,12 @@ function Art() {
     }
 
     function setupScene() {
-      scene.background = new Color(0x000000);
-      scene.fog = new Fog(0x570057, 2000, 3500);
+      const loadEnv = new TextureLoader();
+      envTexture = loadEnv.load('../../assets/images/textures/eso0932a.jpeg');
+      envTexture.mapping = EquirectangularReflectionMapping;
+      envTexture.encoding = sRGBEncoding;
+      scene.background = envTexture;
+      scene.fog = new Fog(0x570057, 100, 350);
       scene.add(new AmbientLight(0xf0e9e9));
       directionalLight.position.set(0, -1, 0);
       scene.add(directionalLight);
@@ -145,10 +155,12 @@ function Art() {
       renderScene = new RenderPass(scene, camera);
 
       bloomPass = new UnrealBloomPass(new Vector2(window.innerWidth, window.innerHeight), 1.5, 0.1, 0.8);
+      filmPass = new FilmPass(0.3, 0.5, 600, false);
 
       composer = new EffectComposer(renderer);
       composer.addPass(renderScene);
       composer.addPass(bloomPass);
+      composer.addPass(filmPass);
     }
 
     function animate() {
