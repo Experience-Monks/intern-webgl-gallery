@@ -9,7 +9,8 @@ import {
   ACESFilmicToneMapping,
   Color,
   AmbientLight,
-  GridHelper
+  GridHelper,
+  ShaderMaterial
 } from 'three/build/three.module';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { gsap } from 'gsap';
@@ -21,8 +22,9 @@ import * as constants from './helpers/constants.js';
 import * as fns from './helpers/functions.js';
 import { createSphere, createStaticBox, createShapeAlong2DPath } from './helpers/createMesh.js';
 import animateToOrigin from './helpers/animate.js';
+import { vertexShader, fragmentShader } from './helpers/shader.glsl.js';
 
-//add more imports here, such as the controllers and loaders etc
+const HAS_SHADERS = false;
 
 function Art() {
   const inputEl = useRef(null);
@@ -38,7 +40,7 @@ function Art() {
 
     // CAMERA
     const camera = new PerspectiveCamera(75, inputEl.current.offsetWidth / inputEl.current.offsetHeight, 0.1, 1000);
-    // camera.position.set(constants.options.cameraPosition);
+    camera.position.set(0, 500, 0);
     camera.updateProjectionMatrix();
     camera.lookAt(scene.position);
 
@@ -120,6 +122,7 @@ function Art() {
     var grounds = [];
     var toggles = [];
     var collideSets = [];
+    var uniforms = {}; // for shaders
     const destPosSets = constants.destPosSets;
     const seedSets = constants.seedOpts;
     const NUM_SETS = seedSets.length;
@@ -130,6 +133,9 @@ function Art() {
       initSets();
       initGround();
       populate(constants.seedOpts);
+      if (HAS_SHADERS) {
+        updateGroundTexture();
+      }
       console.log('finished init oimo');
     }
 
@@ -153,6 +159,72 @@ function Art() {
       });
       let box = createStaticBox(scene, constants.groundInfo.size, constants.groundInfo.pos, [0, 0, 0], 0xffffff);
       grounds.push(box);
+    }
+
+    function generateUniforms() {
+      uniforms.vBallPos0.value = {
+        x: meshSets[0][0].position.x,
+        y: meshSets[0][0].position.y,
+        z: meshSets[0][0].position.z
+      };
+      uniforms.vBallPos1.value = {
+        x: meshSets[1][0].position.x,
+        y: meshSets[1][0].position.y,
+        z: meshSets[1][0].position.z
+      };
+      uniforms.vBallPos2.value = {
+        x: meshSets[2][0].position.x,
+        y: meshSets[2][0].position.y,
+        z: meshSets[2][0].position.z
+      };
+      uniforms.vBallPos3.value = {
+        x: meshSets[3][0].position.x,
+        y: meshSets[3][0].position.y,
+        z: meshSets[3][0].position.z
+      };
+    }
+
+    function updateGroundTexture() {
+      const circ0 = meshSets[0][0];
+      const circ1 = meshSets[1][0];
+      const circ2 = meshSets[2][0];
+      const circ3 = meshSets[3][0];
+      uniforms = {
+        vBallPos0: {
+          value: {
+            x: circ0.position.x,
+            y: circ0.position.y,
+            z: circ0.position.z
+          }
+        },
+        vBallPos1: {
+          value: {
+            x: circ1.position.x,
+            y: circ1.position.y,
+            z: circ1.position.z
+          }
+        },
+        vBallPos2: {
+          value: {
+            x: circ2.position.x,
+            y: circ2.position.y,
+            z: circ2.position.z
+          }
+        },
+        vBallPos3: {
+          value: {
+            x: circ3.position.x,
+            y: circ3.position.y,
+            z: circ3.position.z
+          }
+        }
+      };
+      const material = new ShaderMaterial({
+        uniforms: uniforms,
+        vertexShader: vertexShader,
+        fragmentShader: fragmentShader
+      });
+      grounds[0].material = material;
     }
 
     function populateOneSet(seedOpts, set) {
@@ -265,11 +337,14 @@ function Art() {
 
     function render() {
       renderer.render(scene, camera);
+      if (HAS_SHADERS) {
+        generateUniforms();
+      }
     }
 
     function run() {
       init(constants.options);
-      initSceneHelper();
+      // initSceneHelper();
       initOimoPhysics();
       // testPopulate();
       loop();

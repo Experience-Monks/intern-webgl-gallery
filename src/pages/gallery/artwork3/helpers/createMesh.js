@@ -2,7 +2,14 @@
 //  CREATE MESH IN SCENE
 //----------------------------------
 
-import { SphereGeometry, MeshPhongMaterial, BoxGeometry, MeshBasicMaterial, Mesh } from 'three/build/three.module';
+import {
+  SphereGeometry,
+  MeshPhongMaterial,
+  BoxGeometry,
+  ShaderMaterial,
+  Mesh,
+  MeshBasicMaterial
+} from 'three/build/three.module';
 
 function createSphere(scene, _radius, x, y, z, wireF = false) {
   const radius = Math.abs(_radius);
@@ -25,6 +32,23 @@ function createStaticBox(scene, size, position, rotation, color) {
   const ToRad = 0.0174532925199432957;
   const geometry = new BoxGeometry(size[0], size[1], size[2]);
   const material = new MeshBasicMaterial({ color: color });
+  const mesh = new Mesh(geometry, material);
+  mesh.position.set(position[0], position[1], position[2]);
+  mesh.rotation.set(rotation[0] * ToRad, rotation[1] * ToRad, rotation[2] * ToRad);
+  scene.add(mesh);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  return mesh;
+}
+
+function createShaderBox(scene, size, position, rotation, uniforms, vertexShader, fragmentShader) {
+  const ToRad = 0.0174532925199432957;
+  const geometry = new BoxGeometry(size[0], size[1], size[2]);
+  const material = new ShaderMaterial({
+    uniforms: uniforms,
+    vertexShader: vertexShader,
+    fragmentShader: fragmentShader
+  });
   const mesh = new Mesh(geometry, material);
   mesh.position.set(position[0], position[1], position[2]);
   mesh.rotation.set(rotation[0] * ToRad, rotation[1] * ToRad, rotation[2] * ToRad);
@@ -58,4 +82,4 @@ function createShapeAlong2DPath(
   }
 }
 
-export { createSphere, createStaticBox, createShapeAlong2DPath };
+export { createSphere, createStaticBox, createShaderBox, createShapeAlong2DPath };
