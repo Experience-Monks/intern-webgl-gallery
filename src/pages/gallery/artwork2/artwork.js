@@ -12,6 +12,7 @@ import {
   DirectionalLight,
   DefaultLoadingManager,
   sRGBEncoding,
+  EquirectangularReflectionMapping,
   ACESFilmicToneMapping,
   Fog,
   CatmullRomCurve3,
@@ -21,7 +22,9 @@ import {
   LineSegments,
   TubeGeometry,
   Mesh,
-  MeshLambertMaterial
+  MeshPhongMaterial,
+  TextureLoader,
+  Uniform
 } from 'three/build/three.module';
 
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js';
@@ -29,6 +32,9 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { ColorifyShader } from './ColorifyShaderMod.js';
 
 function Art() {
   const inputEl = useRef(null);
@@ -38,38 +44,30 @@ function Art() {
     const camera = new PerspectiveCamera(100, inputEl.current.offsetWidth / inputEl.current.offsetHeight, 0.1, 2000);
     const renderer = new WebGLRenderer();
     const controls = new OrbitControls(camera, renderer.domElement);
-
-    renderer.setPixelRatio(inputEl.current.offsetWidth / inputEl.current.offsetHeight);
-    renderer.setSize(inputEl.current.offsetWidth, inputEl.current.offsetHeight);
-    inputEl.current.append(renderer.domElement);
-
-    inputEl.current.addEventListener('mousemove', onPointerMove);
-    inputEl.current.addEventListener('resize', onWindowResize);
-    inputEl.current.addEventListener('click', onMouseClick);
-
     const pmremGenerator = new PMREMGenerator(renderer);
-
     const directionalLight = new DirectionalLight(0xff00ff, 0.5);
-
     const mouse = new Vector2();
+    const material = new MeshPhongMaterial({ color: 0xcf70c9, wireframe: false });
+
     let v3 = [];
     let counter = 0;
     let v3Size = 0;
     var tubeGeo;
     var start = false;
     var curve;
-    const material = new MeshLambertMaterial({ color: 0xffffff, wireframe: false });
-    material.emissive.setHex(0xcf70c9);
-    material.emissiveIntensity = 0.5;
+
     var mesh;
     var bloomPass;
+    var filmPass;
     var renderScene;
     var composer;
     var finished = false;
+    var envTexture;
+    var colorifier;
 
     function onMouseClick(event) {
       console.log(camera.position);
-      start = !start;
+      if (!finished) start = !start;
       if (finished) finished = false;
     }
     function onWindowResize(event) {
@@ -86,9 +84,17 @@ function Art() {
     }
 
     function setupRenderer() {
+      renderer.setPixelRatio(inputEl.current.offsetWidth / inputEl.current.offsetHeight);
+      renderer.setSize(inputEl.current.offsetWidth, inputEl.current.offsetHeight);
+      inputEl.current.append(renderer.domElement);
+      inputEl.current.addEventListener('mousemove', onPointerMove);
+      inputEl.current.addEventListener('resize', onWindowResize);
+      inputEl.current.addEventListener('click', onMouseClick);
+
       DefaultLoadingManager.onLoad = function () {
         pmremGenerator.dispose();
       };
+
       pmremGenerator.compileEquirectangularShader();
       renderer.outputEncoding = sRGBEncoding;
       renderer.toneMapping = ACESFilmicToneMapping;
@@ -123,7 +129,7 @@ function Art() {
         const subPath = svgData.paths[0].subPaths[0];
         let v2 = subPath.getPoints();
         for (let z = 0; z < v2.length; z++) {
-          v3.push(new Vector3(v2[z].x, -v2[z].y, z * 0.03));
+          v3.push(new Vector3(v2[z].x, -v2[z].y, z * 0.02));
         }
         curve = new CatmullRomCurve3(v3);
         tubeGeo = new TubeGeometry(curve, v3.length, 0.5, 8, false);
@@ -134,20 +140,40 @@ function Art() {
     }
 
     function setupScene() {
-      scene.background = new Color(0x000000);
-      scene.fog = new Fog(0x570057, 2000, 3500);
+      const loadEnv = new TextureLoader();
+
+      material.emissive.setHex(0xcfffc9);
+      material.emissiveIntensity = 0.5;
+
+      envTexture = loadEnv.load('../../assets/images/textures/eso0932a.jpeg');
+      envTexture.mapping = EquirectangularReflectionMapping;
+      envTexture.encoding = sRGBEncoding;
+      scene.background = envTexture;
+
+      scene.fog = new Fog(0x570057, 100, 350);
       scene.add(new AmbientLight(0xf0e9e9));
       directionalLight.position.set(0, -1, 0);
       scene.add(directionalLight);
     }
 
     function setupPostProcessingEffects() {
-      renderScene = new RenderPass(scene, camera);
+      colorifier = new ShaderPass(ColorifyShader);
+      colorifier.uniforms['color1'] = new Uniform(new Color(255, 115, 0));
+      colorifier.uniforms['color2'] = new Uniform(new Color(0, 115, 255));
 
-      bloomPass = new UnrealBloomPass(new Vector2(window.innerWidth, window.innerHeight), 1.5, 0.1, 0.8);
+      renderScene = new RenderPass(scene, camera);
+      bloomPass = new UnrealBloomPass(
+        new Vector2(inputEl.current.offsetWidth, inputEl.current.offsetHeight),
+        1.5, //strength
+        0.1, //radius
+        0.8 //threshold
+      );
+      filmPass = new FilmPass(0.5, 0.8, 500, false);
 
       composer = new EffectComposer(renderer);
       composer.addPass(renderScene);
+      composer.addPass(filmPass);
+      composer.addPass(colorifier);
       composer.addPass(bloomPass);
     }
 
