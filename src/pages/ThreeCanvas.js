@@ -28,7 +28,8 @@ import {
   ShapeGeometry,
   DoubleSide,
   FontLoader,
-  MeshBasicMaterial
+  MeshBasicMaterial,
+  RGBA_ASTC_5x4_Format
 } from 'three/build/three.module';
 
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
@@ -36,6 +37,7 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { GlitchPass } from '../utils/threejs/GlitchPass.js';
 //import { OrbitControls } from '../utils/threejs/OrbitControls';
+import disposeObjects from '../utils/dispose-objects.js';
 
 function Art() {
   const inputEl = useRef(null);
@@ -84,7 +86,7 @@ function Art() {
         redirect = INTERSECTED.userData.url;
       }
 
-      if (!INTERSECTED){
+      if (!INTERSECTED) {
         redirect = null;
       }
 
@@ -101,6 +103,8 @@ function Art() {
 
     function animate() {
       if (glitchPass.isOver && redirect && begin && !triggerEnter) {
+        cancelAnimationFrame(this);
+        scene.remove.apply(scene, scene.children);
         window.location = redirect;
       }
 
@@ -128,15 +132,18 @@ function Art() {
           if (INTERSECTED !== intersects[0].object) {
             if (INTERSECTED) {
               INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
+              INTERSECTED.material.emissiveIntensity = 0.5;
             }
 
             INTERSECTED = intersects[0].object;
             INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
             INTERSECTED.material.emissive.setHex(0x08fbff);
+            INTERSECTED.material.emissiveIntensity = 0.5;
           }
         } else {
           if (INTERSECTED) {
             INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
+            INTERSECTED.material.emissiveIntensity = 0.5;
           }
           INTERSECTED = null;
         }
@@ -161,7 +168,7 @@ function Art() {
         });
 
         const matLite = new MeshBasicMaterial({
-          color: color,
+          color: 0x08fbff,
           transparent: true,
           opacity: 0.4,
           side: DoubleSide
@@ -230,9 +237,10 @@ function Art() {
 
       var xLen = 20;
       var offset = 5;
-      const texture = new TextureLoader().load('assets/images/thumbnails/placeholder.jpeg');
+      
       var geometry = new BoxGeometry(xLen, xLen, 1);
       for (let i = 0; i < 3; i++) {
+        const texture = new TextureLoader().load('assets/images/thumbnails/artwork' + (i + 1) + '.png');
         const mesh = new Mesh(geometry, new MeshLambertMaterial({ map: texture }));
         mesh.userData.url = '/gallery/artwork' + (i + 1) + '/';
         mesh.userData.isSelected = false;
@@ -257,9 +265,9 @@ function Art() {
       const renderScene = new RenderPass(scene, camera);
 
       const bloomPass = new UnrealBloomPass(new Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-      bloomPass.threshold = 0;
-      bloomPass.strength = 3;
-      bloomPass.radius = 0.1;
+      bloomPass.threshold = 0.01;
+      bloomPass.strength = 2.6;
+      bloomPass.radius = 0.4;
 
       composer = new EffectComposer(renderer);
       composer.addPass(renderScene);
