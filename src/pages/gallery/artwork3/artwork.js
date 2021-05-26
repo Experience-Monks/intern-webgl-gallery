@@ -20,11 +20,11 @@ import Circle from './helpers/circle.js';
 import { descartes, kToR } from './helpers/descartes.js';
 import * as constants from './helpers/constants.js';
 import * as fns from './helpers/functions.js';
-import { createSphere, createStaticBox, createShapeAlong2DPath } from './helpers/createMesh.js';
+import { createSphere, createStaticBox } from './helpers/createMesh.js';
 import animateToOrigin from './helpers/animate.js';
 import { vertexShader, fragmentShader } from './helpers/shader.glsl.js';
 
-const HAS_SHADERS = false;
+const HAS_SHADERS = true;
 
 function Art() {
   const inputEl = useRef(null);
@@ -127,7 +127,7 @@ function Art() {
     var uniforms = {}; // for shaders
     const destPosSets = constants.destPosSets;
     const seedSets = constants.seedOpts;
-    const NUM_SETS = 1;
+    const NUM_SETS = 4;
 
     function initOimoPhysics() {
       world = new OIMO.World({ info: true, worldscale: 100 });
@@ -164,26 +164,21 @@ function Art() {
     }
 
     function generateUniforms() {
-      uniforms.vBallPos0.value = {
-        x: meshSets[0][0].position.x,
-        y: meshSets[0][0].position.y,
-        z: meshSets[0][0].position.z
-      };
-      uniforms.vBallPos1.value = {
-        x: meshSets[1][0].position.x,
-        y: meshSets[1][0].position.y,
-        z: meshSets[1][0].position.z
-      };
-      uniforms.vBallPos2.value = {
-        x: meshSets[2][0].position.x,
-        y: meshSets[2][0].position.y,
-        z: meshSets[2][0].position.z
-      };
-      uniforms.vBallPos3.value = {
-        x: meshSets[3][0].position.x,
-        y: meshSets[3][0].position.y,
-        z: meshSets[3][0].position.z
-      };
+      uniforms.vBallPos0.value.x = meshSets[0][0].position.x;
+      uniforms.vBallPos0.value.y = meshSets[0][0].position.y;
+      uniforms.vBallPos0.value.z = meshSets[0][0].position.z;
+
+      uniforms.vBallPos1.value.x = meshSets[1][0].position.x;
+      uniforms.vBallPos1.value.y = meshSets[1][0].position.y;
+      uniforms.vBallPos1.value.z = meshSets[1][0].position.z;
+
+      uniforms.vBallPos2.value.x = meshSets[2][0].position.x;
+      uniforms.vBallPos2.value.y = meshSets[2][0].position.y;
+      uniforms.vBallPos2.value.z = meshSets[2][0].position.z;
+
+      uniforms.vBallPos3.value.x = meshSets[3][0].position.x;
+      uniforms.vBallPos3.value.y = meshSets[3][0].position.y;
+      uniforms.vBallPos3.value.z = meshSets[3][0].position.z;
     }
 
     function updateGroundTexture() {
