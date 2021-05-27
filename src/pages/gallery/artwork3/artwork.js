@@ -23,13 +23,12 @@ import Circle from './helpers/circle.js';
 import { descartes, kToR } from './helpers/descartes.js';
 import * as constants from './helpers/constants.js';
 import * as fns from './helpers/functions.js';
-import { createSphere, createMatcapSphere, createWireframeSphere, createStaticBox } from './helpers/createMesh.js';
+import { createMatcapSphere, createWireframeSphere, createStaticBox } from './helpers/createMesh.js';
 import animateToDest from './helpers/animate.js';
 import { vertexShader, fragmentShader } from './helpers/shader.glsl.js';
 
 const HAS_SHADERS = true;
 const HAS_WALLS = false;
-const HAS_GRIDS = false;
 const DEBUG = false;
 
 function Art() {

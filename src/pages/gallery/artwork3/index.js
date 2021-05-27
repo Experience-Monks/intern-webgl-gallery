@@ -38,7 +38,6 @@ function Artwork() {
     animateIn();
   }, [animateIn]);
 
-  /*
   useEffect(() => {
     return () => {
       if (ArtCanvas && isBrowser) {
@@ -46,7 +45,7 @@ function Artwork() {
         disposeObjects(ArtCanvas, this);
       }
     };
-  }, []);*/
+  }, []);
 
   return (
     <main className={styles.Landing}>
