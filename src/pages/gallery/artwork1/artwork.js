@@ -19,7 +19,10 @@ import {
   PointLight,
   Vector3,
   AnimationClip,
-  AnimationMixer
+  AnimationMixer,
+  MeshBasicMaterial,
+  SphereGeometry,
+  Mesh
 } from 'three/build/three.module';
 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
@@ -28,30 +31,33 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 //import { TWEEN } from 'three/examples/jsm/libs/tween.module.min.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+//import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 //add more imports here, such as the controllers and loaders etc
+import { gsap } from 'gsap';
+import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
 
 function Art() {
   const inputEl = useRef(null);
 
   useEffect(() => {
-    // const quote = [
-    //   'Marriage can wait, education cannot.',
-    //   'One could not count the moons that shimmer on her roofs, Or the thousand splendid suns that hide behind her walls.',
-    //   'Of all the hardships a person had to face, none was more punishing than the simple act of waiting.',
-    //   'Behind every trial and sorrow that He makes us shoulder, God has a reason.',
-    //   'Like a compass facing north, a man’s accusing finger always finds a woman.',
-    //   'You see, some things I can teach you. Some you learn from books. But there are things that, well, you have to see and feel.',
-    //   'I only have eyes for you.',
-    //   'And the past held only this wisdom: that love was a damaging mistake, and its accomplice, hope, a treacherous illusion.',
-    //   'yet love can move people to act in unexpected ways and move them to overcome the most daunting obstacles with startling heroism',
-    //   'she was leaving the world as a woman who had love and been loved back',
-    //   "But we're like those walls up there. Battered, and nothing pretty to look at, but still standing.",
-    //   'Each snowflake was a sigh heard by an aggrieved woman somewhere in the world.',
-    //   'Tell your secret to the wind, but don’t blame it for telling the trees.',
-    //   'People…shouldn’t be allowed to have new children if they’d already given away all their love to their old ones. It wasn’t fair.',
-    //   'You’re not going to cry, are you? \n - I am not going to cry! Not over you. Not in a thousand years.'
-    // ];
+    const quote = [
+      '"Marriage can wait,\nEducation cannot."',
+      '"One could not count the moons that shimmer on her roofs,\nOr the thousand splendid suns that hide behind her walls."',
+      '"Of all the hardships a person had to face,\nNone was more punishing than the simple act of waiting."',
+      '"Behind every trial and sorrow that He makes us shoulder,\nGod has a reason."',
+      '"Like a compass facing north, a man’s accusing finger always finds a woman."',
+      '"You see, some things I can teach you. Some you learn from books. But there are things that, well, you have to see and feel."',
+      '"I only have eyes for you."',
+      '"And the past held only this wisdom: that love was a damaging mistake, and its accomplice, hope, a treacherous illusion."',
+      '"yet love can move people to act in unexpected ways and move them to overcome the most daunting obstacles with startling heroism"',
+      '"she was leaving the world as a woman who had love and been loved back"',
+      '"But we are like those walls up there. Battered, and nothing pretty to look at, but still standing."',
+      '"Each snowflake was a sigh heard by an aggrieved woman somewhere in the world."',
+      '"Tell your secret to the wind, but don’t blame it for telling the trees."',
+      '"People… should not be allowed to have new children if they had already given away all their love to their old ones."',
+      '"You are not going to cry, are you?\n- I am not going to cry! Not over you. Not in a thousand years."'
+    ];
 
     const camera = new PerspectiveCamera(100, inputEl.current.offsetWidth / inputEl.current.offsetHeight, 0.1, 1000);
 
@@ -66,15 +72,7 @@ function Art() {
     const scene = new Scene();
     camera.position.z = 3;
 
-    // let composer = new EffectComposer(renderer);
-    // composer.addPass(new RenderPass(scene, camera));
-
-    // const effectPass = new EffectPass(
-    //   camera,
-    //   new BloomEffect()
-    // );
-    // effectPass.renderToScreen = true;
-    // composer.addPass(effectPass);
+    var quote_index = 0;
 
     const renderScene = new RenderPass(scene, camera);
 
@@ -84,101 +82,71 @@ function Art() {
       0.4,
       0.85
     );
-    var bloomStrength = 1;
-    var bloomRadius = 0;
-    var bloomThreshold = 0.5;
+    var bloomStrength = 3;
+    var bloomRadius = 1;
+    var bloomThreshold = 0.1;
 
     bloomPass.threshold = bloomThreshold;
     bloomPass.strength = bloomStrength;
     bloomPass.radius = bloomRadius;
+    bloomPass.renderToScreen = true;
+    const filmPass = new FilmPass(
+      0.35, // noise intensity
+      0.025, // scanline intensity
+      648, // scanline count
+      false // grayscale
+    );
+    filmPass.renderToScreen = true;
 
     let composer = new EffectComposer(renderer);
     composer.addPass(renderScene);
     composer.addPass(bloomPass);
+    composer.addPass(filmPass);
 
-    // function text(){
-    //   var textWrapper = document.querySelector('.ml12');
-    //   textWrapper.innerHTML = textWrapper.textContent.replace(/\S/g, "<span class='letter'>$&</span>");
+    var titleWrapper = document.getElementById('title');
+    var textWrapper = document.getElementById('quote');
+    
+    //textWrapper.textContent.replace(/\S/g, "<span class='letter'>$&</span>");
 
-    //   anime.timeline({loop: true})//
-    //   .add({
-    //       targets: '.ml12 .letter',
-    //       translateX: [40,0],
-    //       translateZ: 0,
-    //       opacity: [0,1],
-    //       easing: "easeOutExpo",
-    //       duration: 1500,
-    //       delay: (el, i) => 500 + 60 * i
-    //   }).add({
-    //       targets: '.ml12 .letter',
-    //       translateX: [0,-30],
-    //       opacity: [1,0],
-    //       easing: "easeInExpo",
-    //       duration: 1100,
-    //       delay: (el, i) => 100 + 30 * i
-    //   });
+    function text() {
+      var tl = gsap.timeline();
+      // tl.set('.ml12quote', { opacity: 0, scale: 1.1});
+      //console.log(quote[quote_index]);
+      textWrapper.innerHTML = quote[quote_index];
+      tl.to('.ml12quote', { opacity: 1, ease: 'sine', duration: 2, scale: 0.9 });
+      tl.to('.ml12quote', { opacity: 0, ease: 'linear.out', duration: 4, scale: 1.1, delay: 2, onComplete: updateTXT });
+    }
 
-    // }
-
-    function main() {
-      // add background
-      {
-        const loader = new TextureLoader();
-        const texture = loader.load('../../assets/models/sky2.jpeg', () => {
-          const rt = new WebGLCubeRenderTarget(texture.image.height);
-          rt.fromEquirectangularTexture(renderer, texture);
-          scene.background = rt.texture;
-        });
+    function updateTXT() {
+      quote_index++;
+      if (quote_index >= quote.length) {
+        quote_index = 0;
       }
+      text();
+    }
+    function onWindowResize() {
+      const width = inputEl.current.offsetWidth;
+      const height = inputEl.current.offsetHeight;
 
-      // loading 3D object
-      // var tree = new Vector3();
-      // let loader = new GLTFLoader();
-      //     loader.load('././beautiful_autumn/scene.gltf', function(gltf){
-      //     gltf.scene.position.set(0,-25,-20);
-      //     tree = gltf.scene.position;
-      //     let material = new PointsMaterial({ color: 0xFFFFFF, size: 1 })
-      //     var mesh = new Points(gltf.scene.children[0].geometry, material)
-      //     //console.log(gltf.scene.children[0].geometry);
-      //     //gltf.scene.scale.set(0.05,0.05,0.05);
-      //     scene.add(mesh);
-      //     //console.log(birds);
-      //     //animate();
-      // });
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
 
-      //   let loader_tree = new GLTFLoader();
-      //   loader_tree.load('././beautiful_autumn/scene.gltf', function(gltf){
-      //     gltf.scene.position.set(0,-25,-20);
-      //     gltf.scene.scale.set(1.5,1.5,1.5);
-      //    // gltf.scene.rotation.set(0,-25,-20);
-      //     scene.add(gltf.scene);
-      //     //console.log(birds);
-      //     //animate();
-      //  });
+      renderer.setSize(width, height);
+      composer.setSize(width, height);
+    }
+    function main() {
+      {
+        const geometry = new SphereGeometry(500, 60, 40);
+        // invert the geometry on the x-axis so that all of the faces point inward
+        geometry.scale(-1, 1, 1);
 
-      //  const loader2 = new OBJLoader()
-      //  loader2.load('././tree/treebark.obj',
-      //  (obj) => {
-      //      // the request was successfull
-      //      let material = new PointsMaterial({ color: 0x824235, size: 0.025})
-      //      var mesh = new Points(obj.children[0].geometry, material)
+        const texture = new TextureLoader().load('../../assets/models/sky2.jpeg');
+        const material = new MeshBasicMaterial({ map: texture });
 
-      //      mesh.scale.set(7.5,7.5,7.5);
-      //      mesh.position.set(6,1,-20);//this model is not exactly in the middle by default so I moved it myself
-      //      scene.add(mesh)
-      //  })
+        const mesh = new Mesh(geometry, material);
 
-      // const loader3 = new OBJLoader()
-      // loader3.load('././lowpolytree/tree.obj',
-      // (obj) => {
-      //     // the request was successfull
-      //     let material = new LineBasicMaterial({ color: 0x824235, size: 0.025})
-      //     var mesh = new Line(obj.children[0].geometry, material)
-
-      //     mesh.scale.set(0.05,0.05,0.05);
-      //     mesh.position.set(6,2,-20);//this model is not exactly in the middle by default so I moved it myself
-      //     scene.add(mesh)
-      // })
+        scene.add(mesh);
+      }
 
       // loading 3D object
       let loader_terrain = new FBXLoader();
@@ -186,6 +154,8 @@ function Art() {
         obj.position.set(-10, -4, -25);
         obj.scale.set(0.05, 0.05, 0.05);
         obj.rotation.set(0, 90, 0);
+        //obj.layers.enable(1);
+        //obj.layers.enable(BLOOM_SCENE);
         scene.add(obj);
         //console.log(birds);s
         //animate();
@@ -197,11 +167,6 @@ function Art() {
       let mixer;
       let loader_trees = new GLTFLoader();
       loader_trees.load('../../assets/models/pinktree/source/pinktree.glb', function (obj) {
-        // obj.position.set(0,-4,0);
-        //obj.scale.set(0.01,0.01,0.01);
-        //mixer = new AnimationMixer( obj );
-        //let action = mixer.clipAction( obj.animations[0] );
-        //console.log(obj.animat5ions);
         const clips = obj.animations;
         mixer = new AnimationMixer(obj.scene);
         const clip = AnimationClip.findByName(clips, 'windAction.001');
@@ -209,54 +174,15 @@ function Art() {
         //action.setLoop(true);
         action.play();
 
-        //casting shadows
-        obj.scene.traverse(function (node) {
-          if (node.isMesh) {
-            node.castShadow = true;
-          }
-        });
-
         obj.scene.position.set(2, -4, -30);
+        //obj.scene.layers.enable(1);
+        //obj.scene.layers.enable(BLOOM_SCENE);
         scene.add(obj.scene);
         //console.log(birds);s
         //animate();
       });
 
-      // TEXT
-
-      //  const loader_text = new FontLoader();
-
-      //  loader_text.load( '../node_modules/three/examples/fonts/helvetiker_regular.typeface.json', function ( font ) {
-
-      //    const geometry = new TextGeometry( 'Amna @ Jam3', {
-      //      font: font,
-      //      size: 0.4,
-      //      height: 0.3
-      //    } );
-      //    var text = new Object3D();
-
-      //    // set the material position and rotation for the text
-      //    var textMaterial = new MeshBasicMaterial( { color: 0xfff9cc, overdraw: true } );
-      //    text = new Mesh( geometry, textMaterial );
-      //    text.position.set(12,0,-15);
-      //    text.lookAt(camera.position)
-      //    scene.add( text );
-      //    //geometry.position.set(0,-25,-25);
-      //  } );
-
-      // adding particles
-      // const particleGeometry = new BufferGeometry;
-      // const particlesCnt= 1500;
-      // const posArray = new Float32Array(particlesCnt * 3);
-
-      // for (let i = 0; i < particlesCnt * 3; i++){
-
-      //     posArray[i] = (Math.random() - 0.5) * 2;
-      // }
-      // particleGeometry.setAttribute('position', new BufferAttribute(posArray, 3));
-
       const cross = new TextureLoader().load('../../assets/models/glow2.png');
-
       const v = new Vector3();
 
       function randomPointInSphere(radius) {
@@ -292,7 +218,8 @@ function Art() {
       material_sphere.color = new Color(0xe6e600);
 
       const sphere = new Points(sphereGeometry, material_sphere);
-      sphere.position.set(7, 10, -20);
+      sphere.position.set(30,75,-20);
+      //sphere.layers.enable(BLOOM_SCENE);
       scene.add(sphere);
 
       //LIGHT
@@ -307,17 +234,6 @@ function Art() {
       light.shadow.camera.far = 25;
       scene.add(light);
 
-      // add foregound sprite
-      //   {
-      //     const map = new TextureLoader().load( '.././foreground.png' );
-      //     const material_sprite = new SpriteMaterial( { map: map } );
-
-      //     const aqsa_sprite = new Sprite( material_sprite );
-      //     aqsa_sprite.position.set(camera.position.x, camera.position.y, 2 );
-      //    // aqsa_sprite.scale.set(30,20,1);
-      //     scene.add( aqsa_sprite );
-      //   }
-
       function resizeRendererToDisplaySize(renderer) {
         const canvas = renderer.domElement;
         const width = canvas.clientWidth;
@@ -328,25 +244,6 @@ function Art() {
         }
         return needResize;
       }
-
-      /*
-        // create an AudioListener and add it to the camera
-    
-        const listener = new AudioListener();
-        camera.add( listener );
-    
-        // create a global audio source
-        const sound = new Audio( listener );
-    
-        // load a sound and set it as the Audio object's buffer
-        const audioLoader = new AudioLoader();
-        audioLoader.load( '.././piano.ogg', function( buffer ) {
-            sound.setBuffer( buffer );
-            sound.setLoop( true );
-            sound.setVolume( 0.5 );
-            sound.play();
-        });
-        */
       //Mouse
       //document.addEventListener("mousemove", animateParticles);
 
@@ -362,67 +259,20 @@ function Art() {
       camera.position.set(3.538957295625084e-7, -1.021684878863786, -9.589670059257917e-7);
       // window.addEventListener('mousemove', onDocumentMouseMove, false);
 
-      var mouse;
-      var raycaster;
-
-      //RAYCASTER
-      raycaster = new Raycaster();
-      mouse = new Vector2(1, 1);
-
       // VARIABLES for
       const clock = new Clock();
-      var text1 = false;
-      var nothing = false;
 
-      let delta;
+      let delta, time;
+      var orbitRadius = 50;
       //const elapsedTime = clock.getElapsedTime();
-      var intersects;
 
       function render() {
-        if (resizeRendererToDisplaySize(renderer)) {
-          const canvas = renderer.domElement;
-          camera.aspect = canvas.clientWidth / canvas.clientHeight;
-          camera.updateProjectionMatrix();
-        }
+        
+        
+        time = Date.now() / 2500;
 
-        //particleMesh.rotation.x = -mouseY * (elapsedTime * 0.00008);
-        //particleMesh.rotation.y = -mouseX * (elapsedTime * 0.00008);
-
-        // update the picking ray with the camera and mouse position
-        raycaster.setFromCamera(mouse, camera);
-
-        // calculate objects intersecting the picking ray
-
-        intersects = raycaster.intersectObjects(scene.children);
-        // console.log(intersects[0].object);
-
-        if (intersects.length > 0 && intersects[0].object === sphere) {
-          //sphere.scale.set(1,1,1);
-          //buildUp().start();
-
-          if (!text1) {
-            //spheretweenup.start();
-            //document.getElementById('subtitles').innerHTML = 'A lady in one';
-            //text();
-            text1 = true;
-            nothing = false;
-          }
-        } else {
-          //sphere.scale.set(0.5,0.5,0.5);
-          //buildDown().start();
-
-          if (!nothing) {
-            //spheretweendown.start();
-            nothing = true;
-            text1 = false;
-            //document.getElementById('subtitles').innerHTML = 'A Thousand Splendid suns';
-            //text();
-          }
-
-          //document.getElementById("subtitles").innerHTML = "A thousand splendid suns";
-        }
-
-        sphere.rotation.y += 0.0035;
+        sphere.position.x = orbitRadius * Math.cos( time );
+        sphere.position.z = orbitRadius * Math.sin( time ) - 10;
         // TWEEN.update();
         delta = clock.getDelta();
         if (mixer) mixer.update(delta); // problem here
@@ -431,9 +281,29 @@ function Art() {
 
         //scamera.lookAt(sphere.position);
         //renderer.render(scene, camera);
+
+        //renderer.clear();
+        //camera.layers.set(BLOOM_SCENE);
+        //finalComposer.render();
         composer.render();
         requestAnimationFrame(render);
       }
+      function revealtitle() {
+        var tl2 = gsap.timeline();
+        titleWrapper.innerHTML = 'A Thousand Splendid Suns\n- Khaled Hosseini';
+        tl2.to('.ml12', { opacity: 1, scale: 1.1, ease: 'sine', duration: 5 });
+        tl2.to('.ml12', { opacity: 0, scale: 0.8, ease: 'sine', duration: 4 });
+      }
+
+      var tl = gsap.timeline();
+      tl.to(camera.position, { duration: 15, z: -20, ease: 'sine', onComplete: text });
+      tl.to(camera.rotation, { duration: 10, x: 1.3, ease: 'back' }, '-=7');
+      tl.to(camera.rotation, { duration: 10, x: 1.8, repeat: -1, yoyo: true });
+
+      gsap.to(bloomPass, { duration: 6, threshold: 0.55, ease: 'sine' });
+      gsap.to(bloomPass, { duration: 6, strength: 0.5, ease: 'sine' });
+      gsap.to(bloomPass, { duration: 1, radius: 1, ease: 'sine', onComplete: revealtitle });
+      onWindowResize();
 
       render();
     }
