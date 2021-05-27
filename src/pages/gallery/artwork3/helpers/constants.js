@@ -37,7 +37,7 @@ const options = {
 //  OIMO PHYSICS
 //----------------------------------
 const groundInfo = {
-  size: [1500, 5, 1500],
+  size: [3000, 5, 3000],
   pos: [0, -80, 0]
 };
 /* information for circle seeds */

@@ -20,7 +20,7 @@ uniform vec3 vBallPos3;
 #define PI 3.14159265359
 
 float random (vec2 st) {
-  return fract(sin(dot(st.xy, vec2(55.9898,78.233)))* 43758.5453123);
+  return fract(sin(dot(st.xy, vec2(12.9898,78.233)))* 43758.5453123);
 }
 
 void main (void)
@@ -50,7 +50,7 @@ void main (void)
   vec3 mix4 = mix(mix3, color5, d4);
   vec3 color = mix1 * mix2 * mix3 / mix4; 
 
-  color = mix(color2, color1, d + random(vPosition.xz) * sin(u_time + d) / (0.5 + fract(abs(cos(u_time + vPosition.x)))));
+  color = mix(color2, color1, d + random(vPosition.xz) * 8. * sin(u_time + cos(d)) / (0.5 + fract(abs(cos(u_time + vPosition.x)))));
   gl_FragColor = vec4(vec3(d, color.b, color.g), 1.0);
 }
 `;

@@ -4,7 +4,7 @@
 import { gsap, Power2 } from 'gsap';
 
 function animateOffscreenToDest(instance, destPos) {
-  const time = 3;
+  const time = 5;
   gsap.to(instance.position, {
     duration: time,
     x: destPos.x,
