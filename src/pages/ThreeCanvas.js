@@ -35,9 +35,17 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { GlitchPass } from '../utils/threejs/GlitchPass.js';
+import disposeObjects from '../utils/dispose-objects';
 
 function Art() {
   const inputEl = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      require('../utils/dispose-objects');
+      disposeObjects(inputEl.renderer, inputEl);
+    };
+  }, []);
 
   useEffect(() => {
     const scene = new Scene();
@@ -92,12 +100,12 @@ function Art() {
     var nameGeo = [];
 
     function onWindowResize() {
-      camera.aspect = inputEl.current.offsetWidth / inputEl.current.offsetHeight;
+      camera.aspect = window.innerWidth / window.innerHeight;
+
+      renderer.setSize(window.innerWidth, window.innerHeight);
+
+      composer.setSize(window.innerWidth, window.innerHeight);
       camera.updateProjectionMatrix();
-
-      renderer.setSize(inputEl.current.offsetWidth, inputEl.current.offsetHeight);
-
-      composer.setSize(inputEl.current.offsetWidth, inputEl.current.offsetHeight);
     }
 
     function onMouseClick(event) {
