@@ -24,8 +24,6 @@ var GlitchPass = function (dt_size) {
   this.fsQuad = new FullScreenQuad(this.material);
 
   this.curF = 0;
-  this.isActive = false;
-  this.isOver = false;
 };
 
 GlitchPass.prototype = Object.assign(Object.create(Pass.prototype), {
@@ -56,15 +54,6 @@ GlitchPass.prototype = Object.assign(Object.create(Pass.prototype), {
       this.uniforms['seed_y'].value = MathUtils.randFloat(-0.3, 0.3);
       this.curF++;
     } else {
-      /*if (Math.random() < 0.1) {
-        this.curF++;
-      }*/
-      if (this.isActive) {
-        this.isOver = true;
-        this.isActive = false;
-        console.log('is done;');
-      }
-
       this.uniforms['byp'].value = 1;
     }
 
@@ -101,7 +90,6 @@ GlitchPass.prototype = Object.assign(Object.create(Pass.prototype), {
   activate: function () {
     this.curF = 1;
     this.generateTrigger();
-    if (this.isOver) this.isOver = false;
   }
 });
 

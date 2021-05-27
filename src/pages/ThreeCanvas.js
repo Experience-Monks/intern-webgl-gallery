@@ -67,8 +67,21 @@ function Art() {
     let redirect;
 
     const glitchPass = new GlitchPass();
-    let triggerEnter = false;
     let begin = false;
+    const clock = new Clock();
+    let timer = 0.55;
+    let transitionBegin = false;
+
+    function resetGlobalVariables() {
+      INTERSECTED = null;
+      wireframe = null;
+      matLineBasic = null;
+      composer = null;
+      redirect = null;
+      begin = false;
+      timer = 0.55;
+      transitionBegin = false;
+    }
 
     function onWindowResize() {
       camera.aspect = inputEl.current.offsetWidth / inputEl.current.offsetHeight;
@@ -80,19 +93,20 @@ function Art() {
     }
 
     function onMouseClick(event) {
-      console.log(camera.position.z);
       glitchPass.activate();
-      if (INTERSECTED && begin) {
+      console.log(timer);
+      if (INTERSECTED && begin && !transitionBegin) {
         redirect = INTERSECTED.userData.url;
+        transitionBegin = true;
       }
 
       if (!INTERSECTED) {
         redirect = null;
       }
 
-      if (!triggerEnter) {
-        triggerEnter = true;
+      if (!begin) {
         camera.userData.targetZ = 80;
+        begin = true;
       }
     }
 
@@ -102,15 +116,20 @@ function Art() {
     }
 
     function animate() {
-      if (glitchPass.isOver && redirect && begin && !triggerEnter) {
-        cancelAnimationFrame(this);
-        scene.remove.apply(scene, scene.children);
-        window.location = redirect;
+      if (transitionBegin) {
+        timer -= clock.getDelta();
       }
-
-      requestAnimationFrame(animate);
-      render();
-      composer.render();
+      if (timer <= 0) {
+        window.location = redirect;
+        cancelAnimationFrame(this);
+        resetGlobalVariables();
+        scene.remove.apply(scene, scene.children);
+        console.log('done!');
+      } else {
+        requestAnimationFrame(animate);
+        render();
+        composer.render();
+      }
     }
 
     function render() {
@@ -118,9 +137,6 @@ function Art() {
       camera.position.y += (-mouse.y - camera.position.y) * 1.5;
       if (camera.position.z - camera.userData.targetZ > 5) {
         camera.position.z -= 10 * 1.5;
-      } else if (camera.position.z - camera.userData.targetZ <= 5 && triggerEnter) {
-        triggerEnter = false;
-        begin = true;
       }
       camera.lookAt(scene.position);
 
@@ -128,6 +144,7 @@ function Art() {
         raycaster.setFromCamera(mouse, camera);
         const intersects = raycaster.intersectObjects(group.children);
 
+        //console.log(group.children);
         if (intersects.length > 0) {
           if (INTERSECTED !== intersects[0].object) {
             if (INTERSECTED) {
@@ -136,6 +153,7 @@ function Art() {
             }
 
             INTERSECTED = intersects[0].object;
+            //console.log('new intersect ');
             INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
             INTERSECTED.material.emissive.setHex(0x08fbff);
             INTERSECTED.material.emissiveIntensity = 0.5;
@@ -237,7 +255,6 @@ function Art() {
 
       var xLen = 20;
       var offset = 5;
-      
       var geometry = new BoxGeometry(xLen, xLen, 1);
       for (let i = 0; i < 3; i++) {
         const texture = new TextureLoader().load('assets/images/thumbnails/artwork' + (i + 1) + '.png');
