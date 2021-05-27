@@ -145,7 +145,7 @@ function Art() {
       material.emissive.setHex(0xcfffc9);
       material.emissiveIntensity = 0.5;
 
-      envTexture = loadEnv.load('../../assets/images/textures/eso0932a.jpeg');
+      envTexture = loadEnv.load('../../assets/textures/eso0932a.jpeg');
       envTexture.mapping = EquirectangularReflectionMapping;
       envTexture.encoding = sRGBEncoding;
       scene.background = envTexture;
