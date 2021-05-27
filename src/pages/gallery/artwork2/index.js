@@ -37,6 +37,12 @@ function Artwork() {
     animateIn();
   }, [animateIn]);
 
+  useEffect(() => {
+    return () => {
+      ArtCanvas.disposeObjects();
+    };
+  }, []);
+
   return (
     <main className={styles.Landing}>
       <Head title="MRN" />
