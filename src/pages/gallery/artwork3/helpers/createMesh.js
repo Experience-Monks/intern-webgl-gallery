@@ -57,7 +57,7 @@ function createMatcapSphere(scene, _radius, x, y, z) {
   return sphere;
 }
 
-function createWireframeSphere(scene, _radius, x, y, z, opacity) {
+function createWireframeSphere(scene, _radius, x, y, z) {
   const radius = Math.abs(_radius);
   if (radius === undefined || x === undefined || y === undefined || z === undefined) {
     console.log('Undefined inputs to createSphere');
