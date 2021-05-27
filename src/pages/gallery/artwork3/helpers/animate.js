@@ -14,8 +14,8 @@ function animateOffscreenToDest(instance, destPos) {
   });
 }
 
-function animateToDest(seeds, destPos) {
-  seeds.forEach((seed, index) => animateOffscreenToDest(seed, destPos, index));
+function animateToDest(scene, seeds, destPos, camera) {
+  seeds.forEach((seed) => animateOffscreenToDest(seed, destPos));
 }
 
 export default animateToDest;

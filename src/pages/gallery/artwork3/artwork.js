@@ -10,7 +10,10 @@ import {
   Color,
   AmbientLight,
   GridHelper,
-  ShaderMaterial
+  ShaderMaterial,
+  Clock,
+  Vector3,
+  Quaternion
 } from 'three/build/three.module';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { gsap } from 'gsap';
@@ -27,6 +30,7 @@ import { vertexShader, fragmentShader } from './helpers/shader.glsl.js';
 const HAS_SHADERS = true;
 const HAS_WALLS = false;
 const HAS_GRIDS = false;
+const DEBUG = false;
 
 function Art() {
   const inputEl = useRef(null);
@@ -38,11 +42,15 @@ function Art() {
 
     // SCENE
     const scene = new Scene();
-    scene.background = new Color('rgb(242, 179, 255)');
 
+    scene.background = new Color('white'); ///new Color('rgb(242, 179, 255)');
+
+    if (DEBUG) {
+      scene.background = new Color('black');
+    }
     // CAMERA
     const camera = new PerspectiveCamera(75, inputEl.current.offsetWidth / inputEl.current.offsetHeight, 0.1, 1500);
-    camera.position.set(0, 500, 20);
+    camera.position.set(0, 600, 20);
     camera.updateProjectionMatrix();
     camera.lookAt(scene.position);
 
@@ -62,6 +70,9 @@ function Art() {
 
     // REACT
     const pmremGenerator = new PMREMGenerator(renderer);
+
+    // CLOCK
+    const clock = new Clock();
 
     function init() {
       // REACT
@@ -95,7 +106,7 @@ function Art() {
     //  UTILIZING DESCARTES
     //----------------------------------
 
-    function insertDescartes(tangentCircles) {
+    function insertDescartes(tangentCircles, set) {
       const results = descartes(tangentCircles);
       let circObj = [];
       results.centers.forEach((center) => {
@@ -106,6 +117,14 @@ function Art() {
       });
       circObj.forEach((circle) => {
         createWireframeSphere(scene, circle.r, circle.z.re, 0, circle.z.im);
+      });
+      const material = new ShaderMaterial({
+        uniforms: uniforms,
+        vertexShader: vertexShader,
+        fragmentShader: fragmentShader
+      });
+      meshSets[set].forEach((mesh) => {
+        mesh.material = material;
       });
     }
 
@@ -134,10 +153,16 @@ function Art() {
       if (HAS_SHADERS) {
         updateGroundTexture();
       }
-      console.log('finished init oimo');
+      if (DEBUG) {
+        console.log('finished init oimo');
+      }
     }
 
     function initSets() {
+      meshSets = [];
+      bodySets = [];
+      toggles = [];
+      collideSets = [];
       for (let i = 0; i < NUM_SETS; i++) {
         meshSets.push([]);
         bodySets.push([]);
@@ -154,7 +179,7 @@ function Art() {
         size: constants.groundInfo.size,
         pos: constants.groundInfo.pos,
         world: world,
-        friction: 0.5
+        friction: 0.2
       });
       let box = createStaticBox(scene, constants.groundInfo.size, constants.groundInfo.pos, [0, 0, 0], 0xffffff);
       grounds.push(box);
@@ -218,6 +243,8 @@ function Art() {
       uniforms.vBallPos3.value.x = meshSets[3][2].position.x;
       uniforms.vBallPos3.value.y = meshSets[3][2].position.y;
       uniforms.vBallPos3.value.z = meshSets[3][2].position.z;
+
+      uniforms.u_time.value = clock.getElapsedTime();
     }
 
     function updateGroundTexture() {
@@ -253,7 +280,8 @@ function Art() {
             y: circ3.position.y,
             z: circ3.position.z
           }
-        }
+        },
+        u_time: { value: 0.0 }
       };
       const material = new ShaderMaterial({
         uniforms: uniforms,
@@ -283,17 +311,29 @@ function Art() {
       for (let set = 0; set < NUM_SETS; set++) {
         populateOneSet(seedSets[set], set);
       }
-      console.log('finished populate');
-      console.log('bodySets', bodySets, 'meshSets', meshSets);
+      if (DEBUG) {
+        console.log('finished populate');
+        console.log('bodySets', bodySets, 'meshSets', meshSets);
+      }
     }
 
     function updateAnimation() {
+      if (
+        toggles.every((toggle) => {
+          const t = toggle.animated;
+          return t;
+        })
+      ) {
+        return;
+      }
       let bodies;
       for (let set = 0; set < NUM_SETS; set++) {
         bodies = bodySets[set];
         if (bodies.every(fns.isAsleep) && !toggles[set].animated) {
-          console.log('all bodies are asleep');
-          animateToDest(meshSets[set], destPosSets[set]);
+          if (DEBUG) {
+            console.log('all bodies are asleep');
+          }
+          animateToDest(scene, meshSets[set], destPosSets[set], camera);
           toggles[set].animated = true;
         }
       }
@@ -356,35 +396,68 @@ function Art() {
         const allCollided = collideSets[set] === meshSets[set].length;
 
         if (toggles[set].animated && !toggles[set].hasDescartes && allCollided) {
-          console.log('going to insert descartes');
+          if (DEBUG) {
+            console.log('going to insert descartes');
+          }
           const tangentCircles = fns.meshesToCircles(meshes);
-          insertDescartes(tangentCircles);
+          insertDescartes(tangentCircles, set);
           toggles[set].hasDescartes = true;
         }
       }
     }
 
+    var hasFinished = false;
+    function checkAllFinished() {
+      if (world == null) return;
+
+      if (!hasFinished) {
+        let meshes;
+
+        for (let set = 0; set < NUM_SETS; set++) {
+          meshes = meshSets[set];
+          if (!toggles[set].animated || meshes.some(fns.hasTween)) {
+            return;
+          }
+          if (collideSets[set] !== meshSets[set].length) {
+            return;
+          }
+          if (!toggles[set].hasDescartes) {
+            return;
+          }
+        }
+      }
+      hasFinished = true;
+    }
+
     function loop() {
-      updateOimoPhysics();
       render();
       checkCollision();
+      updateOimoPhysics();
       requestAnimationFrame(loop);
     }
+
+    const quaternion = new Quaternion();
+    const axis = new Vector3(0, 1, 0);
 
     function render() {
       renderer.render(scene, camera);
       if (HAS_SHADERS) {
         generateUniforms();
       }
+      quaternion.setFromAxisAngle(axis, Math.PI / 200);
+      camera.position.applyQuaternion(quaternion);
     }
 
-    function run() {
+    function initFuncs() {
       init(constants.options);
-      if (HAS_GRIDS) {
+      if (DEBUG) {
         initSceneHelper();
       }
       initOimoPhysics();
-      // testPopulate();
+    }
+
+    function run() {
+      initFuncs();
       loop();
     }
 

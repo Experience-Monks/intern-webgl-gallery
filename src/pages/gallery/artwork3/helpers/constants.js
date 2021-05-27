@@ -37,16 +37,18 @@ const options = {
 //  OIMO PHYSICS
 //----------------------------------
 const groundInfo = {
-  size: [800, 20, 800],
+  size: [1500, 5, 1500],
   pos: [0, -80, 0]
 };
 /* information for circle seeds */
-const destPosSets = [
-  new Vector3(300, 0, 300),
-  new Vector3(-300, 0, -300),
-  new Vector3(300, 0, -300),
-  new Vector3(-300, 0, 300)
+const gap = 150;
+const destPosSetsOrig = [
+  new Vector3(gap, 0, gap),
+  new Vector3(-gap, 0, -gap),
+  new Vector3(gap, 0, -gap),
+  new Vector3(-gap, 0, gap)
 ];
+const destPosSets = [new Vector3(-gap, 0, 0), new Vector3(0, 0, -gap), new Vector3(gap, 0, 0), new Vector3(0, 0, gap)];
 const startY = 500;
 const seed = [
   {
@@ -69,9 +71,9 @@ const seed = [
   }
 ];
 const originSeed = [
-  { r: 60, x: -300 + Math.random(-10, 10), y: startY, z: -300 + Math.random(-10, 10) },
-  { r: 60, x: 300 + Math.random(-10, 10), y: startY, z: -300 + Math.random(0, 10) },
-  { r: 70, x: Math.random(-10, 10), y: startY, z: 300 + Math.random(-10, 10) }
+  { r: 60, x: -250 + Math.random(-10, 10), y: startY, z: -250 + Math.random(-10, 10) },
+  { r: 60, x: 250 + Math.random(-10, 10), y: startY, z: -250 + Math.random(0, 10) },
+  { r: 70, x: Math.random(-10, 10), y: startY, z: 250 + Math.random(-10, 10) }
 ];
 const collisionPadding = 5;
 const seedOpts = [originSeed, originSeed, originSeed, originSeed];

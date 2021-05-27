@@ -57,7 +57,7 @@ function createMatcapSphere(scene, _radius, x, y, z) {
   return sphere;
 }
 
-function createWireframeSphere(scene, _radius, x, y, z) {
+function createWireframeSphere(scene, _radius, x, y, z, opacity) {
   const radius = Math.abs(_radius);
   if (radius === undefined || x === undefined || y === undefined || z === undefined) {
     console.log('Undefined inputs to createSphere');
@@ -68,7 +68,8 @@ function createWireframeSphere(scene, _radius, x, y, z) {
     color: 'white',
     wireframe: true,
     bumpMap: texture,
-    emissive: 'pink'
+    emissive: 'pink',
+    shininess: 50
   });
   const sphere = new Mesh(geometry, material);
   sphere.position.set(x, y, z);
