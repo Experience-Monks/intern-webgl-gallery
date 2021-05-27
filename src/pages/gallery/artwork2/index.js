@@ -9,6 +9,8 @@ import Head from '../../../components/Head/Head';
 
 import { withRedux } from '../../../redux/withRedux';
 import { setLandingLoaded } from '../../../redux/modules/app';
+import disposeObjects from '../../../utils/dispose-objects';
+import Art from './artwork';
 
 const ArtCanvas = dynamic(() => import('./artwork'), {
   ssr: false
@@ -39,7 +41,10 @@ function Artwork() {
 
   useEffect(() => {
     return () => {
-      ArtCanvas.disposeObjects();
+      if (ArtCanvas && isBrowser) {
+        require('../../../utils/dispose-objects');
+        disposeObjects(ArtCanvas, this);
+      }
     };
   }, []);
 
