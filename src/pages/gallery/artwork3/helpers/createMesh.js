@@ -67,7 +67,7 @@ function createWireframeSphere(scene, _radius, x, y, z, opacity) {
   const material = new MeshPhongMaterial({
     color: 'white',
     wireframe: true,
-    bumpMap: texture,
+    // bumpMap: texture,
     emissive: 'pink',
     shininess: 50
   });
