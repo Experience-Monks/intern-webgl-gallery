@@ -7,7 +7,7 @@ const hasTween = (element) => gsap.isTweening(element.position);
 const isAsleep = (bod) => bod.sleeping;
 
 function meshToCircle(mesh) {
-  const c = new Circle(mesh.scale.x, new Complex(mesh.position.x, mesh.position.z), 0);
+  const c = new Circle(mesh.geometry.parameters.radius, new Complex(mesh.position.x, mesh.position.z), 0);
   return c;
 }
 

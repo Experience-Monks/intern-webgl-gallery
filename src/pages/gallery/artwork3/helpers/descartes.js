@@ -1,4 +1,5 @@
 import Complex from 'complex.js';
+const PRINT = false;
 
 /* multiples a scalar with a complex number */
 function mul_scalar(scalar, complex) {
@@ -46,6 +47,9 @@ function descartes(tangentCircles) {
     console.log('descartes only accepts 3 circles');
     return;
   }
+  if (PRINT) {
+    console.log('tangent circles:', tangentCircles);
+  }
 
   let results = {
     curvatures: [],
@@ -65,7 +69,9 @@ function descartes(tangentCircles) {
   c2.z.im -= yShift;
   c3.z.re -= xShift;
   c3.z.im -= yShift;
-  console.log('after shifting: ', c1, c2, c3);
+  if (PRINT) {
+    console.log('after shifting: ', c1, c2, c3);
+  }
 
   const kaugend1 = c1.k + c2.k + c3.k;
   const kaugend2 = 2 * Math.sqrt(c1.k * c2.k + c2.k * c3.k + c3.k * c1.k);
@@ -90,15 +96,17 @@ function descartes(tangentCircles) {
 
   /* signs for k and z do not neccessarily correspond to each other
    * but right now mixing them seem to give wack results */
-  // const nume_sub = zaugend1.sub(zaugend2);
+  const nume_sub = zaugend1.sub(zaugend2);
   const nume_add = zaugend1.add(zaugend2);
   const shift = new Complex(xShift, yShift);
-  console.log('shift', shift);
+  if (PRINT) {
+    console.log('shift', shift);
+  }
 
   if (!isDegenerate(k4_sub)) {
-    // let z4_sub1 = nume_sub.div(k4_sub);
+    let z4_sub1 = nume_sub.div(k4_sub);
     // let z4_add1 = nume_add.div(k4_sub);
-    // results.centers.push(z4_sub1);
+    results.centers.push(z4_sub1.add(shift));
     // results.centers.push(z4_add1.add(shift));
     results.curvatures.push(k4_sub);
   }
@@ -110,8 +118,9 @@ function descartes(tangentCircles) {
     results.centers.push(z4_add2.add(shift));
     results.curvatures.push(k4_add);
   }
-
-  console.log('descartes results', results);
+  if (PRINT) {
+    console.log('descartes results', results);
+  }
   return results;
 }
 

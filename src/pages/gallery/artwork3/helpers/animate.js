@@ -3,7 +3,7 @@
 //----------------------------------
 import { gsap, Power2 } from 'gsap';
 
-function animateOffscreenToCenter(instance, destPos) {
+function animateOffscreenToDest(instance, destPos) {
   const time = 3;
   gsap.to(instance.position, {
     duration: time,
@@ -14,8 +14,8 @@ function animateOffscreenToCenter(instance, destPos) {
   });
 }
 
-function animateToOrigin(seeds, destPos) {
-  seeds.forEach((seed) => animateOffscreenToCenter(seed, destPos));
+function animateToDest(scene, seeds, destPos, camera) {
+  seeds.forEach((seed) => animateOffscreenToDest(seed, destPos));
 }
 
-export default animateToOrigin;
+export default animateToDest;
