@@ -15,11 +15,13 @@ function About() {
       <Head title="About" />
 
       <div className={styles.hero}>
-        <h1 className={styles.title}>About!</h1>
-        <p>{appLoaded ? 'landing loaded' : 'landing is not loaded'}</p>
+        <h1 className={styles.title}>About</h1>
+        <p> Welcome to the intern Gallery</p>
       </div>
     </main>
   );
 }
 
 export default withRedux(About);
+
+/* {appLoaded ? 'landing loaded' : 'landing is not loaded'}*/
