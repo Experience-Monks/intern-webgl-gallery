@@ -36,16 +36,8 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { GlitchPass } from '../utils/threejs/GlitchPass.js';
 
-import disposeObjects from '../utils/dispose-objects';
-
 function Art() {
   const inputEl = useRef(null);
-  
-  useEffect(() => {
-    return () => {
-      disposeObjects(inputEl);
-    };
-  }, []);
 
   useEffect(() => {
     const scene = new Scene();
@@ -64,6 +56,7 @@ function Art() {
     const raycaster = new Raycaster();
     const directionalLight = new DirectionalLight(0xff00ff, 0.5);
     const groupThumb = new Group();
+    const groupFont = new Group();
     const mouse = new Vector2();
     let INTERSECTED;
     let wireframe;
@@ -76,7 +69,27 @@ function Art() {
     const clock = new Clock();
     let timer = 0.55;
     let transitionBegin = false;
-    const idText = ['amma\nArtname', 'mariana\nMRN', 'mia\nArtname'];
+
+    const matDark = new LineBasicMaterial({
+      color: 0x006699,
+      side: DoubleSide
+    });
+
+    const matLite = new MeshBasicMaterial({
+      color: 0x08fbff,
+      transparent: true,
+      opacity: 0.4,
+      side: DoubleSide
+    });
+    const idText = ['A Thousand\nSplendid Suns\n//amna', 'MRN\n//mariana', 'Kissing Circles\n//mia'];
+    const titleText = 'WE3 \nGallery';
+    const enterMessage = 'click anywhere to enter';
+    var titleShapes;
+    var enterShapes;
+    var titleGeometry;
+    var text;
+    var enterGeo;
+    var nameGeo = [];
 
     function onWindowResize() {
       camera.aspect = inputEl.current.offsetWidth / inputEl.current.offsetHeight;
@@ -156,10 +169,25 @@ function Art() {
             INTERSECTED.material.emissiveIntensity = 0.5;
           }
           INTERSECTED = null;
+          if (text !== undefined) {
+            groupFont.remove(text);
+            text.geometry.dispose();
+          }
+          text = new Mesh(titleGeometry, matLite);
+          text.position.z = -800;
+          text.position.y = 300;
+          groupFont.add(text);
         }
       }
       if (INTERSECTED) {
-
+        if (text !== undefined) {
+          groupFont.remove(text);
+          text.geometry.dispose();
+        }
+        text = new Mesh(nameGeo[INTERSECTED.userData.id], matLite);
+        text.position.z = -800;
+        text.position.y = 300;
+        groupFont.add(text);
       }
       renderer.render(scene, camera);
     }
@@ -173,53 +201,41 @@ function Art() {
 
       const loader = new FontLoader();
       loader.load('assets/fonts/Press_Start_2P/PressStart.json', function (font) {
-        const color = 0x006699;
-
-        const matDark = new LineBasicMaterial({
-          color: color,
-          side: DoubleSide
-        });
-
-        const matLite = new MeshBasicMaterial({
-          color: 0x08fbff,
-          transparent: true,
-          opacity: 0.4,
-          side: DoubleSide
-        });
-
-        const message = 'WE3 \nGallery';
-        const shapes = font.generateShapes(message, 100);
-
-        const enterMessage = 'click anywhere to enter';
-        const enterShapes = font.generateShapes(enterMessage, 10);
-
-        const geometry = new ShapeGeometry(shapes);
-        const enterGeo = new ShapeGeometry(enterShapes);
-
-        geometry.computeBoundingBox();
+        titleShapes = font.generateShapes(titleText, 100);
+        enterShapes = font.generateShapes(enterMessage, 10);
+        titleGeometry = new ShapeGeometry(titleShapes);
+        enterGeo = new ShapeGeometry(enterShapes);
+        titleGeometry.computeBoundingBox();
         enterGeo.computeBoundingBox();
-        const xMid = -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
 
-        geometry.translate(xMid, 0, 0);
-        enterGeo.translate(xMid, 100, 0);
+        const xMid = -0.5 * (titleGeometry.boundingBox.max.x - titleGeometry.boundingBox.min.x);
 
-        // make shape ( N.B. edge view not visible )
+        titleGeometry.translate(xMid, 0, 0);
 
-        const text = new Mesh(geometry, matLite);
+        for (let i = 0; i < idText.length; i++) {
+          nameGeo.push(new ShapeGeometry(font.generateShapes(idText[i], 85)));
+          nameGeo[i].computeBoundingBox();
+          nameGeo[i].translate(
+            -0.5 * nameGeo[i].boundingBox.max.x - nameGeo[i].boundingBox.min.x,
+            0.3 * (nameGeo[i].boundingBox.max.y - nameGeo[i].boundingBox.min.y),
+            0
+          );
+        }
+
+        text = new Mesh(geometry, matLite);
         text.position.z = -800;
         text.position.y = 300;
-        scene.add(text);
+        groupFont.add(text);
 
         const enterText = new Mesh(enterGeo, matLite);
-        enterText.position.z = 800;
+        enterText.position.z = inputEl.current.offsetWidth / 2;
         enterText.position.y = -300;
-        scene.add(enterText);
-        // make line shape ( N.B. edge view remains visible )
+        groupFont.add(enterText);
 
         const holeShapes = [];
 
-        for (let i = 0; i < shapes.length; i++) {
-          const shape = shapes[i];
+        for (let i = 0; i < titleShapes.length; i++) {
+          const shape = titleShapes[i];
 
           if (shape.holes && shape.holes.length > 0) {
             for (let j = 0; j < shape.holes.length; j++) {
@@ -229,25 +245,25 @@ function Art() {
           }
         }
 
-        shapes.push.apply(shapes, holeShapes);
+        titleShapes.push.apply(titleShapes, holeShapes);
 
         const lineText = new Object3D();
 
-        for (let i = 0; i < shapes.length; i++) {
-          const shape = shapes[i];
+        for (let i = 0; i < titleShapes.length; i++) {
+          const shape = titleShapes[i];
 
           const points = shape.getPoints();
-          const geometry = new BufferGeometry().setFromPoints(points);
+          const lineGeo = new BufferGeometry().setFromPoints(points);
 
-          geometry.translate(xMid, 0, 0);
+          lineGeo.translate(xMid, 0, 0);
 
-          const lineMesh = new Line(geometry, matDark);
+          const lineMesh = new Line(lineGeo, matDark);
           lineText.add(lineMesh);
         }
         lineText.position.z = 500;
-        scene.add(lineText);
+        groupFont.add(lineText);
       });
-
+      scene.add(groupFont);
       var xLen = 20;
       var offset = 5;
       var geometry = new BoxGeometry(xLen, xLen, 1);
@@ -256,7 +272,7 @@ function Art() {
         const mesh = new Mesh(geometry, new MeshLambertMaterial({ map: texture }));
         mesh.userData.url = '/gallery/artwork' + (i + 1) + '/';
         mesh.userData.isSelected = false;
-        mesh.userData.id = idText[i];
+        mesh.userData.id = i;
         mesh.position.x = (-xLen - offset) * (i - 1);
         mesh.position.z = 10;
         groupThumb.add(mesh);
@@ -277,17 +293,14 @@ function Art() {
 
       const renderScene = new RenderPass(scene, camera);
 
-      const bloomPass = new UnrealBloomPass(new Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-      bloomPass.threshold = 0.01;
-      bloomPass.strength = 2.6;
-      bloomPass.radius = 0.4;
+      const bloomPass = new UnrealBloomPass(new Vector2(window.innerWidth, window.innerHeight), 2.6, 0.4, 0.01);
 
       composer = new EffectComposer(renderer);
       composer.addPass(renderScene);
       composer.addPass(bloomPass);
       composer.addPass(glitchPass);
 
-      camera.position.set(0, 50, 1300);
+      camera.position.set(0, 75, 1300);
       camera.userData.targetZ = 1300;
       camera.lookAt(new Vector3(0, 0, 0));
     }
