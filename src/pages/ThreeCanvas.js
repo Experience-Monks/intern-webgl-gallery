@@ -29,15 +29,12 @@ import {
   DoubleSide,
   FontLoader,
   MeshBasicMaterial,
-  RGBA_ASTC_5x4_Format
 } from 'three/build/three.module';
 
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { GlitchPass } from '../utils/threejs/GlitchPass.js';
-//import { OrbitControls } from '../utils/threejs/OrbitControls';
-import disposeObjects from '../utils/dispose-objects.js';
 
 function Art() {
   const inputEl = useRef(null);
@@ -71,17 +68,6 @@ function Art() {
     const clock = new Clock();
     let timer = 0.55;
     let transitionBegin = false;
-
-    function resetGlobalVariables() {
-      INTERSECTED = null;
-      wireframe = null;
-      matLineBasic = null;
-      composer = null;
-      redirect = null;
-      begin = false;
-      timer = 0.55;
-      transitionBegin = false;
-    }
 
     function onWindowResize() {
       camera.aspect = inputEl.current.offsetWidth / inputEl.current.offsetHeight;
@@ -120,11 +106,8 @@ function Art() {
         timer -= clock.getDelta();
       }
       if (timer <= 0) {
-        window.location = redirect;
+        window.location.href = redirect;
         cancelAnimationFrame(this);
-        resetGlobalVariables();
-        scene.remove.apply(scene, scene.children);
-        console.log('done!');
       } else {
         requestAnimationFrame(animate);
         render();
