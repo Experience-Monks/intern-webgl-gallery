@@ -40,7 +40,10 @@ function Landing() {
 
   useEffect(() => {
     return () => {
-      ArtCanvas.disposeObjects();
+      if (ArtCanvas && isBrowser) {
+        require('../utils/dispose-objects');
+        disposeObjects(ArtCanvas, this);
+      }
     };
   }, []);
 

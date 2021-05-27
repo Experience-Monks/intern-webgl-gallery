@@ -6,7 +6,7 @@
  * @param {(Scene | Object3D)} parent
  * @returns
  */
-function disposeObjects(object, parent) {
+export default function disposeObjects(object, parent) {
   if (object === null || object === undefined) return;
   if (parent) parent.remove(object);
   if (object.dispose) {
@@ -28,6 +28,5 @@ function disposeObjects(object, parent) {
   }
   if (object.type === 'Scene') object.dispose();
   object = null;
+  console.log('test');
 }
-
-export default disposeObjects();

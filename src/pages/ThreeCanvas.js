@@ -28,7 +28,7 @@ import {
   ShapeGeometry,
   DoubleSide,
   FontLoader,
-  MeshBasicMaterial,
+  MeshBasicMaterial
 } from 'three/build/three.module';
 
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
@@ -36,8 +36,16 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { GlitchPass } from '../utils/threejs/GlitchPass.js';
 
+import disposeObjects from '../utils/dispose-objects';
+
 function Art() {
   const inputEl = useRef(null);
+  
+  useEffect(() => {
+    return () => {
+      disposeObjects(inputEl);
+    };
+  }, []);
 
   useEffect(() => {
     const scene = new Scene();
@@ -55,7 +63,7 @@ function Art() {
 
     const raycaster = new Raycaster();
     const directionalLight = new DirectionalLight(0xff00ff, 0.5);
-    const group = new Group();
+    const groupThumb = new Group();
     const mouse = new Vector2();
     let INTERSECTED;
     let wireframe;
@@ -68,6 +76,7 @@ function Art() {
     const clock = new Clock();
     let timer = 0.55;
     let transitionBegin = false;
+    const idText = ['amma\nArtname', 'mariana\nMRN', 'mia\nArtname'];
 
     function onWindowResize() {
       camera.aspect = inputEl.current.offsetWidth / inputEl.current.offsetHeight;
@@ -125,9 +134,9 @@ function Art() {
 
       if (begin) {
         raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(group.children);
+        const intersects = raycaster.intersectObjects(groupThumb.children);
 
-        //console.log(group.children);
+        //console.log(groupThumb.children);
         if (intersects.length > 0) {
           if (INTERSECTED !== intersects[0].object) {
             if (INTERSECTED) {
@@ -148,6 +157,9 @@ function Art() {
           }
           INTERSECTED = null;
         }
+      }
+      if (INTERSECTED) {
+
       }
       renderer.render(scene, camera);
     }
@@ -244,11 +256,12 @@ function Art() {
         const mesh = new Mesh(geometry, new MeshLambertMaterial({ map: texture }));
         mesh.userData.url = '/gallery/artwork' + (i + 1) + '/';
         mesh.userData.isSelected = false;
+        mesh.userData.id = idText[i];
         mesh.position.x = (-xLen - offset) * (i - 1);
         mesh.position.z = 10;
-        group.add(mesh);
+        groupThumb.add(mesh);
       }
-      scene.add(group);
+      scene.add(groupThumb);
 
       geometry = new PlaneGeometry(500, 500, 10, 10);
       let geo = new WireframeGeometry(geometry);
