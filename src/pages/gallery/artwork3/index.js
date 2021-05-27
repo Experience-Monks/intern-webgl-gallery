@@ -9,6 +9,7 @@ import Head from '../../../components/Head/Head';
 
 import { withRedux } from '../../../redux/withRedux';
 import { setLandingLoaded } from '../../../redux/modules/app';
+import disposeObjects from '../../../utils/dispose-objects';
 
 const ArtCanvas = dynamic(() => import('./artwork'), {
   ssr: false
@@ -37,15 +38,22 @@ function Artwork() {
     animateIn();
   }, [animateIn]);
 
+  useEffect(() => {
+    return () => {
+      if (ArtCanvas && isBrowser) {
+        require('../../../utils/dispose-objects');
+        disposeObjects(ArtCanvas, this);
+      }
+    };
+  }, []);
+
   return (
     <main className={styles.Landing}>
-      <Head title="ARTWORK TITLE HERE" />
+      <Head title="Kissing Circles" />
       <div id="scene-container" className={styles.canvasWrap}>
         {isBrowser && <ArtCanvas></ArtCanvas>}
       </div>
-      <section className={styles.hero} ref={containerRef}>
-        PAGE INFO ETC GOES HERE
-      </section>
+      <section className={styles.hero} ref={containerRef}></section>
     </main>
   );
 }

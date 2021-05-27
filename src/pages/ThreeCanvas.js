@@ -35,10 +35,17 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { GlitchPass } from '../utils/threejs/GlitchPass.js';
-//import { OrbitControls } from '../utils/threejs/OrbitControls';
+
+import disposeObjects from '../utils/dispose-objects';
 
 function Art() {
   const inputEl = useRef(null);
+  
+  useEffect(() => {
+    return () => {
+      disposeObjects(inputEl);
+    };
+  }, []);
 
   useEffect(() => {
     const scene = new Scene();
@@ -56,7 +63,7 @@ function Art() {
 
     const raycaster = new Raycaster();
     const directionalLight = new DirectionalLight(0xff00ff, 0.5);
-    const group = new Group();
+    const groupThumb = new Group();
     const mouse = new Vector2();
     let INTERSECTED;
     let wireframe;
@@ -65,8 +72,11 @@ function Art() {
     let redirect;
 
     const glitchPass = new GlitchPass();
-    let triggerEnter = false;
     let begin = false;
+    const clock = new Clock();
+    let timer = 0.55;
+    let transitionBegin = false;
+    const idText = ['amma\nArtname', 'mariana\nMRN', 'mia\nArtname'];
 
     function onWindowResize() {
       camera.aspect = inputEl.current.offsetWidth / inputEl.current.offsetHeight;
@@ -78,19 +88,20 @@ function Art() {
     }
 
     function onMouseClick(event) {
-      console.log(camera.position.z);
       glitchPass.activate();
-      if (INTERSECTED && begin) {
+      console.log(timer);
+      if (INTERSECTED && begin && !transitionBegin) {
         redirect = INTERSECTED.userData.url;
+        transitionBegin = true;
       }
 
-      if (!INTERSECTED){
+      if (!INTERSECTED) {
         redirect = null;
       }
 
-      if (!triggerEnter) {
-        triggerEnter = true;
+      if (!begin) {
         camera.userData.targetZ = 80;
+        begin = true;
       }
     }
 
@@ -100,13 +111,17 @@ function Art() {
     }
 
     function animate() {
-      if (glitchPass.isOver && redirect && begin && !triggerEnter) {
-        window.location = redirect;
+      if (transitionBegin) {
+        timer -= clock.getDelta();
       }
-
-      requestAnimationFrame(animate);
-      render();
-      composer.render();
+      if (timer <= 0) {
+        window.location.href = redirect;
+        cancelAnimationFrame(this);
+      } else {
+        requestAnimationFrame(animate);
+        render();
+        composer.render();
+      }
     }
 
     function render() {
@@ -114,32 +129,37 @@ function Art() {
       camera.position.y += (-mouse.y - camera.position.y) * 1.5;
       if (camera.position.z - camera.userData.targetZ > 5) {
         camera.position.z -= 10 * 1.5;
-      } else if (camera.position.z - camera.userData.targetZ <= 5 && triggerEnter) {
-        triggerEnter = false;
-        begin = true;
       }
       camera.lookAt(scene.position);
 
       if (begin) {
         raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(group.children);
+        const intersects = raycaster.intersectObjects(groupThumb.children);
 
+        //console.log(groupThumb.children);
         if (intersects.length > 0) {
           if (INTERSECTED !== intersects[0].object) {
             if (INTERSECTED) {
               INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
+              INTERSECTED.material.emissiveIntensity = 0.5;
             }
 
             INTERSECTED = intersects[0].object;
+            //console.log('new intersect ');
             INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
             INTERSECTED.material.emissive.setHex(0x08fbff);
+            INTERSECTED.material.emissiveIntensity = 0.5;
           }
         } else {
           if (INTERSECTED) {
             INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
+            INTERSECTED.material.emissiveIntensity = 0.5;
           }
           INTERSECTED = null;
         }
+      }
+      if (INTERSECTED) {
+
       }
       renderer.render(scene, camera);
     }
@@ -161,7 +181,7 @@ function Art() {
         });
 
         const matLite = new MeshBasicMaterial({
-          color: color,
+          color: 0x08fbff,
           transparent: true,
           opacity: 0.4,
           side: DoubleSide
@@ -230,17 +250,18 @@ function Art() {
 
       var xLen = 20;
       var offset = 5;
-      const texture = new TextureLoader().load('assets/images/thumbnails/placeholder.jpeg');
       var geometry = new BoxGeometry(xLen, xLen, 1);
       for (let i = 0; i < 3; i++) {
+        const texture = new TextureLoader().load('assets/images/thumbnails/artwork' + (i + 1) + '.png');
         const mesh = new Mesh(geometry, new MeshLambertMaterial({ map: texture }));
         mesh.userData.url = '/gallery/artwork' + (i + 1) + '/';
         mesh.userData.isSelected = false;
+        mesh.userData.id = idText[i];
         mesh.position.x = (-xLen - offset) * (i - 1);
         mesh.position.z = 10;
-        group.add(mesh);
+        groupThumb.add(mesh);
       }
-      scene.add(group);
+      scene.add(groupThumb);
 
       geometry = new PlaneGeometry(500, 500, 10, 10);
       let geo = new WireframeGeometry(geometry);
@@ -257,9 +278,9 @@ function Art() {
       const renderScene = new RenderPass(scene, camera);
 
       const bloomPass = new UnrealBloomPass(new Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-      bloomPass.threshold = 0;
-      bloomPass.strength = 3;
-      bloomPass.radius = 0.1;
+      bloomPass.threshold = 0.01;
+      bloomPass.strength = 2.6;
+      bloomPass.radius = 0.4;
 
       composer = new EffectComposer(renderer);
       composer.addPass(renderScene);
