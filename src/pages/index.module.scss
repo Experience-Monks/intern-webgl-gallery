@@ -1,5 +1,4 @@
 @import 'shared';
-
 .Landing {
   > .canvasWrap {
     position: absolute;
@@ -16,6 +15,7 @@
       }
     }
   }
+
   > .hero {
     position: fixed;
     top: 25%;
@@ -86,5 +86,23 @@
         }
       }
     }
+  }
+}
+
+.About {
+  margin: auto;
+  width: 50%;
+  padding: 10px;
+
+  > p {
+    color: $white;
+    line-height: 1.25em;
+    text-align: left;
+    padding-bottom: 1em;
+  }
+
+  > .title {
+    color: $white;
+    padding-bottom: 5em;
   }
 }
