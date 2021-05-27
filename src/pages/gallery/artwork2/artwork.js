@@ -35,9 +35,17 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { ColorifyShader } from './ColorifyShaderMod.js';
+import disposeObjects from '../../../utils/dispose-objects';
 
 function Art() {
   const inputEl = useRef(null);
+  
+  useEffect(() => {
+    return () => {
+      require('../../../utils/dispose-objects');
+      disposeObjects(inputEl.renderer, inputEl);
+    };
+  }, []);
 
   useEffect(() => {
     const scene = new Scene();

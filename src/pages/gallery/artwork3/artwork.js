@@ -27,12 +27,21 @@ import { createMatcapSphere, createWireframeSphere, createStaticBox } from './he
 import animateToDest from './helpers/animate.js';
 import { vertexShader, fragmentShader } from './helpers/shader.glsl.js';
 
+import disposeObjects from '../../../utils/dispose-objects';
+
 const HAS_SHADERS = true;
 const HAS_WALLS = false;
 const DEBUG = false;
 
 function Art() {
   const inputEl = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      require('../../../utils/dispose-objects');
+      disposeObjects(inputEl.renderer, inputEl);
+    };
+  }, []);
 
   useEffect(() => {
     //----------------------------------
