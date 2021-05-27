@@ -1,6 +1,66 @@
 @import 'shared';
 
 .Landing {
+  > .amna {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    bottom: 0;
+    > div {
+      position: inherit;
+      width: 100%;
+      height: 100%;
+
+      > canvas {
+        position: inherit;
+      }
+    }
+  }
+  > .ml12 {
+    font-weight: 200;
+    font-size: 1.3em;
+    color: rgb(243, 238, 189);
+    text-transform: uppercase;
+    letter-spacing: 0.5em;
+    position: relative;
+    top: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+    text-align: left;
+    z-index: 100;
+    display:block;
+    white-space: pre-wrap;
+    opacity: 0;
+  
+  }
+
+  >.ml12quote {
+    font-weight: 200;
+    font-size: 1.3em;
+    color: rgb(243, 238, 189);
+    letter-spacing: 0.35em;
+    word-spacing: 0.2em;
+    position: relative;
+    top: 300px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    z-index: 100;
+    display:block;
+    word-wrap: break-word;
+    width: 60%;
+    opacity: 0;
+    white-space: pre-wrap;
+  
+  }
+
+  > .ml12 .letter {
+    display: inline-block;
+    line-height: 1em;
+  }
+
   > .canvasWrap {
     position: absolute;
     width: 100%;
