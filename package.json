@@ -32,7 +32,8 @@
     "adviser-ci": "adviser --tags stage --verbose --quiet",
     "js-lint": "eslint \"./src/**/*.js\" -c ./.eslintrc.json --quiet --ignore-pattern .gitignore --ignore-pattern *.stories.js",
     "sass-lint": "stylelint \"./src/**/*.scss\"",
-    "ls-lint": "node_modules/.bin/ls-lint"
+    "ls-lint": "node_modules/.bin/ls-lint",
+    "deploy": "env-cmd -f .env.gh-pages npm run build:prod:static && gh-pages -d build"
   },
   "dependencies": {
     "@babel/core": "^7.11.1",
@@ -54,6 +55,7 @@
     "cross-env": "^7.0.2",
     "default-passive-events": "2.0.0",
     "dotenv": "8.2.0",
+    "env-cmd": "^10.1.0",
     "eslint": "7.6.0",
     "eslint-config-postcss": "4.0.0",
     "eslint-config-prettier": "6.11.0",
@@ -72,6 +74,7 @@
     "focus-visible": "^5.1.0",
     "generate-robotstxt": "^8.0.3",
     "get-scroll": "^2.0.1",
+    "gh-pages": "^3.2.0",
     "gsap": "^3.6.0",
     "imagemin-gifsicle": "7.0.0",
     "imagemin-mozjpeg": "9.0.0",
