@@ -17,21 +17,18 @@ import {
 } from 'three/build/three.module';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { gsap } from 'gsap';
-import * as OIMO from 'oimo';
 /* custom helper functions */
 import Circle from './helpers/circle.js';
 import { descartes, kToR } from './helpers/descartes.js';
 import * as constants from './helpers/constants.js';
 import * as fns from './helpers/functions.js';
-import * as phyfns from './helpers/physics.js';
 import { createMatcapSphere, createWireframeSphere, createStaticBox } from './helpers/createMesh.js';
 import animateToDest from './helpers/animate.js';
 import { vertexShader, fragmentShader } from './helpers/shader.glsl.js';
 /* clean up */
 import disposeObjects from '../../../utils/dispose-objects';
 
-const HAS_SHADERS = true;
-const HAS_WALLS = false;
+const HAS_SHADERS = false;
 const DEBUG = false;
 
 function Art() {
@@ -135,15 +132,15 @@ function Art() {
       });
     }
 
+    //
+
     //----------------------------------
-    //  OIMO PHYSICS
+    //  SCENE
     //----------------------------------
 
-    // OIMO GLOBALS
-    var world = null;
+    // GLOBALS
     var meshSets = []; // stores all the meshes, 2D array of distinct groups
-    var bodySets = []; // rigid bodies, 2D array
-    var grounds = [];
+    var ground = null;
     var toggles = [];
     var collideSets = [];
     var uniforms = {}; // for shaders
@@ -151,28 +148,24 @@ function Art() {
     const seedSets = constants.seedOpts;
     const NUM_SETS = 4;
 
-    function initOimoPhysics() {
-      world = new OIMO.World({ info: true, worldscale: 100 });
-      world.clear();
-      initSets(meshSets, bodySets, toggles, collideSets);
+    function initScene() {
+      initSets(meshSets, toggles, collideSets);
       initGround();
-      populate(constants.seedOpts);
+      initObjs(constants.seedOpts);
       if (HAS_SHADERS) {
         initShaderMaterial();
       }
       if (DEBUG) {
-        console.log('finished init oimo');
+        console.log('finished init scene');
       }
     }
 
     function initSets() {
       meshSets = [];
-      bodySets = [];
       toggles = [];
       collideSets = [];
       for (let i = 0; i < NUM_SETS; i++) {
         meshSets.push([]);
-        bodySets.push([]);
         collideSets.push(0);
         toggles.push({
           hasDescartes: false,
@@ -182,17 +175,8 @@ function Art() {
     }
 
     function initGround() {
-      world.add({
-        size: constants.groundInfo.size,
-        pos: constants.groundInfo.pos,
-        world: world,
-        friction: 0.2
-      });
       let box = createStaticBox(scene, constants.groundInfo.size, constants.groundInfo.pos, [0, 0, 0], 0xffffff);
-      grounds.push(box);
-      if (HAS_WALLS) {
-        phyfns.initWalls(scene, world, grounds, createStaticBox);
-      }
+      ground = box;
     }
 
     function initShaderMaterial() {
@@ -231,42 +215,37 @@ function Art() {
         },
         u_time: { value: 0.0 }
       };
+
       const material = new ShaderMaterial({
         uniforms: uniforms,
         vertexShader: vertexShader,
         fragmentShader: fragmentShader
       });
-      grounds[0].material = material;
+      ground.material = material;
     }
 
     function populateOneSet(seedOpts, set) {
       let r, x, y, z;
       for (let i = 0; i < seedOpts.length; i++) {
-        [r, x, y, z] = [seedOpts[i].r, seedOpts[i].x, seedOpts[i].y, seedOpts[i].z];
-        bodySets[set][i] = world.add({
-          type: 'sphere',
-          size: [r, r, r],
-          pos: [x, y, z],
-          move: true,
-          world: world
-        });
+        r = seedOpts[i].r;
+        x = seedOpts[i].x;
+        y = seedOpts[i].y;
+        z = seedOpts[i].z;
         meshSets[set][i] = createMatcapSphere(scene, r, x, y, z);
         scene.add(meshSets[set][i]);
       }
     }
 
-    function populate() {
+    function initObjs() {
       for (let set = 0; set < NUM_SETS; set++) {
         populateOneSet(seedSets[set], set);
       }
       if (DEBUG) {
         console.log('finished populate');
-        console.log('bodySets', bodySets, 'meshSets', meshSets);
       }
     }
 
     function checkCollision() {
-      if (world == null) return;
       let meshes;
 
       for (let set = 0; set < NUM_SETS; set++) {
@@ -285,19 +264,16 @@ function Art() {
               if (d < rSum + constants.collisionPadding) {
                 if (aTween) {
                   gsap.killTweensOf(circA.position);
-                  collideSets[set] += 1;
                 }
                 if (bTween) {
                   gsap.killTweensOf(circB.position);
-                  collideSets[set] += 1;
                 }
               }
             }
           }
         }
-        const allCollided = collideSets[set] === meshSets[set].length;
 
-        if (toggles[set].animated && !toggles[set].hasDescartes && allCollided) {
+        if (!meshes.some(fns.hasTween)) {
           if (DEBUG) {
             console.log('going to insert descartes');
           }
@@ -311,19 +287,6 @@ function Art() {
     function loop() {
       render();
       checkCollision();
-      phyfns.updateOimoPhysics(
-        world,
-        scene,
-        fns,
-        toggles,
-        bodySets,
-        meshSets,
-        destPosSets,
-        camera,
-        DEBUG,
-        NUM_SETS,
-        animateToDest
-      );
       requestAnimationFrame(loop);
     }
 
@@ -344,11 +307,14 @@ function Art() {
       if (DEBUG) {
         initSceneHelper();
       }
-      initOimoPhysics();
+      initScene();
     }
 
     function run() {
       initFuncs();
+      for (let set = 0; set < NUM_SETS; set++) {
+        animateToDest(scene, meshSets[set], destPosSets[set], camera);
+      }
       loop();
     }
 

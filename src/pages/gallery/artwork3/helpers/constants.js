@@ -49,7 +49,7 @@ const destPosSetsOrig = [
   new Vector3(-gap, 0, gap)
 ];
 const destPosSets = [new Vector3(-gap, 0, 0), new Vector3(0, 0, -gap), new Vector3(gap, 0, 0), new Vector3(0, 0, gap)];
-const startY = 500;
+const startY = 0;
 const seed = [
   {
     r: 60,
