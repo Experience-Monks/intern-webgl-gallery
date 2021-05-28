@@ -26,7 +26,7 @@ import * as fns from './helpers/functions.js';
 import { createMatcapSphere, createWireframeSphere, createStaticBox } from './helpers/createMesh.js';
 import animateToDest from './helpers/animate.js';
 import { vertexShader, fragmentShader } from './helpers/shader.glsl.js';
-
+/* clean up */
 import disposeObjects from '../../../utils/dispose-objects';
 
 const HAS_SHADERS = true;
