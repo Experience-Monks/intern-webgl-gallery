@@ -23,10 +23,11 @@ import Circle from './helpers/circle.js';
 import { descartes, kToR } from './helpers/descartes.js';
 import * as constants from './helpers/constants.js';
 import * as fns from './helpers/functions.js';
+import * as phyfns from './helpers/physics.js';
 import { createMatcapSphere, createWireframeSphere, createStaticBox } from './helpers/createMesh.js';
 import animateToDest from './helpers/animate.js';
 import { vertexShader, fragmentShader } from './helpers/shader.glsl.js';
-
+/* clean up */
 import disposeObjects from '../../../utils/dispose-objects';
 
 const HAS_SHADERS = true;
@@ -50,7 +51,6 @@ function Art() {
 
     // SCENE
     const scene = new Scene();
-
     scene.background = new Color('white'); ///new Color('rgb(242, 179, 255)');
 
     if (DEBUG) {
@@ -74,7 +74,6 @@ function Art() {
 
     // CONTROLS
     const controls = new OrbitControls(camera, renderer.domElement);
-    // scene.fog = new    Fog(opts.backgroundColor, opts.fog.near, opts.fog.far);
 
     // REACT
     const pmremGenerator = new PMREMGenerator(renderer);
@@ -155,11 +154,11 @@ function Art() {
     function initOimoPhysics() {
       world = new OIMO.World({ info: true, worldscale: 100 });
       world.clear();
-      initSets();
+      initSets(meshSets, bodySets, toggles, collideSets);
       initGround();
       populate(constants.seedOpts);
       if (HAS_SHADERS) {
-        updateGroundTexture();
+        initShaderMaterial();
       }
       if (DEBUG) {
         console.log('finished init oimo');
@@ -192,70 +191,11 @@ function Art() {
       let box = createStaticBox(scene, constants.groundInfo.size, constants.groundInfo.pos, [0, 0, 0], 0xffffff);
       grounds.push(box);
       if (HAS_WALLS) {
-        initWalls();
+        phyfns.initWalls(scene, world, grounds, createStaticBox);
       }
     }
 
-    function initWalls() {
-      const sideBoxSize = [50, 800, 800];
-      const leftBoxPos = [400, 0, 0];
-      const rightBoxPos = [-400, 0, 0];
-      const horizBoxSize = [800, 800, 50];
-      const topBoxPos = [0, 0, -400];
-      const botBoxPos = [0, 0, 400];
-
-      let sideBoxRight = createStaticBox(scene, sideBoxSize, leftBoxPos, [0, 0, 0], 0xffffff);
-      let sideBoxLeft = createStaticBox(scene, sideBoxSize, rightBoxPos, [0, 0, 0], 0xffffff);
-      let sideBoxTop = createStaticBox(scene, horizBoxSize, topBoxPos, [0, 0, 0], 0xffffff);
-      let sideBoxBot = createStaticBox(scene, horizBoxSize, botBoxPos, [0, 0, 0], 0xffffff);
-      world.add({
-        size: sideBoxSize,
-        pos: leftBoxPos,
-        world: world,
-        friction: 0.5
-      });
-      world.add({
-        size: sideBoxSize,
-        pos: rightBoxPos,
-        world: world,
-        friction: 0.5
-      });
-      world.add({
-        size: horizBoxSize,
-        pos: topBoxPos,
-        world: world,
-        friction: 0.5
-      });
-      world.add({
-        size: horizBoxSize,
-        pos: botBoxPos,
-        world: world,
-        friction: 0.5
-      });
-      grounds.concat([sideBoxRight, sideBoxLeft, sideBoxBot, sideBoxTop]);
-    }
-
-    function generateUniforms() {
-      uniforms.vBallPos0.value.x = meshSets[0][0].position.x;
-      uniforms.vBallPos0.value.y = meshSets[0][0].position.y;
-      uniforms.vBallPos0.value.z = meshSets[0][0].position.z;
-
-      uniforms.vBallPos1.value.x = meshSets[1][1].position.x;
-      uniforms.vBallPos1.value.y = meshSets[1][1].position.y;
-      uniforms.vBallPos1.value.z = meshSets[1][1].position.z;
-
-      uniforms.vBallPos2.value.x = meshSets[2][2].position.x;
-      uniforms.vBallPos2.value.y = meshSets[2][2].position.y;
-      uniforms.vBallPos2.value.z = meshSets[2][2].position.z;
-
-      uniforms.vBallPos3.value.x = meshSets[3][2].position.x;
-      uniforms.vBallPos3.value.y = meshSets[3][2].position.y;
-      uniforms.vBallPos3.value.z = meshSets[3][2].position.z;
-
-      uniforms.u_time.value = clock.getElapsedTime();
-    }
-
-    function updateGroundTexture() {
+    function initShaderMaterial() {
       const circ0 = meshSets[0][0];
       const circ1 = meshSets[1][0];
       const circ2 = meshSets[2][0];
@@ -325,52 +265,6 @@ function Art() {
       }
     }
 
-    function updateAnimation() {
-      if (
-        toggles.every((toggle) => {
-          const t = toggle.animated;
-          return t;
-        })
-      ) {
-        return;
-      }
-      let bodies;
-      for (let set = 0; set < NUM_SETS; set++) {
-        bodies = bodySets[set];
-        if (bodies.every(fns.isAsleep) && !toggles[set].animated) {
-          if (DEBUG) {
-            console.log('all bodies are asleep');
-          }
-          animateToDest(scene, meshSets[set], destPosSets[set], camera);
-          toggles[set].animated = true;
-        }
-      }
-    }
-
-    function updateOimoPhysics() {
-      if (world == null) return;
-      world.step();
-      updateAnimation();
-
-      let mesh, body, bodies, meshes, i;
-
-      for (let set = 0; set < NUM_SETS; set++) {
-        i = bodySets[set].length;
-        bodies = bodySets[set];
-        meshes = meshSets[set];
-
-        while (i--) {
-          body = bodies[i];
-          mesh = meshes[i];
-
-          if (!body.sleeping) {
-            mesh.position.copy(body.getPosition());
-            mesh.quaternion.copy(body.getQuaternion());
-          }
-        }
-      }
-    }
-
     function checkCollision() {
       if (world == null) return;
       let meshes;
@@ -414,33 +308,22 @@ function Art() {
       }
     }
 
-    var hasFinished = false;
-    function checkAllFinished() {
-      if (world == null) return;
-
-      if (!hasFinished) {
-        let meshes;
-
-        for (let set = 0; set < NUM_SETS; set++) {
-          meshes = meshSets[set];
-          if (!toggles[set].animated || meshes.some(fns.hasTween)) {
-            return;
-          }
-          if (collideSets[set] !== meshSets[set].length) {
-            return;
-          }
-          if (!toggles[set].hasDescartes) {
-            return;
-          }
-        }
-      }
-      hasFinished = true;
-    }
-
     function loop() {
       render();
       checkCollision();
-      updateOimoPhysics();
+      phyfns.updateOimoPhysics(
+        world,
+        scene,
+        fns,
+        toggles,
+        bodySets,
+        meshSets,
+        destPosSets,
+        camera,
+        DEBUG,
+        NUM_SETS,
+        animateToDest
+      );
       requestAnimationFrame(loop);
     }
 
@@ -450,7 +333,7 @@ function Art() {
     function render() {
       renderer.render(scene, camera);
       if (HAS_SHADERS) {
-        generateUniforms();
+        fns.updateUniforms(uniforms, clock, meshSets);
       }
       quaternion.setFromAxisAngle(axis, Math.PI / 200);
       camera.position.applyQuaternion(quaternion);

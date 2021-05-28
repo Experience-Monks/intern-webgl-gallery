@@ -13,7 +13,7 @@ function About() {
   return (
     <main className="About">
       <Head title="About" />
-
+      scene, fns, toggles, bodySets, meshSets, destPosSets, camera, DEBUG, NUM_SETS, animateToDest
       <div className={styles.About}>
         <h1 className={styles.title}>About</h1>
         <p>Welcome to the WE3 Creative Gallery.</p>{' '}
