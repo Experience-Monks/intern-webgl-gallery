@@ -17,6 +17,12 @@ function meshesToCircles(meshesL) {
   return circlesL;
 }
 
+function isColliding(circA, circB) {
+  const d = dist(circA.position.x, circA.position.z, circB.position.x, circB.position.z);
+  const rSum = circA.geometry.parameters.radius + circB.geometry.parameters.radius;
+  return d < rSum + 5;
+}
+
 function updateUniforms(uniforms, clock, meshSets) {
   uniforms.vBallPos0.value.x = meshSets[0][0].position.x;
   uniforms.vBallPos0.value.y = meshSets[0][0].position.y;
@@ -37,4 +43,4 @@ function updateUniforms(uniforms, clock, meshSets) {
   uniforms.u_time.value = clock.getElapsedTime();
 }
 
-export { dist, hasTween, meshesToCircles, isAsleep, updateUniforms };
+export { dist, hasTween, meshesToCircles, isAsleep, updateUniforms, isColliding };

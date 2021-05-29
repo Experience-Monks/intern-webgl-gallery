@@ -48,8 +48,8 @@ function createMatcapSphere(scene, _radius, x, y, z) {
   }
   const geometry = new SphereGeometry(radius, 32, 32);
   const material = new MeshMatcapMaterial({
-    color: 0x005500
-    // matcap: texture
+    color: 0x005500,
+    matcap: texture
   });
   const sphere = new Mesh(geometry, material);
   sphere.position.set(x, y, z);

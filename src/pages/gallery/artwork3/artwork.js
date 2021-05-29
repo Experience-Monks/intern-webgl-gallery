@@ -28,7 +28,7 @@ import { vertexShader, fragmentShader } from './helpers/shader.glsl.js';
 /* clean up */
 import disposeObjects from '../../../utils/dispose-objects';
 
-const HAS_SHADERS = true;
+const HAS_SHADERS = false;
 const DEBUG = true;
 const ROTATE_SCENE = false;
 
@@ -100,11 +100,6 @@ function Art() {
       controls.update();
     }
 
-    function initSceneHelper() {
-      const gridHelper = new GridHelper(constants.options.grid.size, constants.options.grid.divisions);
-      scene.add(gridHelper);
-    }
-
     // MAIN FUNCTIONS
 
     //----------------------------------
@@ -152,6 +147,12 @@ function Art() {
     const destPosSets = constants.destPosSets;
     const seedSets = constants.seedOpts;
     const NUM_SETS = 4;
+    var quaternion;
+    const axis = new Vector3(0, 1, 0);
+
+    //----------------------------------
+    //  INIT FUNCTIONS
+    //----------------------------------
 
     function initScene() {
       initSets();
@@ -160,9 +161,17 @@ function Art() {
       if (HAS_SHADERS) {
         initShaderMaterial();
       }
+      if (ROTATE_SCENE) {
+        quaternion = new Quaternion();
+      }
       if (DEBUG) {
         console.log('finished init scene');
       }
+    }
+
+    function initSceneHelper() {
+      const gridHelper = new GridHelper(constants.options.grid.size, constants.options.grid.divisions);
+      scene.add(gridHelper);
     }
 
     function initSets() {
@@ -254,23 +263,23 @@ function Art() {
       }
     }
 
+    //----------------------------------
+    // LOOP FUNCTIONS
+    //----------------------------------
+
     function checkCollision() {
-      let meshes;
+      let meshes, circA, circB, aTween, bTween;
 
       for (let set = 0; set < NUM_SETS; set++) {
         meshes = meshSets[set];
-
         if (meshes.some(fns.hasTween)) {
-          let circA, circB, d, rSum, aTween, bTween;
           for (let i = 0; i < meshes.length - 1; i++) {
             circA = meshes[i];
             circB = meshes[i + 1];
             aTween = gsap.isTweening(circA.position);
             bTween = gsap.isTweening(circB.position);
             if (aTween || bTween) {
-              d = fns.dist(circA.position.x, circA.position.z, circB.position.x, circB.position.z);
-              rSum = circA.geometry.parameters.radius + circB.geometry.parameters.radius;
-              if (d < rSum + constants.collisionPadding) {
+              if (fns.isColliding(circA, circB)) {
                 if (aTween) {
                   gsap.killTweensOf(circA.position);
                   collisionCnt[set] += 1;
@@ -307,9 +316,6 @@ function Art() {
       requestAnimationFrame(loop);
     }
 
-    const quaternion = new Quaternion();
-    const axis = new Vector3(0, 1, 0);
-
     function render() {
       renderer.render(scene, camera);
       if (HAS_SHADERS) {
@@ -338,7 +344,6 @@ function Art() {
     }
 
     // RUN
-
     run();
   }, []);
   return (
