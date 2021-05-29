@@ -111,6 +111,17 @@ function Art() {
     //  UTILIZING DESCARTES
     //----------------------------------
 
+    function changeMeshToHaveShaders(set) {
+      const material = new ShaderMaterial({
+        uniforms: uniforms,
+        vertexShader: vertexShader,
+        fragmentShader: fragmentShader
+      });
+      meshSets[set].forEach((mesh) => {
+        mesh.material = material;
+      });
+    }
+
     function insertDescartes(tangentCircles, set) {
       const results = descartes(tangentCircles);
       let circObj = [];
@@ -123,14 +134,9 @@ function Art() {
       circObj.forEach((circle) => {
         createWireframeSphere(scene, circle.r, circle.z.re, 0, circle.z.im);
       });
-      const material = new ShaderMaterial({
-        uniforms: uniforms,
-        vertexShader: vertexShader,
-        fragmentShader: fragmentShader
-      });
-      meshSets[set].forEach((mesh) => {
-        mesh.material = material;
-      });
+      if (HAS_SHADERS) {
+        changeMeshToHaveShaders(set);
+      }
     }
 
     //
@@ -281,8 +287,7 @@ function Art() {
           }
         }
 
-        let allCollided = collisionCnt[set] == meshes.length;
-        if (!toggles[set].hasDescartes && allCollided) {
+        if (!toggles[set].hasDescartes && collisionCnt[set] === meshes.length) {
           if (DEBUG) {
             console.log('going to insert descartes');
           }
