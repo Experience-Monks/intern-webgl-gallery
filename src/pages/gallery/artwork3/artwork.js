@@ -28,7 +28,7 @@ import { vertexShader, fragmentShader } from './helpers/shader.glsl.js';
 /* clean up */
 import disposeObjects from '../../../utils/dispose-objects';
 
-const HAS_SHADERS = false;
+const HAS_SHADERS = true;
 const DEBUG = true;
 const ROTATE_SCENE = false;
 
@@ -139,8 +139,6 @@ function Art() {
       }
     }
 
-    //
-
     //----------------------------------
     //  SCENE
     //----------------------------------
@@ -168,6 +166,7 @@ function Art() {
     }
 
     function initSets() {
+      ground = null;
       meshSets = [];
       toggles = [];
       for (let set = 0; set < NUM_SETS; set++) {
@@ -227,7 +226,11 @@ function Art() {
         vertexShader: vertexShader,
         fragmentShader: fragmentShader
       });
+
       ground.material = material;
+      if (DEBUG) {
+        console.log("init shader material's ground", ground.material);
+      }
     }
 
     function populateOneSet(seedOpts, set) {
