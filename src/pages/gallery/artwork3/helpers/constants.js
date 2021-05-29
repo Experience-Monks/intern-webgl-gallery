@@ -41,7 +41,7 @@ const groundInfo = {
   pos: [0, -80, 0]
 };
 /* information for circle seeds */
-const gap = 150;
+const gap = 250;
 const destPosSetsOrig = [
   new Vector3(gap, 0, gap),
   new Vector3(-gap, 0, -gap),

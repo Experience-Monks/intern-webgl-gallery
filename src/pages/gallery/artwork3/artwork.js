@@ -29,7 +29,8 @@ import { vertexShader, fragmentShader } from './helpers/shader.glsl.js';
 import disposeObjects from '../../../utils/dispose-objects';
 
 const HAS_SHADERS = false;
-const DEBUG = false;
+const DEBUG = true;
+const ROTATE_SCENE = false;
 
 function Art() {
   const inputEl = useRef(null);
@@ -142,14 +143,14 @@ function Art() {
     var meshSets = []; // stores all the meshes, 2D array of distinct groups
     var ground = null;
     var toggles = [];
-    var collideSets = [];
+    var collisionCnt = [];
     var uniforms = {}; // for shaders
     const destPosSets = constants.destPosSets;
     const seedSets = constants.seedOpts;
     const NUM_SETS = 4;
 
     function initScene() {
-      initSets(meshSets, toggles, collideSets);
+      initSets();
       initGround();
       initObjs(constants.seedOpts);
       if (HAS_SHADERS) {
@@ -163,10 +164,9 @@ function Art() {
     function initSets() {
       meshSets = [];
       toggles = [];
-      collideSets = [];
-      for (let i = 0; i < NUM_SETS; i++) {
+      for (let set = 0; set < NUM_SETS; set++) {
         meshSets.push([]);
-        collideSets.push(0);
+        collisionCnt[set] = 0;
         toggles.push({
           hasDescartes: false,
           animates: false
@@ -264,16 +264,25 @@ function Art() {
               if (d < rSum + constants.collisionPadding) {
                 if (aTween) {
                   gsap.killTweensOf(circA.position);
+                  collisionCnt[set] += 1;
+                  if (DEBUG) {
+                    console.log('killed tween on collision');
+                  }
                 }
                 if (bTween) {
                   gsap.killTweensOf(circB.position);
+                  if (DEBUG) {
+                    console.log('killed tween on collision');
+                  }
+                  collisionCnt[set] += 1;
                 }
               }
             }
           }
         }
 
-        if (!meshes.some(fns.hasTween)) {
+        let allCollided = collisionCnt[set] == meshes.length;
+        if (!toggles[set].hasDescartes && allCollided) {
           if (DEBUG) {
             console.log('going to insert descartes');
           }
@@ -298,8 +307,10 @@ function Art() {
       if (HAS_SHADERS) {
         fns.updateUniforms(uniforms, clock, meshSets);
       }
-      quaternion.setFromAxisAngle(axis, Math.PI / 200);
-      camera.position.applyQuaternion(quaternion);
+      if (ROTATE_SCENE) {
+        quaternion.setFromAxisAngle(axis, Math.PI / 200);
+        camera.position.applyQuaternion(quaternion);
+      }
     }
 
     function initFuncs() {
