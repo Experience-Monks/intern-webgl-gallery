@@ -6,11 +6,11 @@ import {
   Vector2,
   PerspectiveCamera,
   WebGLRenderer,
-  WebGLCubeRenderTarget,
   Clock,
-  Raycaster,
   AmbientLight,
   BufferGeometry,
+  BufferAttribute,
+  Object3D,
   Float32BufferAttribute,
   PointsMaterial,
   AdditiveBlending,
@@ -25,15 +25,12 @@ import {
   Mesh
 } from 'three/build/three.module';
 
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+//add more imports here, such as the controllers and loaders etc
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-//import { TWEEN } from 'three/examples/jsm/libs/tween.module.min.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-//import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
-//add more imports here, such as the controllers and loaders etc
 import { gsap } from 'gsap';
 import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
 
@@ -42,9 +39,9 @@ function Art() {
 
   useEffect(() => {
     const quote = [
-      '"Marriage can wait,\nEducation cannot."',
-      '"One could not count the moons that shimmer on her roofs,\nOr the thousand splendid suns that hide behind her walls."',
       '"Of all the hardships a person had to face,\nNone was more punishing than the simple act of waiting."',
+      '"One could not count the moons that shimmer on her roofs,\nOr the thousand splendid suns that hide behind her walls."',
+      '"Marriage can wait,\nEducation cannot."',
       '"Behind every trial and sorrow that He makes us shoulder,\nGod has a reason."',
       '"Like a compass facing north, a man’s accusing finger always finds a woman."',
       '"You see, some things I can teach you. Some you learn from books. But there are things that, well, you have to see and feel."',
@@ -63,12 +60,7 @@ function Art() {
 
     const renderer = new WebGLRenderer();
     renderer.setSize(inputEl.current.offsetWidth, inputEl.current.offsetHeight);
-    inputEl.current.append(renderer.domElement);
-
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.target.set(0, 0, 0);
-    controls.update();
-
+    document.getElementById('canvasclass').append(renderer.domElement);
     const scene = new Scene();
     camera.position.z = 3;
 
@@ -82,6 +74,7 @@ function Art() {
       0.4,
       0.85
     );
+
     var bloomStrength = 3;
     var bloomRadius = 1;
     var bloomThreshold = 0.1;
@@ -90,6 +83,7 @@ function Art() {
     bloomPass.strength = bloomStrength;
     bloomPass.radius = bloomRadius;
     bloomPass.renderToScreen = true;
+
     const filmPass = new FilmPass(
       0.35, // noise intensity
       0.025, // scanline intensity
@@ -103,18 +97,15 @@ function Art() {
     composer.addPass(bloomPass);
     composer.addPass(filmPass);
 
-    var titleWrapper = document.getElementById('title');
+    var titleWrapper = document.getElementById('author');
     var textWrapper = document.getElementById('quote');
-    
-    //textWrapper.textContent.replace(/\S/g, "<span class='letter'>$&</span>");
 
+    //quote text`
     function text() {
       var tl = gsap.timeline();
-      // tl.set('.ml12quote', { opacity: 0, scale: 1.1});
-      //console.log(quote[quote_index]);
       textWrapper.innerHTML = quote[quote_index];
-      tl.to('.ml12quote', { opacity: 1, ease: 'sine', duration: 2, scale: 0.9 });
-      tl.to('.ml12quote', { opacity: 0, ease: 'linear.out', duration: 4, scale: 1.1, delay: 2, onComplete: updateTXT });
+      tl.to(textWrapper, { opacity: 1, ease: 'sine', duration: 2, scale: 0.9 });
+      tl.to(textWrapper, { opacity: 0, ease: 'linear.out', duration: 2, scale: 1.1, delay: 4, onComplete: updateTXT });
     }
 
     function updateTXT() {
@@ -124,16 +115,7 @@ function Art() {
       }
       text();
     }
-    function onWindowResize() {
-      const width = inputEl.current.offsetWidth;
-      const height = inputEl.current.offsetHeight;
 
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-
-      renderer.setSize(width, height);
-      composer.setSize(width, height);
-    }
     function main() {
       {
         const geometry = new SphereGeometry(500, 60, 40);
@@ -148,22 +130,17 @@ function Art() {
         scene.add(mesh);
       }
 
-      // loading 3D object
+      // terrain
       let loader_terrain = new FBXLoader();
       loader_terrain.load('../../assets/models/desert/desert_Pillar_terrain.fbx', function (obj) {
         obj.position.set(-10, -4, -25);
         obj.scale.set(0.05, 0.05, 0.05);
         obj.rotation.set(0, 90, 0);
-        //obj.layers.enable(1);
-        //obj.layers.enable(BLOOM_SCENE);
         scene.add(obj);
-        //console.log(birds);s
-        //animate();
       });
 
       //trees
 
-      // loading 3D object
       let mixer;
       let loader_trees = new GLTFLoader();
       loader_trees.load('../../assets/models/pinktree/source/pinktree.glb', function (obj) {
@@ -171,18 +148,69 @@ function Art() {
         mixer = new AnimationMixer(obj.scene);
         const clip = AnimationClip.findByName(clips, 'windAction.001');
         const action = mixer.clipAction(clip);
-        //action.setLoop(true);
         action.play();
 
         obj.scene.position.set(2, -4, -30);
-        //obj.scene.layers.enable(1);
-        //obj.scene.layers.enable(BLOOM_SCENE);
         scene.add(obj.scene);
-        //console.log(birds);s
-        //animate();
       });
 
+      //birds
+      let mixer_birds;
+      var birds = new Object3D();
+      let loader_birds = new GLTFLoader();
+      loader_birds.load('../../assets/models/birds/scene.gltf', function (gltf) {
+        gltf.scene.position.set(-120, 50, 10);
+        gltf.scene.scale.set(2, 2, 2);
+        gltf.scene.rotation.set(0, 1.57079633, -3.141592);
+        const clips = gltf.animations;
+        mixer_birds = new AnimationMixer(gltf.scene);
+        const clip = AnimationClip.findByName(clips, 'Scene');
+        const action = mixer_birds.clipAction(clip);
+        action.play();
+        gsap.to(birds.position, { duration: 25, x: -birds.position.x, ease: 'sine', onComplete: invertBirds });
+        scene.add(gltf.scene);
+        birds = gltf.scene;
+      });
+
+      var orignalpos_birds = birds.position.z;
+      var rot_bird = true;
+      function invertBirds() {
+        if (rot_bird) {
+          birds.rotation.z = 0;
+          rot_bird = false;
+        } else {
+          birds.rotation.z = -3.141592;
+          rot_bird = true;
+        }
+
+        orignalpos_birds = -1 * birds.position.x;
+        gsap.to(birds.position, { duration: 25, x: orignalpos_birds, ease: 'sine', onComplete: invertBirds });
+      }
+
+      // adding particles
       const cross = new TextureLoader().load('../../assets/models/glow2.png');
+
+      const particleGeometry = new BufferGeometry();
+      const particlesCnt = 200;
+      const posArray = new Float32Array(particlesCnt * 3);
+
+      for (let i = 0; i < particlesCnt * 3; i++) {
+        posArray[i] = (Math.random() - 0.5) * 2;
+      }
+      particleGeometry.setAttribute('position', new BufferAttribute(posArray, 3));
+      const particlematerial = new PointsMaterial({
+        size: 0.085,
+        map: cross,
+        transparent: true,
+        blending: AdditiveBlending
+      });
+      const particleMesh = new Points(particleGeometry, particlematerial);
+      particleMesh.scale.set(18, 18, 18);
+      particleMesh.position.set(0, 0, -25);
+      scene.add(particleMesh);
+
+      // adding sun
+
       const v = new Vector3();
 
       function randomPointInSphere(radius) {
@@ -202,24 +230,21 @@ function Art() {
       var positions = [];
 
       for (var i = 0; i < 5000; i++) {
-        var vertex = randomPointInSphere(5);
+        var vertex = randomPointInSphere(3);
         positions.push(vertex.x, vertex.y, vertex.z);
       }
 
-      sphereGeometry.addAttribute('position', new Float32BufferAttribute(positions, 3));
-      //geometry_sphere.setAttribute('position', new BufferAttribute(posArray, 3));
+      sphereGeometry.setAttribute('position', new Float32BufferAttribute(positions, 3));
       const material_sphere = new PointsMaterial({
         size: 0.15,
         map: cross,
-        //color: (0,1,0,1),
         transparent: true,
         blending: AdditiveBlending
       });
       material_sphere.color = new Color(0xe6e600);
 
       const sphere = new Points(sphereGeometry, material_sphere);
-      sphere.position.set(30,75,-20);
-      //sphere.layers.enable(BLOOM_SCENE);
+      sphere.position.set(30, 75, -20);
       scene.add(sphere);
 
       //LIGHT
@@ -244,55 +269,57 @@ function Art() {
         }
         return needResize;
       }
+
       //Mouse
-      //document.addEventListener("mousemove", animateParticles);
+      document.addEventListener('mousemove', animateParticles);
 
-      // let mouseY = 0;
-      // let mouseX = 0;
+      let mouseY = 0;
+      let mouseX = 0;
 
-      // function animateParticles(event) {
-      //   mouseY = event.clientY;
-      //   mouseX = event.clientX;
-      // }
-
-      //hover
-      camera.position.set(3.538957295625084e-7, -1.021684878863786, -9.589670059257917e-7);
-      // window.addEventListener('mousemove', onDocumentMouseMove, false);
+      function animateParticles(event) {
+        mouseY = event.clientX;
+        mouseX = event.clientY;
+      }
 
       // VARIABLES for
       const clock = new Clock();
 
-      let delta, time;
+      let delta, time, elapsedTime;
       var orbitRadius = 50;
-      //const elapsedTime = clock.getElapsedTime();
 
       function render() {
-        
-        
-        time = Date.now() / 2500;
+        if (resizeRendererToDisplaySize(renderer)) {
+          const canvas = renderer.domElement;
+          camera.aspect = canvas.clientWidth / canvas.clientHeight;
+          camera.updateProjectionMatrix();
+        }
 
-        sphere.position.x = orbitRadius * Math.cos( time );
-        sphere.position.z = orbitRadius * Math.sin( time ) - 10;
-        // TWEEN.update();
+        time = Date.now() / 3000;
+
+        sphere.position.x = orbitRadius * Math.cos(time);
+        sphere.position.z = orbitRadius * Math.sin(time) - 10;
+
         delta = clock.getDelta();
-        if (mixer) mixer.update(delta); // problem here
+        if (mixer) mixer.update(delta);
+        if (mixer_birds) mixer_birds.update(delta);
 
-        //requestAnimationFrame( animate );
+        elapsedTime = clock.getElapsedTime();
 
-        //scamera.lookAt(sphere.position);
-        //renderer.render(scene, camera);
+        if (mouseX > 0) {
+          particleMesh.rotation.x = -mouseY * (elapsedTime * 0.00008);
+          particleMesh.rotation.y = mouseX * (elapsedTime * 0.00008);
+        } else {
+          particleMesh.rotation.y = -0.1 * elapsedTime;
+        }
 
-        //renderer.clear();
-        //camera.layers.set(BLOOM_SCENE);
-        //finalComposer.render();
         composer.render();
         requestAnimationFrame(render);
       }
       function revealtitle() {
         var tl2 = gsap.timeline();
         titleWrapper.innerHTML = 'A Thousand Splendid Suns\n- Khaled Hosseini';
-        tl2.to('.ml12', { opacity: 1, scale: 1.1, ease: 'sine', duration: 5 });
-        tl2.to('.ml12', { opacity: 0, scale: 0.8, ease: 'sine', duration: 4 });
+        tl2.to(titleWrapper, { opacity: 1, scale: 1.1, ease: 'sine', duration: 5 });
+        tl2.to(titleWrapper, { opacity: 0, scale: 0.8, ease: 'sine', duration: 4 });
       }
 
       var tl = gsap.timeline();
@@ -303,11 +330,10 @@ function Art() {
       gsap.to(bloomPass, { duration: 6, threshold: 0.55, ease: 'sine' });
       gsap.to(bloomPass, { duration: 6, strength: 0.5, ease: 'sine' });
       gsap.to(bloomPass, { duration: 1, radius: 1, ease: 'sine', onComplete: revealtitle });
-      onWindowResize();
 
       render();
     }
-    //text();
+
     main();
   }, []);
   return (
