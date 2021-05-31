@@ -6,17 +6,37 @@
       xmlns:xhtml="http://www.w3.org/1999/xhtml">
       
 	<url>
-		<loc>https://www.jam3.github.io/intern-we3-webgl-gallery//ThreeCanvas/</loc>
+		<loc>//ThreeCanvas/</loc>
 		<lastmod>2021-05-31</lastmod>
 	</url>
 
 	<url>
-		<loc>https://www.jam3.github.io/intern-we3-webgl-gallery//about/</loc>
+		<loc>//about/</loc>
 		<lastmod>2021-05-31</lastmod>
 	</url>
 
 	<url>
-		<loc>https://www.jam3.github.io/intern-we3-webgl-gallery//</loc>
+		<loc>//gallery/artwork1/artwork/</loc>
+		<lastmod>2021-05-31</lastmod>
+	</url>
+
+	<url>
+		<loc>//gallery/artwork1/</loc>
+		<lastmod>2021-05-31</lastmod>
+	</url>
+
+	<url>
+		<loc>//gallery/artwork2/artwork/</loc>
+		<lastmod>2021-05-31</lastmod>
+	</url>
+
+	<url>
+		<loc>//gallery/artwork2/</loc>
+		<lastmod>2021-05-31</lastmod>
+	</url>
+
+	<url>
+		<loc>//</loc>
 		<lastmod>2021-05-31</lastmod>
 	</url>
 </urlset>
