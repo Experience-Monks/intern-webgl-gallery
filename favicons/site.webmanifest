@@ -18,7 +18,7 @@
       "type": "image/png"
     }
   ],
-  "start_url": "/intern-we3-webgl-gallery",
+  "start_url": "/",
   "theme_color": "#000000",
   "background_color": "#ffffff",
   "display": "standalone"
