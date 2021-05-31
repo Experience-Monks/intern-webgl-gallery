@@ -1,3 +1,6 @@
-# Development configuration
 User-agent: *
-Disallow: /
+Allow: /
+Disallow: /_next
+Disallow: /assets
+Sitemap: https://jam3.github.io/intern-we3-webgl-gallery//sitemap.xml
+Host: https://jam3.github.io
