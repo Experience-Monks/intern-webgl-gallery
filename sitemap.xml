@@ -6,37 +6,37 @@
       xmlns:xhtml="http://www.w3.org/1999/xhtml">
       
 	<url>
-		<loc>//ThreeCanvas/</loc>
+		<loc>/intern-we3-webgl-gallery/ThreeCanvas/</loc>
 		<lastmod>2021-05-31</lastmod>
 	</url>
 
 	<url>
-		<loc>//about/</loc>
+		<loc>/intern-we3-webgl-gallery/about/</loc>
 		<lastmod>2021-05-31</lastmod>
 	</url>
 
 	<url>
-		<loc>//gallery/artwork1/artwork/</loc>
+		<loc>/intern-we3-webgl-gallery/gallery/artwork1/artwork/</loc>
 		<lastmod>2021-05-31</lastmod>
 	</url>
 
 	<url>
-		<loc>//gallery/artwork1/</loc>
+		<loc>/intern-we3-webgl-gallery/gallery/artwork1/</loc>
 		<lastmod>2021-05-31</lastmod>
 	</url>
 
 	<url>
-		<loc>//gallery/artwork2/artwork/</loc>
+		<loc>/intern-we3-webgl-gallery/gallery/artwork2/artwork/</loc>
 		<lastmod>2021-05-31</lastmod>
 	</url>
 
 	<url>
-		<loc>//gallery/artwork2/</loc>
+		<loc>/intern-we3-webgl-gallery/gallery/artwork2/</loc>
 		<lastmod>2021-05-31</lastmod>
 	</url>
 
 	<url>
-		<loc>//</loc>
+		<loc>/intern-we3-webgl-gallery/</loc>
 		<lastmod>2021-05-31</lastmod>
 	</url>
 </urlset>
