@@ -166,13 +166,15 @@ function Art() {
     var leftCircleStatic = false;
     var rightCircleStatic = false;
 
-    // CIRCLES CONSTS
-    const firstCenterCircleR = 70;
-    const firstCenterCirclePos = new Vector3(0, 0, firstCenterCircleR - 15);
+    // CIRCLES CONSTANTS
+    const firstCenterCircleR = 150;
+    const firstCenterCirclePos = new Vector3(0, 0, firstCenterCircleR - firstCenterCircleR / 7);
     const gap = 250;
-    const sideCircleR = 60;
+    const sideCircleR = firstCenterCircleR * 0.85;
     const leftCircleStartPos = new Vector3(-gap, 0, -gap);
     const rightCircleStartPos = new Vector3(gap, 0, -gap);
+
+    // flags
 
     //----------------------------------
     //  INIT FUNCTIONS
