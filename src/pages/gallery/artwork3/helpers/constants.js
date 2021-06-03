@@ -81,4 +81,4 @@ const seedOpts = [originSeed, originSeed, originSeed, originSeed];
 // animation constants
 const origin = new Vector3(0, 0, 0);
 
-export { colors, options, groundInfo, destPosSets, seedOpts, collisionPadding, origin };
+export { colors, options, groundInfo, destPosSets, seedOpts, collisionPadding, origin, gap };

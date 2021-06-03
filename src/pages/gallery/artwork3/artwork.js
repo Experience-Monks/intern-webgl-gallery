@@ -13,7 +13,8 @@ import {
   ShaderMaterial,
   Clock,
   Vector3,
-  Quaternion
+  Quaternion,
+  ReinhardToneMapping
 } from 'three/build/three.module';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { gsap } from 'gsap';
@@ -32,6 +33,7 @@ const HAS_SHADERS = false;
 const DEBUG = true;
 const ROTATE_SCENE = false;
 const INSERT_DES = true;
+const INIT_TIMES = 5;
 
 function Art() {
   const inputEl = useRef(null);
@@ -119,30 +121,40 @@ function Art() {
       });
       */
     }
-
-    function insertDescartes(tangentCircles) {
-      if (DEBUG) {
-        console.log('inputs to insertDescartes', tangentCircles);
-      }
-      const results = descartes(tangentCircles);
-      let circObj = [];
+    function circlesFromRadiusCurvature(results) {
       let c;
+      let circObjs = [];
       results.centers.forEach((center) => {
         results.curvatures.forEach((curve) => {
           c = new Circle(kToR(curve), center, curve > 0 ? 1 : 2);
-          circObj.push(c);
+          circObjs.push(c);
         });
       });
+      return circObjs;
+    }
+
+    function addMeshesFromCircObjs(circObjs) {
       let mesh;
-      circObj.forEach((circle) => {
+      circObjs.forEach((circle) => {
         mesh = createWireframeSphere(scene, circle.r, circle.z.re, 0, circle.z.im);
         if (circle.k < 0) {
+          // big circles
+          mesh.position.z += (mesh.geometry.parameters.radius / 7) * 6;
           centerCircle = mesh;
           if (DEBUG) {
             console.log('updated centerCircle to', mesh);
           }
         }
       });
+    }
+
+    function insertDescartes(tangentCircles) {
+      if (DEBUG) {
+        console.log('inputs to insertDescartes', tangentCircles);
+      }
+      const results = descartes(tangentCircles);
+      const circObjs = circlesFromRadiusCurvature(results);
+      addMeshesFromCircObjs(circObjs);
       if (HAS_SHADERS) {
         // changeMeshToHaveShaders(set);
       }
@@ -167,12 +179,13 @@ function Art() {
     var rightCircleStatic = false;
 
     // CIRCLES CONSTANTS
-    const firstCenterCircleR = 150;
-    const firstCenterCirclePos = new Vector3(0, 0, firstCenterCircleR - firstCenterCircleR / 7);
-    const gap = 250;
-    const sideCircleR = firstCenterCircleR * 0.85;
-    const leftCircleStartPos = new Vector3(-gap, 0, -gap);
-    const rightCircleStartPos = new Vector3(gap, 0, -gap);
+    var centerCircleR = 10;
+    var centerCircleZshift = (centerCircleR / 7) * 6;
+    const centerCirclePos = new Vector3(0, 0, centerCircleZshift); // used once in init
+    var sideCircleR = centerCircleR * 0.85;
+    // STAYS THE SAME FOR ALL THE CIRCLES (COME IN FROM THE SAME POSITIONS)
+    const leftCircleStartPos = new Vector3(-constants.gap, 0, -constants.gap);
+    const rightCircleStartPos = new Vector3(constants.gap, 0, -constants.gap);
 
     // flags
 
@@ -194,13 +207,30 @@ function Art() {
       }
     }
 
+    function updateCircleParams() {
+      sideCircleR = centerCircle.geometry.parameters.radius * 0.85;
+    }
+
+    var initTimes = 0;
+
+    /* add new circles into the scene */
+    function reInit() {
+      leftCircleStatic = false;
+      rightCircleStatic = false;
+      updateCircleParams();
+      addTwoCircles();
+      animateSideCircles();
+      initTimes += 1;
+      console.log('Just reinit. Current initTimes:', initTimes);
+    }
+
     function initCenterCircle() {
-      centerCircle = createMatcapSphere(
+      centerCircle = createWireframeSphere(
         scene,
-        firstCenterCircleR,
-        firstCenterCirclePos.x,
-        firstCenterCirclePos.y,
-        firstCenterCirclePos.z
+        centerCircleR,
+        centerCirclePos.x,
+        centerCirclePos.y,
+        centerCirclePos.z
       );
     }
 
@@ -243,25 +273,24 @@ function Art() {
         }
       }
     }
-    var once = true;
 
     function checkInsertDes() {
-      if (once && leftCircleStatic && rightCircleStatic) {
+      if (leftCircleStatic && rightCircleStatic) {
         const tangentCircles = [leftCircle, centerCircle, rightCircle];
-        const results = insertDescartes(fns.meshesToCircles(tangentCircles));
-        once = false;
+        insertDescartes(fns.meshesToCircles(tangentCircles));
+        reInit();
       }
     }
 
     function addTwoCircles() {
-      leftCircle = createMatcapSphere(
+      leftCircle = createWireframeSphere(
         scene,
         sideCircleR,
         leftCircleStartPos.x,
         leftCircleStartPos.y,
         leftCircleStartPos.z
       );
-      rightCircle = createMatcapSphere(
+      rightCircle = createWireframeSphere(
         scene,
         sideCircleR,
         rightCircleStartPos.x,
@@ -278,7 +307,9 @@ function Art() {
     function loop() {
       render();
       checkCollision();
-      checkInsertDes();
+      if (initTimes < INIT_TIMES) {
+        checkInsertDes();
+      }
       requestAnimationFrame(loop);
     }
 

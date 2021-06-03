@@ -105,9 +105,9 @@ function descartes(tangentCircles) {
 
   if (!isDegenerate(k4_sub)) {
     let z4_sub1 = nume_sub.div(k4_sub);
-    // let z4_add1 = nume_add.div(k4_sub);
-    results.centers.push(z4_sub1.add(shift));
-    // results.centers.push(z4_add1.add(shift));
+    let z4_add1 = nume_add.div(k4_sub);
+    //results.centers.push(z4_sub1.add(shift));
+    //results.centers.push(z4_add1.add(shift));
     results.curvatures.push(k4_sub);
   }
 
