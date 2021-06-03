@@ -31,6 +31,7 @@ import disposeObjects from '../../../utils/dispose-objects';
 const HAS_SHADERS = false;
 const DEBUG = true;
 const ROTATE_SCENE = false;
+const INSERT_DES = true;
 
 function Art() {
   const inputEl = useRef(null);
@@ -118,6 +119,9 @@ function Art() {
     }
 
     function insertDescartes(tangentCircles, set) {
+      if (DEBUG) {
+        console.log('inputs to insertDescartes', tangentCircles, set);
+      }
       const results = descartes(tangentCircles);
       let circObj = [];
       results.centers.forEach((center) => {
@@ -144,9 +148,10 @@ function Art() {
     var toggles = [];
     var collisionCnt = [];
     var uniforms = {}; // for shaders
-    const destPosSets = constants.destPosSets;
+    const origin = new Vector3(0, 0, 0);
+    const destPosSets = [origin]; //constants.destPosSets;
     const seedSets = constants.seedOpts;
-    const NUM_SETS = 4;
+    const NUM_SETS = 1;
     var quaternion;
     const axis = new Vector3(0, 1, 0);
 
@@ -157,7 +162,8 @@ function Art() {
     function initScene() {
       initSets();
       initGround();
-      initObjs(constants.seedOpts);
+      // initObjs(constants.seedOpts);
+      initSingleSeed();
       if (HAS_SHADERS) {
         initShaderMaterial();
       }
@@ -167,6 +173,10 @@ function Art() {
       if (DEBUG) {
         console.log('finished init scene');
       }
+    }
+
+    function initSingleSeed() {
+      populateOneSet(seedSets[0], 0);
     }
 
     function initSceneHelper() {
@@ -304,7 +314,12 @@ function Art() {
             console.log('going to insert descartes');
           }
           const tangentCircles = fns.meshesToCircles(meshes);
-          insertDescartes(tangentCircles, set);
+          if (INSERT_DES) {
+            if (DEBUG) {
+              console.log('tangent circles are:', tangentCircles);
+            }
+            insertDescartes(tangentCircles, set);
+          }
           toggles[set].hasDescartes = true;
         }
       }
@@ -337,9 +352,7 @@ function Art() {
 
     function run() {
       initFuncs();
-      for (let set = 0; set < NUM_SETS; set++) {
-        animateToDest(scene, meshSets[set], destPosSets[set], camera);
-      }
+      animateToDest(scene, meshSets[0], destPosSets[0], camera);
       loop();
     }
 
