@@ -108,6 +108,7 @@ function Art() {
     //----------------------------------
 
     function changeMeshToHaveShaders(set) {
+      /*
       const material = new ShaderMaterial({
         uniforms: uniforms,
         vertexShader: vertexShader,
@@ -116,25 +117,34 @@ function Art() {
       meshSets[set].forEach((mesh) => {
         mesh.material = material;
       });
+      */
     }
 
-    function insertDescartes(tangentCircles, set) {
+    function insertDescartes(tangentCircles) {
       if (DEBUG) {
-        console.log('inputs to insertDescartes', tangentCircles, set);
+        console.log('inputs to insertDescartes', tangentCircles);
       }
       const results = descartes(tangentCircles);
       let circObj = [];
+      let c;
       results.centers.forEach((center) => {
         results.curvatures.forEach((curve) => {
-          let c = new Circle(kToR(curve), center, curve > 0 ? 1 : 2);
+          c = new Circle(kToR(curve), center, curve > 0 ? 1 : 2);
           circObj.push(c);
         });
       });
+      let mesh;
       circObj.forEach((circle) => {
-        createWireframeSphere(scene, circle.r, circle.z.re, 0, circle.z.im);
+        mesh = createWireframeSphere(scene, circle.r, circle.z.re, 0, circle.z.im);
+        if (circle.k < 0) {
+          centerCircle = mesh;
+          if (DEBUG) {
+            console.log('updated centerCircle to', mesh);
+          }
+        }
       });
       if (HAS_SHADERS) {
-        changeMeshToHaveShaders(set);
+        // changeMeshToHaveShaders(set);
       }
     }
 
@@ -143,29 +153,36 @@ function Art() {
     //----------------------------------
 
     // GLOBALS
-    var meshSets = []; // stores all the meshes, 2D array of distinct groups
     var ground = null;
-    var toggles = [];
-    var collisionCnt = [];
     var uniforms = {}; // for shaders
-    const origin = new Vector3(0, 0, 0);
-    const destPosSets = [origin]; //constants.destPosSets;
-    const seedSets = constants.seedOpts;
-    const NUM_SETS = 1;
+
     var quaternion;
     const axis = new Vector3(0, 1, 0);
+
+    // CIRCLES IN SCREEN
+    var centerCircle = null; // we keep on updating and keep track of the center circle
+    var leftCircle = null;
+    var rightCircle = null;
+    var leftCircleStatic = false;
+    var rightCircleStatic = false;
+
+    // CIRCLES CONSTS
+    const firstCenterCircleR = 70;
+    const firstCenterCirclePos = new Vector3(0, 0, firstCenterCircleR - 15);
+    const gap = 250;
+    const sideCircleR = 60;
+    const leftCircleStartPos = new Vector3(-gap, 0, -gap);
+    const rightCircleStartPos = new Vector3(gap, 0, -gap);
 
     //----------------------------------
     //  INIT FUNCTIONS
     //----------------------------------
 
     function initScene() {
-      initSets();
       initGround();
-      // initObjs(constants.seedOpts);
-      initSingleSeed();
+      initCenterCircle();
       if (HAS_SHADERS) {
-        initShaderMaterial();
+        // initShaderMaterial();
       }
       if (ROTATE_SCENE) {
         quaternion = new Quaternion();
@@ -175,8 +192,14 @@ function Art() {
       }
     }
 
-    function initSingleSeed() {
-      populateOneSet(seedSets[0], 0);
+    function initCenterCircle() {
+      centerCircle = createMatcapSphere(
+        scene,
+        firstCenterCircleR,
+        firstCenterCirclePos.x,
+        firstCenterCirclePos.y,
+        firstCenterCirclePos.z
+      );
     }
 
     function initSceneHelper() {
@@ -184,25 +207,118 @@ function Art() {
       scene.add(gridHelper);
     }
 
-    function initSets() {
-      ground = null;
-      meshSets = [];
-      toggles = [];
-      for (let set = 0; set < NUM_SETS; set++) {
-        meshSets.push([]);
-        collisionCnt[set] = 0;
-        toggles.push({
-          hasDescartes: false,
-          animates: false
-        });
-      }
-    }
-
     function initGround() {
-      let box = createStaticBox(scene, constants.groundInfo.size, constants.groundInfo.pos, [0, 0, 0], 0xffffff);
+      let box = createStaticBox(scene, constants.groundInfo.size, constants.groundInfo.pos, [0, 0, 0], 0xffee00);
       ground = box;
     }
 
+    //----------------------------------
+    // LOOP FUNCTIONS
+    //----------------------------------
+
+    function checkCollision() {
+      if (!leftCircleStatic || !rightCircleStatic) {
+        const lTween = leftCircle === null ? false : gsap.isTweening(leftCircle.position);
+        const rTween = rightCircle === null ? false : gsap.isTweening(rightCircle.position);
+        if (lTween) {
+          if (fns.isColliding(leftCircle, centerCircle)) {
+            gsap.killTweensOf(leftCircle.position);
+            leftCircleStatic = true;
+            if (DEBUG) {
+              console.log('left circle has collided');
+            }
+          }
+        }
+
+        if (rTween) {
+          if (fns.isColliding(rightCircle, centerCircle)) {
+            gsap.killTweensOf(rightCircle.position);
+            rightCircleStatic = true;
+            if (DEBUG) {
+              console.log('right circle has collided');
+            }
+          }
+        }
+      }
+    }
+    var once = true;
+
+    function checkInsertDes() {
+      if (once && leftCircleStatic && rightCircleStatic) {
+        const tangentCircles = [leftCircle, centerCircle, rightCircle];
+        const results = insertDescartes(fns.meshesToCircles(tangentCircles));
+        once = false;
+      }
+    }
+
+    function addTwoCircles() {
+      leftCircle = createMatcapSphere(
+        scene,
+        sideCircleR,
+        leftCircleStartPos.x,
+        leftCircleStartPos.y,
+        leftCircleStartPos.z
+      );
+      rightCircle = createMatcapSphere(
+        scene,
+        sideCircleR,
+        rightCircleStartPos.x,
+        rightCircleStartPos.y,
+        rightCircleStartPos.z
+      );
+    }
+
+    function animateSideCircles() {
+      animateToDest(leftCircle, constants.origin);
+      animateToDest(rightCircle, constants.origin);
+    }
+
+    function loop() {
+      render();
+      checkCollision();
+      checkInsertDes();
+      requestAnimationFrame(loop);
+    }
+
+    function render() {
+      renderer.render(scene, camera);
+      if (HAS_SHADERS) {
+        // fns.updateUniforms(uniforms, clock, meshSets);
+      }
+      if (ROTATE_SCENE) {
+        quaternion.setFromAxisAngle(axis, Math.PI / 200);
+        camera.position.applyQuaternion(quaternion);
+      }
+    }
+
+    function initSetup() {
+      init(constants.options);
+      if (DEBUG) {
+        initSceneHelper();
+      }
+    }
+
+    function run() {
+      initSetup();
+      initScene();
+      addTwoCircles();
+      animateSideCircles();
+      loop();
+    }
+
+    // RUN
+    run();
+  }, []);
+  return (
+    <>
+      <div ref={inputEl}></div>
+    </>
+  );
+}
+
+export default Art;
+
+/*
     function initShaderMaterial() {
       const circ0 = meshSets[0][0];
       const circ1 = meshSets[1][0];
@@ -250,120 +366,4 @@ function Art() {
       if (DEBUG) {
         console.log("init shader material's ground", ground.material);
       }
-    }
-
-    function populateOneSet(seedOpts, set) {
-      let r, x, y, z;
-      for (let i = 0; i < seedOpts.length; i++) {
-        r = seedOpts[i].r;
-        x = seedOpts[i].x;
-        y = seedOpts[i].y;
-        z = seedOpts[i].z;
-        meshSets[set][i] = createMatcapSphere(scene, r, x, y, z);
-        scene.add(meshSets[set][i]);
-      }
-    }
-
-    function initObjs() {
-      for (let set = 0; set < NUM_SETS; set++) {
-        populateOneSet(seedSets[set], set);
-      }
-      if (DEBUG) {
-        console.log('finished populate');
-      }
-    }
-
-    //----------------------------------
-    // LOOP FUNCTIONS
-    //----------------------------------
-
-    function checkCollision() {
-      let meshes, circA, circB, aTween, bTween;
-
-      for (let set = 0; set < NUM_SETS; set++) {
-        meshes = meshSets[set];
-        if (meshes.some(fns.hasTween)) {
-          for (let i = 0; i < meshes.length - 1; i++) {
-            circA = meshes[i];
-            circB = meshes[i + 1];
-            aTween = gsap.isTweening(circA.position);
-            bTween = gsap.isTweening(circB.position);
-            if (aTween || bTween) {
-              if (fns.isColliding(circA, circB)) {
-                if (aTween) {
-                  gsap.killTweensOf(circA.position);
-                  collisionCnt[set] += 1;
-                  if (DEBUG) {
-                    console.log('killed tween on collision');
-                  }
-                }
-                if (bTween) {
-                  gsap.killTweensOf(circB.position);
-                  if (DEBUG) {
-                    console.log('killed tween on collision');
-                  }
-                  collisionCnt[set] += 1;
-                }
-              }
-            }
-          }
-        }
-
-        if (!toggles[set].hasDescartes && collisionCnt[set] === meshes.length) {
-          if (DEBUG) {
-            console.log('going to insert descartes');
-          }
-          const tangentCircles = fns.meshesToCircles(meshes);
-          if (INSERT_DES) {
-            if (DEBUG) {
-              console.log('tangent circles are:', tangentCircles);
-            }
-            insertDescartes(tangentCircles, set);
-          }
-          toggles[set].hasDescartes = true;
-        }
-      }
-    }
-
-    function loop() {
-      render();
-      checkCollision();
-      requestAnimationFrame(loop);
-    }
-
-    function render() {
-      renderer.render(scene, camera);
-      if (HAS_SHADERS) {
-        fns.updateUniforms(uniforms, clock, meshSets);
-      }
-      if (ROTATE_SCENE) {
-        quaternion.setFromAxisAngle(axis, Math.PI / 200);
-        camera.position.applyQuaternion(quaternion);
-      }
-    }
-
-    function initFuncs() {
-      init(constants.options);
-      if (DEBUG) {
-        initSceneHelper();
-      }
-      initScene();
-    }
-
-    function run() {
-      initFuncs();
-      animateToDest(scene, meshSets[0], destPosSets[0], camera);
-      loop();
-    }
-
-    // RUN
-    run();
-  }, []);
-  return (
-    <>
-      <div ref={inputEl}></div>
-    </>
-  );
-}
-
-export default Art;
+    }*/
