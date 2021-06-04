@@ -33,9 +33,17 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { gsap } from 'gsap';
 import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
+import disposeObjects from '../../../utils/dispose-objects';
 
 function Art() {
   const inputEl = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      require('../../../utils/dispose-objects');
+      disposeObjects(inputEl.renderer, inputEl);
+    };
+  }, []);
 
   useEffect(() => {
     const quote = [

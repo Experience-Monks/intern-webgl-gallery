@@ -10,8 +10,17 @@ import {
 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
+import disposeObjects from '../utils/dispose-objects';
+
 function Art() {
   const inputEl = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      require('../utils/dispose-objects');
+      disposeObjects(inputEl.renderer, inputEl);
+    };
+  }, []);
 
   useEffect(() => {
     const scene = new Scene();
