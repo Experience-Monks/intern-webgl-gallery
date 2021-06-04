@@ -10,11 +10,9 @@ import {
   Color,
   AmbientLight,
   GridHelper,
-  ShaderMaterial,
   Clock,
   Vector3,
   Quaternion,
-  ReinhardToneMapping
 } from 'three/build/three.module';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { gsap } from 'gsap';
@@ -137,8 +135,6 @@ function Art() {
       circObjs.forEach((circle) => {
         mesh = createWireframeSphere(scene, circle.r, circle.z.re, 0, circle.z.im);
         if (circle.k < 0) {
-          // big circles
-          // mesh.position.z += (mesh.geometry.parameters.radius / 7) * 6;
           centerCircle = mesh;
           if (DEBUG) {
             console.log('updated centerCircle to', mesh);
