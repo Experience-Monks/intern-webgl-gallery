@@ -9,7 +9,6 @@ import Head from '../../../components/Head/Head';
 
 import { withRedux } from '../../../redux/withRedux';
 import { setLandingLoaded } from '../../../redux/modules/app';
-import Art from './artwork';
 
 const ArtCanvas = dynamic(() => import('./artwork'), {
   ssr: false
