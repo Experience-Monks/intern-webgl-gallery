@@ -17,4 +17,24 @@ function meshesToCircles(meshesL) {
   return circlesL;
 }
 
-export { dist, hasTween, meshesToCircles, isAsleep };
+function updateUniforms(uniforms, clock, meshSets) {
+  uniforms.vBallPos0.value.x = meshSets[0][0].position.x;
+  uniforms.vBallPos0.value.y = meshSets[0][0].position.y;
+  uniforms.vBallPos0.value.z = meshSets[0][0].position.z;
+
+  uniforms.vBallPos1.value.x = meshSets[1][1].position.x;
+  uniforms.vBallPos1.value.y = meshSets[1][1].position.y;
+  uniforms.vBallPos1.value.z = meshSets[1][1].position.z;
+
+  uniforms.vBallPos2.value.x = meshSets[2][2].position.x;
+  uniforms.vBallPos2.value.y = meshSets[2][2].position.y;
+  uniforms.vBallPos2.value.z = meshSets[2][2].position.z;
+
+  uniforms.vBallPos3.value.x = meshSets[3][2].position.x;
+  uniforms.vBallPos3.value.y = meshSets[3][2].position.y;
+  uniforms.vBallPos3.value.z = meshSets[3][2].position.z;
+
+  uniforms.u_time.value = clock.getElapsedTime();
+}
+
+export { dist, hasTween, meshesToCircles, isAsleep, updateUniforms };

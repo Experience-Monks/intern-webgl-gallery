@@ -17,7 +17,6 @@ const ArtCanvas = dynamic(() => import('./artwork'), {
 export const isBrowser = typeof window !== 'undefined';
 function Artwork() {
   const containerRef = useRef();
-  const containerRef2 = useRef();
   const dispatch = useDispatch();
   const animateInInit = useCallback(() => {
     gsap.set(containerRef.current, { autoAlpha: 0 });
@@ -42,13 +41,10 @@ function Artwork() {
       <div id="scene-container" className={styles.amna}>
         {isBrowser && <ArtCanvas></ArtCanvas>}
       </div>
-      <section id = "title" className={styles.ml12} ref={containerRef}>
-        A Thousand Splendid Suns
-      </section>
-      <audio autoplay loop src='../../assets/piano.ogg' type="audio/ogg">
-      </audio>
-      <section id = "quote" className={styles.ml12quote} ref={containerRef2}>
-      </section>
+      <div id="canvasclass" className={styles.canvasplacement}></div>
+      <section id="author" className={styles.ml12} ref={containerRef}></section>
+      <audio autoPlay loop src="../../assets/sounds/piano.ogg" type="audio/ogg"></audio>
+      <section id="quote" className={styles.ml12quote}></section>
     </main>
   );
 }
