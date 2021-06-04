@@ -12,7 +12,7 @@ import {
   GridHelper,
   Clock,
   Vector3,
-  Quaternion,
+  Quaternion
 } from 'three/build/three.module';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { gsap } from 'gsap';
@@ -22,13 +22,13 @@ import { descartes, kToR } from './helpers/descartes.js';
 import * as constants from './helpers/constants.js';
 import * as fns from './helpers/functions.js';
 import { createMatcapSphere, createWireframeSphere, createStaticBox } from './helpers/createMesh.js';
-import animateToDest from './helpers/animate.js';
+import { animateToDest, animateToScale } from './helpers/animate.js';
 import { vertexShader, fragmentShader } from './helpers/shader.glsl.js';
 /* clean up */
 import disposeObjects from '../../../utils/dispose-objects';
 
 const HAS_SHADERS = false;
-const DEBUG = true;
+const DEBUG = false;
 const ROTATE_SCENE = false;
 const INIT_TIMES = 6;
 
@@ -134,6 +134,7 @@ function Art() {
       let mesh;
       circObjs.forEach((circle) => {
         mesh = createWireframeSphere(scene, circle.r, circle.z.re, 0, circle.z.im);
+        animateToScale(mesh, Math.abs(circle.r));
         if (circle.k < 0) {
           centerCircle = mesh;
           if (DEBUG) {
@@ -290,6 +291,7 @@ function Art() {
     }
 
     function animateSideCircles() {
+      // destination changes as our center circle differs
       const dest = new Vector3(
         centerCircle.position.x - centerCircle.geometry.parameters.radius / 2,
         centerCircle.position.y,

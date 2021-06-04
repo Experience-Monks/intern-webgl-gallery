@@ -33,23 +33,21 @@ const options = {
 //----------------------------------
 // const destPos = { x: 0, y: 0, z: 0 };
 
-//----------------------------------
-//  OIMO PHYSICS
-//----------------------------------
+// animation constants
+const origin = new Vector3(0, 0, 0);
+
 const groundInfo = {
   size: [3000, 5, 3000],
   pos: [0, -80, 0]
 };
+
 /* information for circle seeds */
 const gap = 500;
 const collisionPadding = 5;
-const centerCircleStartPos = new Vector3(300, 0, 400); // used once in init
+const centerCircleStartPos = new Vector3(400, 0, 400); // used once in init
 const centerCircleStartR = 10;
-const leftCircleStartPos = new Vector3(-gap, 0, -gap);
+const leftCircleStartPos = new Vector3(-gap, 0, -gap / 2);
 const rightCircleStartPos = new Vector3(gap, 0, -gap);
-
-// animation constants
-const origin = new Vector3(0, 0, 0);
 
 export {
   colors,

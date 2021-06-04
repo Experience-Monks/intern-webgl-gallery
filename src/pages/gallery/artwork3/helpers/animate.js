@@ -1,28 +1,10 @@
 //----------------------------------
 //  ANIMATE
 //----------------------------------
-import { gsap, Power2 } from 'gsap';
-
-function animateOffscreenToDest(instance, destPos) {
-  const time = 5;
-  gsap.to(instance.position, {
-    duration: time,
-    x: destPos.x,
-    y: destPos.y,
-    z: destPos.z,
-    ease: Power2.easeInOut
-  });
-}
-
-/*
-
-function animateToDest(scene, seeds, destPos, camera) {
-  seeds.forEach((seed) => animateOffscreenToDest(seed, destPos));
-}
-*/
+import { gsap, Power2, Elastic } from 'gsap';
 
 function animateToDest(instance, destPos) {
-  const time = 5;
+  const time = 4;
   gsap.to(instance.position, {
     duration: time,
     x: destPos.x,
@@ -32,4 +14,19 @@ function animateToDest(instance, destPos) {
   });
 }
 
-export default animateToDest;
+function animateToScale(instance, finalRadius) {
+  const time = 3;
+  gsap.fromTo(
+    instance.scale,
+    { x: 0.1, y: 0.1, z: 0.1 },
+    {
+      duration: time,
+      x: 1.2,
+      y: 1.2,
+      z: 1.2,
+      ease: Elastic.easeOut
+    }
+  );
+}
+
+export { animateToDest, animateToScale };
