@@ -174,14 +174,8 @@ function Art() {
     var rightCircleStatic = false;
 
     // CIRCLES CONSTANTS
-    var centerCircleR = 10;
-    const centerCirclePos = new Vector3(300, 0, 400); // used once in init
+    var centerCircleR = constants.centerCircleStartR;
     var sideCircleR = centerCircleR * 0.85;
-    // STAYS THE SAME FOR ALL THE CIRCLES (COME IN FROM THE SAME POSITIONS)
-    const leftCircleStartPos = new Vector3(-constants.gap, 0, -constants.gap);
-    const rightCircleStartPos = new Vector3(constants.gap, 0, -constants.gap);
-
-    // flags
 
     //----------------------------------
     //  INIT FUNCTIONS
@@ -224,9 +218,9 @@ function Art() {
       centerCircle = createWireframeSphere(
         scene,
         centerCircleR,
-        centerCirclePos.x,
-        centerCirclePos.y,
-        centerCirclePos.z
+        constants.centerCircleStartPos.x,
+        constants.centerCircleStartPos.y,
+        constants.centerCircleStartPos.z
       );
     }
 
@@ -282,16 +276,16 @@ function Art() {
       leftCircle = createWireframeSphere(
         scene,
         sideCircleR,
-        leftCircleStartPos.x,
-        leftCircleStartPos.y,
-        leftCircleStartPos.z
+        constants.leftCircleStartPos.x,
+        constants.leftCircleStartPos.y,
+        constants.leftCircleStartPos.z
       );
       rightCircle = createWireframeSphere(
         scene,
         sideCircleR,
-        rightCircleStartPos.x,
-        rightCircleStartPos.y,
-        rightCircleStartPos.z
+        constants.rightCircleStartPos.x,
+        constants.rightCircleStartPos.y,
+        constants.rightCircleStartPos.z
       );
     }
 
