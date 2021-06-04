@@ -32,8 +32,7 @@ import disposeObjects from '../../../utils/dispose-objects';
 const HAS_SHADERS = false;
 const DEBUG = true;
 const ROTATE_SCENE = false;
-const INSERT_DES = true;
-const INIT_TIMES = 5;
+const INIT_TIMES = 6;
 
 function Art() {
   const inputEl = useRef(null);
@@ -139,7 +138,7 @@ function Art() {
         mesh = createWireframeSphere(scene, circle.r, circle.z.re, 0, circle.z.im);
         if (circle.k < 0) {
           // big circles
-          mesh.position.z += (mesh.geometry.parameters.radius / 7) * 6;
+          // mesh.position.z += (mesh.geometry.parameters.radius / 7) * 6;
           centerCircle = mesh;
           if (DEBUG) {
             console.log('updated centerCircle to', mesh);
@@ -180,8 +179,7 @@ function Art() {
 
     // CIRCLES CONSTANTS
     var centerCircleR = 10;
-    var centerCircleZshift = (centerCircleR / 7) * 6;
-    const centerCirclePos = new Vector3(0, 0, centerCircleZshift); // used once in init
+    const centerCirclePos = new Vector3(300, 0, 400); // used once in init
     var sideCircleR = centerCircleR * 0.85;
     // STAYS THE SAME FOR ALL THE CIRCLES (COME IN FROM THE SAME POSITIONS)
     const leftCircleStartPos = new Vector3(-constants.gap, 0, -constants.gap);
@@ -221,7 +219,9 @@ function Art() {
       addTwoCircles();
       animateSideCircles();
       initTimes += 1;
-      console.log('Just reinit. Current initTimes:', initTimes);
+      if (DEBUG) {
+        console.log('Just reinit. Current initTimes:', initTimes);
+      }
     }
 
     function initCenterCircle() {
@@ -240,7 +240,7 @@ function Art() {
     }
 
     function initGround() {
-      let box = createStaticBox(scene, constants.groundInfo.size, constants.groundInfo.pos, [0, 0, 0], 0xffee00);
+      let box = createStaticBox(scene, constants.groundInfo.size, constants.groundInfo.pos, [0, 0, 0], 0x0);
       ground = box;
     }
 
@@ -300,8 +300,16 @@ function Art() {
     }
 
     function animateSideCircles() {
-      animateToDest(leftCircle, constants.origin);
-      animateToDest(rightCircle, constants.origin);
+      const dest = new Vector3(
+        centerCircle.position.x - centerCircle.geometry.parameters.radius / 2,
+        centerCircle.position.y,
+        centerCircle.position.z - centerCircle.geometry.parameters.radius / 2
+      );
+      if (DEBUG) {
+        console.log('new dest is', dest);
+      }
+      animateToDest(leftCircle, dest);
+      animateToDest(rightCircle, dest);
     }
 
     function loop() {
