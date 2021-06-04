@@ -201,7 +201,7 @@ function Art() {
 
     var initTimes = 0;
 
-    /* add new circles into the scene */
+    /* add new circles into the scene, only init for bounded times. */
     function reInit() {
       leftCircleStatic = false;
       rightCircleStatic = false;
