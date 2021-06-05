@@ -31,10 +31,10 @@ const options = {
 //----------------------------------
 //  ANIMATE
 //----------------------------------
-// const destPos = { x: 0, y: 0, z: 0 };
 
 // animation constants
 const origin = new Vector3(0, 0, 0);
+const Yaxis = new Vector3(0, 1, 0);
 
 const groundInfo = {
   size: [3000, 5, 3000],
@@ -42,7 +42,7 @@ const groundInfo = {
 };
 
 /* information for circle seeds */
-const gap = 500;
+const gap = 400;
 const collisionPadding = 5;
 const centerCircleStartPos = new Vector3(400, 0, 400); // used once in init
 const centerCircleStartR = 10;
@@ -55,6 +55,7 @@ export {
   groundInfo,
   collisionPadding,
   origin,
+  Yaxis,
   centerCircleStartPos,
   centerCircleStartR,
   leftCircleStartPos,

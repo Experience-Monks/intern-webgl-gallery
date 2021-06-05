@@ -49,7 +49,7 @@ function Art() {
 
     // SCENE
     const scene = new Scene();
-    scene.background = new Color('white'); ///new Color('rgb(242, 179, 255)');
+    scene.background = new Color('white');
 
     if (DEBUG) {
       scene.background = new Color('black');
@@ -61,7 +61,7 @@ function Art() {
     camera.lookAt(scene.position);
 
     // LIGHT
-    const light = new AmbientLight(0x404040); // soft white light
+    const light = new AmbientLight(0x404040);
     scene.add(light);
 
     // RENDERER
@@ -118,18 +118,27 @@ function Art() {
       });
       */
     }
+
+    /*
+     * Utility function that takes a set of radii and curvatures and returns a list of Circle objects *
+     */
     function circlesFromRadiusCurvature(results) {
-      let c;
+      let circle;
       let circObjs = [];
       results.centers.forEach((center) => {
         results.curvatures.forEach((curve) => {
-          c = new Circle(kToR(curve), center, curve > 0 ? 1 : 2);
-          circObjs.push(c);
+          circle = new Circle(kToR(curve), center, curve > 0 ? 1 : 2);
+          circObjs.push(circle);
         });
       });
       return circObjs;
     }
 
+    /*
+     * Utility function that adds sphere meshes  into the scene from a list of Circle obj
+     * (1) Create mesh
+     * (2) Animate its scale to appear gradually
+     */
     function addMeshesFromCircObjs(circObjs) {
       let mesh;
       circObjs.forEach((circle) => {
@@ -165,7 +174,6 @@ function Art() {
     var uniforms = {}; // for shaders
 
     var quaternion;
-    const axis = new Vector3(0, 1, 0);
 
     // CIRCLES IN SCREEN
     var centerCircle = null; // we keep on updating and keep track of the center circle
@@ -223,6 +231,7 @@ function Art() {
         constants.centerCircleStartPos.y,
         constants.centerCircleStartPos.z
       );
+      animateToScale(centerCircle, centerCircleR);
     }
 
     function initSceneHelper() {
@@ -300,6 +309,8 @@ function Art() {
       if (DEBUG) {
         console.log('new dest is', dest);
       }
+      animateToScale(leftCircle, leftCircle.geometry.parameters.radius);
+      animateToScale(rightCircle, rightCircle.geometry.parameters.radius);
       animateToDest(leftCircle, dest);
       animateToDest(rightCircle, dest);
     }
@@ -319,7 +330,7 @@ function Art() {
         // fns.updateUniforms(uniforms, clock, meshSets);
       }
       if (ROTATE_SCENE) {
-        quaternion.setFromAxisAngle(axis, Math.PI / 200);
+        quaternion.setFromAxisAngle(constants.Yaxis, Math.PI / 200);
         camera.position.applyQuaternion(quaternion);
       }
     }
@@ -331,11 +342,15 @@ function Art() {
       }
     }
 
+    function initAnimation() {
+      addTwoCircles();
+      animateSideCircles();
+    }
+
     function run() {
       initSetup();
       initScene();
-      addTwoCircles();
-      animateSideCircles();
+      initAnimation();
       loop();
     }
 
