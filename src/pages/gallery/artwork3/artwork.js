@@ -12,7 +12,8 @@ import {
   GridHelper,
   Clock,
   Vector3,
-  Quaternion
+  Quaternion,
+  ShaderMaterial
 } from 'three/build/three.module';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { gsap } from 'gsap';
@@ -27,10 +28,10 @@ import { vertexShader, fragmentShader } from './helpers/shader.glsl.js';
 /* clean up */
 import disposeObjects from '../../../utils/dispose-objects';
 
-const HAS_SHADERS = false;
+const HAS_SHADERS = true;
 const DEBUG = false;
-const ROTATE_SCENE = false;
-const INIT_TIMES = 6;
+const ROTATE_SCENE = true;
+const INIT_TIMES = 5;
 
 function Art() {
   const inputEl = useRef(null);
@@ -103,22 +104,50 @@ function Art() {
     // MAIN FUNCTIONS
 
     //----------------------------------
-    //  UTILIZING DESCARTES
+    //  SHADERS
     //----------------------------------
 
     function changeMeshToHaveShaders(set) {
-      /*
       const material = new ShaderMaterial({
         uniforms: uniforms,
         vertexShader: vertexShader,
         fragmentShader: fragmentShader
       });
-      meshSets[set].forEach((mesh) => {
-        mesh.material = material;
-      });
-      */
     }
 
+    /* when we init shader material, none of the spheres are present yet */
+    function initShaderMaterial() {
+      uniforms = {
+        vBallPos0: {
+          value: uniformDefault
+        },
+        vBallPos1: {
+          value: uniformDefault
+        },
+        vBallPos2: {
+          value: uniformDefault
+        },
+        vBallPos3: {
+          value: uniformDefault
+        },
+        u_time: { value: 0.0 }
+      };
+
+      const material = new ShaderMaterial({
+        uniforms: uniforms,
+        vertexShader: vertexShader,
+        fragmentShader: fragmentShader
+      });
+
+      ground.material = material;
+      if (DEBUG) {
+        console.log("init shader material's ground", ground.material);
+      }
+    }
+
+    //----------------------------------
+    //  UTILIZING DESCARTES
+    //----------------------------------
     /*
      * Utility function that takes a set of radii and curvatures and returns a list of Circle objects *
      */
@@ -144,8 +173,10 @@ function Art() {
       circObjs.forEach((circle) => {
         mesh = createWireframeSphere(scene, circle.r, circle.z.re, 0, circle.z.im);
         animateToScale(mesh, Math.abs(circle.r));
+        // if it's a big sphere covering small spheres
         if (circle.k < 0) {
           centerCircle = mesh;
+          bigSphereMeshes.push(mesh);
           if (DEBUG) {
             console.log('updated centerCircle to', mesh);
           }
@@ -160,9 +191,45 @@ function Art() {
       const results = descartes(tangentCircles);
       const circObjs = circlesFromRadiusCurvature(results);
       addMeshesFromCircObjs(circObjs);
+      if (DEBUG) {
+        console.log('Big spheres in scene', bigSphereMeshes.length);
+      }
       if (HAS_SHADERS) {
         // changeMeshToHaveShaders(set);
       }
+    }
+
+    function addTwoCircles() {
+      leftCircle = createWireframeSphere(
+        scene,
+        sideCircleR,
+        constants.leftCircleStartPos.x,
+        constants.leftCircleStartPos.y,
+        constants.leftCircleStartPos.z
+      );
+      rightCircle = createWireframeSphere(
+        scene,
+        sideCircleR,
+        constants.rightCircleStartPos.x,
+        constants.rightCircleStartPos.y,
+        constants.rightCircleStartPos.z
+      );
+    }
+
+    function animateSideCircles() {
+      // destination changes as our center circle differs
+      const dest = new Vector3(
+        centerCircle.position.x - centerCircle.geometry.parameters.radius / 2,
+        centerCircle.position.y,
+        centerCircle.position.z - centerCircle.geometry.parameters.radius / 2
+      );
+      if (DEBUG) {
+        console.log('new dest is', dest);
+      }
+      animateToScale(leftCircle, leftCircle.geometry.parameters.radius);
+      animateToScale(rightCircle, rightCircle.geometry.parameters.radius);
+      animateToDest(leftCircle, dest);
+      animateToDest(rightCircle, dest);
     }
 
     //----------------------------------
@@ -170,10 +237,18 @@ function Art() {
     //----------------------------------
 
     // GLOBALS
-    var ground = null;
-    var uniforms = {}; // for shaders
-
+    var initCnt = 0;
     var quaternion;
+
+    // SHADERS
+    var uniforms = {}; // for shaders
+    const uniformDefault = {
+      x: constants.centerCircleStartPos.x,
+      y: constants.centerCircleStartPos.y,
+      z: constants.centerCircleStartPos.z
+    };
+    var ground = null;
+    var bigSphereMeshes = [];
 
     // CIRCLES IN SCREEN
     var centerCircle = null; // we keep on updating and keep track of the center circle
@@ -194,7 +269,7 @@ function Art() {
       initGround();
       initCenterCircle();
       if (HAS_SHADERS) {
-        // initShaderMaterial();
+        initShaderMaterial();
       }
       if (ROTATE_SCENE) {
         quaternion = new Quaternion();
@@ -207,19 +282,16 @@ function Art() {
     function updateCircleParams() {
       sideCircleR = centerCircle.geometry.parameters.radius * 0.85;
     }
-
-    var initTimes = 0;
-
     /* add new circles into the scene, only init for bounded times. */
-    function reInit() {
+    function insertNewSideCircles() {
       leftCircleStatic = false;
       rightCircleStatic = false;
       updateCircleParams();
       addTwoCircles();
       animateSideCircles();
-      initTimes += 1;
+      initCnt += 1;
       if (DEBUG) {
-        console.log('Just reinit. Current initTimes:', initTimes);
+        console.log('Just insertNewSideCircles. Current initCnt:', initCnt);
       }
     }
 
@@ -278,47 +350,14 @@ function Art() {
       if (leftCircleStatic && rightCircleStatic) {
         const tangentCircles = [leftCircle, centerCircle, rightCircle];
         insertDescartes(fns.meshesToCircles(tangentCircles));
-        reInit();
+        insertNewSideCircles();
       }
-    }
-
-    function addTwoCircles() {
-      leftCircle = createWireframeSphere(
-        scene,
-        sideCircleR,
-        constants.leftCircleStartPos.x,
-        constants.leftCircleStartPos.y,
-        constants.leftCircleStartPos.z
-      );
-      rightCircle = createWireframeSphere(
-        scene,
-        sideCircleR,
-        constants.rightCircleStartPos.x,
-        constants.rightCircleStartPos.y,
-        constants.rightCircleStartPos.z
-      );
-    }
-
-    function animateSideCircles() {
-      // destination changes as our center circle differs
-      const dest = new Vector3(
-        centerCircle.position.x - centerCircle.geometry.parameters.radius / 2,
-        centerCircle.position.y,
-        centerCircle.position.z - centerCircle.geometry.parameters.radius / 2
-      );
-      if (DEBUG) {
-        console.log('new dest is', dest);
-      }
-      animateToScale(leftCircle, leftCircle.geometry.parameters.radius);
-      animateToScale(rightCircle, rightCircle.geometry.parameters.radius);
-      animateToDest(leftCircle, dest);
-      animateToDest(rightCircle, dest);
     }
 
     function loop() {
       render();
       checkCollision();
-      if (initTimes < INIT_TIMES) {
+      if (initCnt < INIT_TIMES) {
         checkInsertDes();
       }
       requestAnimationFrame(loop);
@@ -327,7 +366,7 @@ function Art() {
     function render() {
       renderer.render(scene, camera);
       if (HAS_SHADERS) {
-        // fns.updateUniforms(uniforms, clock, meshSets);
+        fns.updateUniforms(uniforms, clock, bigSphereMeshes);
       }
       if (ROTATE_SCENE) {
         quaternion.setFromAxisAngle(constants.Yaxis, Math.PI / 200);
@@ -365,53 +404,3 @@ function Art() {
 }
 
 export default Art;
-
-/*
-    function initShaderMaterial() {
-      const circ0 = meshSets[0][0];
-      const circ1 = meshSets[1][0];
-      const circ2 = meshSets[2][0];
-      const circ3 = meshSets[3][0];
-      uniforms = {
-        vBallPos0: {
-          value: {
-            x: circ0.position.x,
-            y: circ0.position.y,
-            z: circ0.position.z
-          }
-        },
-        vBallPos1: {
-          value: {
-            x: circ1.position.x,
-            y: circ1.position.y,
-            z: circ1.position.z
-          }
-        },
-        vBallPos2: {
-          value: {
-            x: circ2.position.x,
-            y: circ2.position.y,
-            z: circ2.position.z
-          }
-        },
-        vBallPos3: {
-          value: {
-            x: circ3.position.x,
-            y: circ3.position.y,
-            z: circ3.position.z
-          }
-        },
-        u_time: { value: 0.0 }
-      };
-
-      const material = new ShaderMaterial({
-        uniforms: uniforms,
-        vertexShader: vertexShader,
-        fragmentShader: fragmentShader
-      });
-
-      ground.material = material;
-      if (DEBUG) {
-        console.log("init shader material's ground", ground.material);
-      }
-    }*/
