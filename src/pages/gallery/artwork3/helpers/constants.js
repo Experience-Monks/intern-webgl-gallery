@@ -43,21 +43,42 @@ const groundInfo = {
 
 /* information for circle seeds */
 const gap = 400;
+const adjFactor = 1.5;
 const collisionPadding = 5;
-const centerCircleStartPos = new Vector3(400, 0, 400); // used once in init
+const centerCircleStartPos = new Vector3(0, 0, 350); // used once in init
 const centerCircleStartR = 10;
-const leftCircleStartPos = new Vector3(-gap, 0, -gap / 2);
+const sideCircleStartLeftDest = new Vector3(
+  centerCircleStartPos.x - centerCircleStartR / adjFactor,
+  centerCircleStartPos.y,
+  centerCircleStartPos.z - centerCircleStartR / adjFactor
+);
+const sideCircleStartRightDest = new Vector3(
+  centerCircleStartPos.x + centerCircleStartR / adjFactor,
+  centerCircleStartPos.y,
+  centerCircleStartPos.z - centerCircleStartR / adjFactor
+);
+const leftCircleStartPos = new Vector3(-gap, 0, -gap);
 const rightCircleStartPos = new Vector3(gap, 0, -gap);
+const centerCircleAnimationFrom = new Vector3(0, 0, 800);
+
+// shader
+const uniformDefault = new Vector3(4 * gap, 0, 4 * gap);
 
 export {
   colors,
   options,
+  gap,
   groundInfo,
   collisionPadding,
+  adjFactor,
   origin,
   Yaxis,
   centerCircleStartPos,
   centerCircleStartR,
+  centerCircleAnimationFrom,
+  sideCircleStartLeftDest,
+  sideCircleStartRightDest,
   leftCircleStartPos,
-  rightCircleStartPos
+  rightCircleStartPos,
+  uniformDefault
 };
