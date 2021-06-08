@@ -31,8 +31,8 @@ import disposeObjects from '../../../utils/dispose-objects';
 
 const HAS_SHADERS = true;
 const DEBUG = false;
-const ROTATE_SCENE = true;
-const INIT_TIMES = 5;
+const ROTATE_SCENE = false;
+const INIT_TIMES = 6;
 
 function Art() {
   const inputEl = useRef(null);
@@ -131,7 +131,15 @@ function Art() {
         vBallPos3: {
           value: uniformDefault
         },
-        u_time: { value: 0.0 }
+        vBallPos4: {
+          value: uniformDefault
+        },
+        vBallPos5: {
+          value: uniformDefault
+        },
+        u_time: { value: 0.0 },
+        vCenter: { value: constants.centerCircleStartPos },
+        radius: { value: centerCircle.geometry.parameters.radius }
       };
 
       const material = new ShaderMaterial({
@@ -144,6 +152,47 @@ function Art() {
       if (DEBUG) {
         console.log("init shader material's ground", ground.material);
       }
+    }
+
+    function updateUniforms() {
+      if (bigSphereMeshes[0] !== undefined) {
+        uniforms.vBallPos0.value.x = bigSphereMeshes[0].position.x;
+        uniforms.vBallPos0.value.y = bigSphereMeshes[0].position.y;
+        uniforms.vBallPos0.value.z = bigSphereMeshes[0].position.z;
+      }
+
+      if (bigSphereMeshes[1] !== undefined) {
+        uniforms.vBallPos1.value.x = bigSphereMeshes[1].position.x;
+        uniforms.vBallPos1.value.y = bigSphereMeshes[1].position.y;
+        uniforms.vBallPos1.value.z = bigSphereMeshes[1].position.z;
+      }
+
+      if (bigSphereMeshes[2] !== undefined) {
+        uniforms.vBallPos2.value.x = bigSphereMeshes[2].position.x;
+        uniforms.vBallPos2.value.y = bigSphereMeshes[2].position.y;
+        uniforms.vBallPos2.value.z = bigSphereMeshes[2].position.z;
+      }
+
+      if (bigSphereMeshes[3] !== undefined) {
+        uniforms.vBallPos3.value.x = bigSphereMeshes[3].position.x;
+        uniforms.vBallPos3.value.y = bigSphereMeshes[3].position.y;
+        uniforms.vBallPos3.value.z = bigSphereMeshes[3].position.z;
+      }
+
+      if (bigSphereMeshes[4] !== undefined) {
+        uniforms.vBallPos4.value.x = bigSphereMeshes[4].position.x;
+        uniforms.vBallPos4.value.y = bigSphereMeshes[4].position.y;
+        uniforms.vBallPos4.value.z = bigSphereMeshes[4].position.z;
+      }
+
+      if (bigSphereMeshes[5] !== undefined) {
+        uniforms.vBallPos5.value.x = bigSphereMeshes[5].position.x;
+        uniforms.vBallPos5.value.y = bigSphereMeshes[5].position.y;
+        uniforms.vBallPos5.value.z = bigSphereMeshes[5].position.z;
+      }
+
+      uniforms.u_time.value = clock.getElapsedTime();
+      uniforms.radius.value = centerCircle.geometry.parameters.radius;
     }
 
     //----------------------------------
@@ -177,9 +226,13 @@ function Art() {
         // if it's a big sphere covering small spheres
         if (circle.k < 0) {
           centerCircle = mesh;
-          bigSphereMeshes.push(mesh);
+          bigSphereMeshes[initCnt] = mesh;
           if (DEBUG) {
             console.log('updated centerCircle to', mesh);
+            console.log(
+              'bigSphereMeshes',
+              bigSphereMeshes.map((x) => (x === undefined ? 'undefined' : x.position))
+            );
           }
         }
       });
@@ -217,20 +270,30 @@ function Art() {
       );
     }
 
-    function animateSideCircles() {
+    function animateSideCircles(areInitialSides = false) {
       // destination changes as our center circle differs
-      const dest = new Vector3(
-        centerCircle.position.x - centerCircle.geometry.parameters.radius / 2,
-        centerCircle.position.y,
-        centerCircle.position.z - centerCircle.geometry.parameters.radius / 2
-      );
+      const adjFactor = constants.adjFactor;
+      const leftDest = areInitialSides
+        ? constants.sideCircleStartLeftDest
+        : new Vector3(
+            centerCircle.position.x - centerCircle.geometry.parameters.radius / adjFactor,
+            centerCircle.position.y,
+            centerCircle.position.z - centerCircle.geometry.parameters.radius
+          );
+      const rightDest = areInitialSides
+        ? constants.sideCircleStartRightDest
+        : new Vector3(
+            centerCircle.position.x + centerCircle.geometry.parameters.radius / adjFactor,
+            centerCircle.position.y,
+            centerCircle.position.z - centerCircle.geometry.parameters.radius
+          );
       if (DEBUG) {
-        console.log('new dest is', dest);
+        console.log('new dest is', leftDest, rightDest);
       }
       animateToScale(leftCircle, leftCircle.geometry.parameters.radius);
       animateToScale(rightCircle, rightCircle.geometry.parameters.radius);
-      animateToDest(leftCircle, dest);
-      animateToDest(rightCircle, dest);
+      animateToDest(leftCircle, leftDest);
+      animateToDest(rightCircle, rightDest);
     }
 
     //----------------------------------
@@ -243,11 +306,7 @@ function Art() {
 
     // SHADERS
     var uniforms = {}; // for shaders
-    const uniformDefault = {
-      x: constants.centerCircleStartPos.x,
-      y: constants.centerCircleStartPos.y,
-      z: constants.centerCircleStartPos.z
-    };
+    const uniformDefault = constants.uniformDefault;
     var ground = null;
     var bigSphereMeshes = [];
 
@@ -269,6 +328,12 @@ function Art() {
     function initScene() {
       initGround();
       initCenterCircle();
+      bigSphereMeshes = [];
+      initCnt = 0;
+      uniforms = {};
+      for (var i = 0; i < INIT_TIMES; i++) {
+        bigSphereMeshes[i] = undefined;
+      }
       if (HAS_SHADERS) {
         initShaderMaterial();
       }
@@ -297,14 +362,9 @@ function Art() {
     }
 
     function initCenterCircle() {
-      centerCircle = createWireframeSphere(
-        scene,
-        centerCircleR,
-        constants.centerCircleStartPos.x,
-        constants.centerCircleStartPos.y,
-        constants.centerCircleStartPos.z
-      );
+      centerCircle = createWireframeSphere(scene, centerCircleR, 0, constants.gap * 2, 0);
       animateToScale(centerCircle, centerCircleR);
+      animateToDest(centerCircle, constants.centerCircleStartPos);
     }
 
     function initSceneHelper() {
@@ -367,7 +427,7 @@ function Art() {
     function render() {
       renderer.render(scene, camera);
       if (HAS_SHADERS) {
-        fns.updateUniforms(uniforms, clock, bigSphereMeshes);
+        updateUniforms();
       }
       if (ROTATE_SCENE) {
         quaternion.setFromAxisAngle(constants.Yaxis, Math.PI / 200);
@@ -384,7 +444,7 @@ function Art() {
 
     function initAnimation() {
       addTwoCircles();
-      animateSideCircles();
+      animateSideCircles(true);
     }
 
     function run() {
