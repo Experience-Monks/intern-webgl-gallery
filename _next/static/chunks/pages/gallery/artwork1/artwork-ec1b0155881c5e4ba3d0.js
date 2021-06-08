@@ -1,1 +1,0 @@
-_N_E=(window.webpackJsonp_N_E=window.webpackJsonp_N_E||[]).push([[17],{WvLX:function(w,_,n){(window.__NEXT_P=window.__NEXT_P||[]).push(["/gallery/artwork1/artwork",function(){return n("5Hqo")}])}},[["WvLX",0,2,3,1,4,7,9]]]);
