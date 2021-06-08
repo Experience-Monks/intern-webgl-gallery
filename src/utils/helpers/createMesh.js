@@ -15,13 +15,13 @@ import {
   MeshStandardMaterial
 } from 'three/build/three.module';
 
-var texture;
+//var texture;
 
 function loadTexture() {
   const textureLoader = new TextureLoader();
-  texture = textureLoader.load('../../assets/textures/porcelain.jpg');
+  return textureLoader.load('../../../assets/textures/porcelain.jpg');
 }
-loadTexture();
+//loadTexture();
 
 function createSphere(scene, _radius, x, y, z, wireF) {
   const radius = Math.abs(_radius);
@@ -44,6 +44,7 @@ function createSphere(scene, _radius, x, y, z, wireF) {
 
 function createMatcapSphere(scene, _radius, x, y, z) {
   const radius = Math.abs(_radius);
+  const texture = loadTexture();
   if (radius === undefined || x === undefined || y === undefined || z === undefined) {
     console.log('Undefined inputs to createMatcapSphere');
     return;

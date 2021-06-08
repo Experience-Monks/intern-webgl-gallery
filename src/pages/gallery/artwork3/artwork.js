@@ -20,13 +20,13 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { gsap } from 'gsap';
 
 /* custom helper functions */
-import Circle from './helpers/circle.js';
-import { descartes, kToR } from './helpers/descartes.js';
-import * as constants from './helpers/constants.js';
-import * as fns from './helpers/functions.js';
-import { createWireframeSphere, createStaticBox } from './helpers/createMesh.js';
-import { animateToDest, animateToScale } from './helpers/animate.js';
-import { vertexShader, fragmentShader } from './helpers/shader.glsl.js';
+import Circle from '../../../utils/helpers/circle.js';
+import { descartes, kToR } from '../../../utils/helpers/descartes.js';
+import * as constants from '../../../utils/helpers/constants.js';
+import * as fns from '../../../utils/helpers/functions.js';
+import { createWireframeSphere, createStaticBox } from '../../../utils/helpers/createMesh.js';
+import { animateToDest, animateToScale } from '../../../utils/helpers/animate.js';
+import { vertexShader, fragmentShader } from '../../../utils/helpers/shader.glsl.js';
 
 /* clean up */
 import disposeObjects from '../../../utils/dispose-objects';
