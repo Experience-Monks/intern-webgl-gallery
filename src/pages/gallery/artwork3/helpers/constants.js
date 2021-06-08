@@ -31,51 +31,33 @@ const options = {
 //----------------------------------
 //  ANIMATE
 //----------------------------------
-// const destPos = { x: 0, y: 0, z: 0 };
 
-//----------------------------------
-//  OIMO PHYSICS
-//----------------------------------
+// animation constants
+const origin = new Vector3(0, 0, 0);
+const Yaxis = new Vector3(0, 1, 0);
+
 const groundInfo = {
   size: [3000, 5, 3000],
   pos: [0, -80, 0]
 };
-/* information for circle seeds */
-const gap = 150;
-const destPosSetsOrig = [
-  new Vector3(gap, 0, gap),
-  new Vector3(-gap, 0, -gap),
-  new Vector3(gap, 0, -gap),
-  new Vector3(-gap, 0, gap)
-];
-const destPosSets = [new Vector3(-gap, 0, 0), new Vector3(0, 0, -gap), new Vector3(gap, 0, 0), new Vector3(0, 0, gap)];
-const startY = 500;
-const seed = [
-  {
-    r: 60,
-    x: -300,
-    y: startY,
-    z: -300
-  },
-  {
-    r: 60,
-    x: 300,
-    y: startY,
-    z: -300
-  },
-  {
-    r: 70,
-    x: 0,
-    y: startY,
-    z: 300
-  }
-];
-const originSeed = [
-  { r: 60, x: -250 + Math.random(-10, 10), y: startY, z: -250 + Math.random(-10, 10) },
-  { r: 60, x: 250 + Math.random(-10, 10), y: startY, z: -250 + Math.random(0, 10) },
-  { r: 70, x: Math.random(-10, 10), y: startY, z: 250 + Math.random(-10, 10) }
-];
-const collisionPadding = 5;
-const seedOpts = [originSeed, originSeed, originSeed, originSeed];
 
-export { colors, options, groundInfo, destPosSets, seedOpts, collisionPadding };
+/* information for circle seeds */
+const gap = 400;
+const collisionPadding = 5;
+const centerCircleStartPos = new Vector3(400, 0, 400); // used once in init
+const centerCircleStartR = 10;
+const leftCircleStartPos = new Vector3(-gap, 0, -gap / 2);
+const rightCircleStartPos = new Vector3(gap, 0, -gap);
+
+export {
+  colors,
+  options,
+  groundInfo,
+  collisionPadding,
+  origin,
+  Yaxis,
+  centerCircleStartPos,
+  centerCircleStartR,
+  leftCircleStartPos,
+  rightCircleStartPos
+};

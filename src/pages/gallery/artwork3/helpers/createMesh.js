@@ -43,12 +43,12 @@ function createSphere(scene, _radius, x, y, z, wireF) {
 function createMatcapSphere(scene, _radius, x, y, z) {
   const radius = Math.abs(_radius);
   if (radius === undefined || x === undefined || y === undefined || z === undefined) {
-    console.log('Undefined inputs to createSphere');
+    console.log('Undefined inputs to createMatcapSphere');
     return;
   }
   const geometry = new SphereGeometry(radius, 32, 32);
   const material = new MeshMatcapMaterial({
-    color: 0xffffff,
+    color: 0x005500,
     matcap: texture
   });
   const sphere = new Mesh(geometry, material);
@@ -60,7 +60,7 @@ function createMatcapSphere(scene, _radius, x, y, z) {
 function createWireframeSphere(scene, _radius, x, y, z) {
   const radius = Math.abs(_radius);
   if (radius === undefined || x === undefined || y === undefined || z === undefined) {
-    console.log('Undefined inputs to createSphere');
+    console.log('Undefined inputs to createWireframeSphere');
     return;
   }
   const geometry = new SphereGeometry(radius, 32, 32);
