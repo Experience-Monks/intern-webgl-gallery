@@ -48,12 +48,13 @@ void main (void)
   float d6 = clamp(abs(distance(vBallPos5.xz, vPosition.xz)) / adJust, 0.0, 1.0);
 
   // smoothstep
+  /*
   d1 = smoothstep(stepMin, stepMax, d1);
   d2 = smoothstep(stepMin, stepMax, d2);
   d3 = smoothstep(stepMin, stepMax, d3);
   d4 = smoothstep(stepMin, stepMax, d4);
   d5 = smoothstep(stepMin, stepMax, d5);
-  d6 = smoothstep(stepMin, stepMax, d6);
+  d6 = smoothstep(stepMin, stepMax, d6); */
 
   // assemble colors
   float d = d1 * d2 * d3 * d4 * d5 * d6;
@@ -68,6 +69,8 @@ void main (void)
   // final output
   color = mix(color2, color1, d + random(vPosition.xz) * 5. * sin(u_time + cos(d + vNormal.y)) / (0.5 + fract(abs(cos(u_time + vPosition.x)))));
   gl_FragColor = vec4(color.r, clamp(color.g + 0.7*(radius / 1000.0), 0.0, 0.75), vNormal.x- sin(u_time / vPosition.x + vPosition.z), 1.0);
+
+  // gl_FragColor = vec4(vec3(d2), 1.0);
 }
 `;
 

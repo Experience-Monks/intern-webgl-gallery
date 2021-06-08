@@ -18,14 +18,16 @@ import {
 } from 'three/build/three.module';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { gsap } from 'gsap';
+
 /* custom helper functions */
 import Circle from './helpers/circle.js';
 import { descartes, kToR } from './helpers/descartes.js';
 import * as constants from './helpers/constants.js';
 import * as fns from './helpers/functions.js';
-import { createMatcapSphere, createWireframeSphere, createStaticBox } from './helpers/createMesh.js';
+import { createWireframeSphere, createStaticBox } from './helpers/createMesh.js';
 import { animateToDest, animateToScale } from './helpers/animate.js';
 import { vertexShader, fragmentShader } from './helpers/shader.glsl.js';
+
 /* clean up */
 import disposeObjects from '../../../utils/dispose-objects';
 
@@ -109,7 +111,7 @@ function Art() {
     //----------------------------------
 
     function changeMeshToHaveShaders() {
-      if (smallCircle != undefined) {
+      if (smallCircle !== undefined) {
         const material = new ShaderMaterial({
           uniforms: uniforms,
           vertexShader: vertexShader,
@@ -162,12 +164,16 @@ function Art() {
         uniforms.vBallPos0.value.x = bigSphereMeshes[0].position.x;
         uniforms.vBallPos0.value.y = bigSphereMeshes[0].position.y;
         uniforms.vBallPos0.value.z = bigSphereMeshes[0].position.z;
+
+        // console.log('inside: ', 'uniforms', uniforms.vBallPos0.value.z, 'meshes', bigSphereMeshes[0].position.z);
       }
 
       if (bigSphereMeshes[1] !== undefined) {
         uniforms.vBallPos1.value.x = bigSphereMeshes[1].position.x;
         uniforms.vBallPos1.value.y = bigSphereMeshes[1].position.y;
         uniforms.vBallPos1.value.z = bigSphereMeshes[1].position.z;
+
+        // console.log('inside: ', 'uniforms', uniforms.vBallPos1.value.z, 'meshes', bigSphereMeshes[1].position.z);
       }
 
       if (bigSphereMeshes[2] !== undefined) {
@@ -193,8 +199,33 @@ function Art() {
         uniforms.vBallPos5.value.y = bigSphereMeshes[5].position.y;
         uniforms.vBallPos5.value.z = bigSphereMeshes[5].position.z;
       }
-
       uniforms.u_time.value = clock.getElapsedTime();
+      /*
+      if (
+        bigSphereMeshes[0] !== undefined &&
+        bigSphereMeshes[1] !== undefined &&
+        bigSphereMeshes[2] !== undefined &&
+        bigSphereMeshes[3] !== undefined &&
+        bigSphereMeshes[4] !== undefined &&
+        bigSphereMeshes[5] !== undefined
+      )
+
+        console.log(
+          'uniforms',
+          uniforms.vBallPos0.value.z,
+          uniforms.vBallPos1.value.z,
+          uniforms.vBallPos2.value.z,
+          uniforms.vBallPos3.value.z,
+          uniforms.vBallPos4.value.z,
+          uniforms.vBallPos5.value.z,
+          'meshes',
+          bigSphereMeshes[0].position.z,
+          bigSphereMeshes[1].position.z,
+          bigSphereMeshes[2].position.z,
+          bigSphereMeshes[3].position.z,
+          bigSphereMeshes[4].position.z,
+          bigSphereMeshes[5].position.z
+        );*/
       uniforms.radius.value = centerCircle.geometry.parameters.radius;
     }
 
@@ -228,8 +259,8 @@ function Art() {
         animateToScale(mesh, Math.abs(circle.r));
         // if it's a big sphere covering small spheres
         if (circle.k < 0) {
+          bigSphereMeshes.push(mesh);
           centerCircle = mesh;
-          bigSphereMeshes[initCnt] = mesh;
           if (DEBUG) {
             console.log('updated centerCircle to', mesh);
             console.log(
