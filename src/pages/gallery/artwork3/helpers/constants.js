@@ -45,7 +45,7 @@ const groundInfo = {
 const gap = 400;
 const adjFactor = 1.5;
 const collisionPadding = 5;
-const centerCircleStartPos = new Vector3(0, 0, 400); // used once in init
+const centerCircleStartPos = new Vector3(0, 0, 350); // used once in init
 const centerCircleStartR = 10;
 const sideCircleStartLeftDest = new Vector3(
   centerCircleStartPos.x - centerCircleStartR / adjFactor,
@@ -59,6 +59,7 @@ const sideCircleStartRightDest = new Vector3(
 );
 const leftCircleStartPos = new Vector3(-gap, 0, -gap);
 const rightCircleStartPos = new Vector3(gap, 0, -gap);
+const centerCircleAnimationFrom = new Vector3(0, 0, 800);
 
 // shader
 const uniformDefault = new Vector3(4 * gap, 0, 4 * gap);
@@ -74,6 +75,7 @@ export {
   Yaxis,
   centerCircleStartPos,
   centerCircleStartR,
+  centerCircleAnimationFrom,
   sideCircleStartLeftDest,
   sideCircleStartRightDest,
   leftCircleStartPos,

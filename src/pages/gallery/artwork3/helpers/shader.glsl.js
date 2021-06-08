@@ -36,7 +36,7 @@ void main (void)
   vec3 color4 = vec3(0.7, 0.2, 0.5);
   vec3 color5 = vec3(0.3, 0.2, 0.1);
   float adJust = radius + 100.0; // changes the radius size
-  float stepMin = 0.8;
+  float stepMin = 0.3;
   float stepMax = 1.0;
 
   // get distances
@@ -66,8 +66,8 @@ void main (void)
   vec3 color = mix1 * mix2 * mix3 * mix4; 
 
   // final output
-  // color = mix(color2, color1, d + random(vPosition.xz) * 8. * sin(u_time + cos(d)) / (0.5 + fract(abs(cos(u_time + vPosition.x)))));
-  gl_FragColor = vec4(mix1.r, mix3.g, mix4.b, 1.0);
+  color = mix(color2, color1, d + random(vPosition.xz) * 5. * sin(u_time + cos(d + vNormal.y)) / (0.5 + fract(abs(cos(u_time + vPosition.x)))));
+  gl_FragColor = vec4(color.r, clamp(color.g + 0.7*(radius / 1000.0), 0.0, 0.75), vNormal.x- sin(u_time / vPosition.x + vPosition.z), 1.0);
 }
 `;
 

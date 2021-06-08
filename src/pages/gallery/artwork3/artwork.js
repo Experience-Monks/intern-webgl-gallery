@@ -31,7 +31,7 @@ import disposeObjects from '../../../utils/dispose-objects';
 
 const HAS_SHADERS = true;
 const DEBUG = false;
-const ROTATE_SCENE = false;
+const ROTATE_SCENE = true;
 const INIT_TIMES = 6;
 
 function Art() {
@@ -108,12 +108,15 @@ function Art() {
     //  SHADERS
     //----------------------------------
 
-    function changeMeshToHaveShaders(set) {
-      const material = new ShaderMaterial({
-        uniforms: uniforms,
-        vertexShader: vertexShader,
-        fragmentShader: fragmentShader
-      });
+    function changeMeshToHaveShaders() {
+      if (smallCircle != undefined) {
+        const material = new ShaderMaterial({
+          uniforms: uniforms,
+          vertexShader: vertexShader,
+          fragmentShader: fragmentShader
+        });
+        smallCircle.material = material;
+      }
     }
 
     /* when we init shader material, none of the spheres are present yet */
@@ -139,7 +142,7 @@ function Art() {
         },
         u_time: { value: 0.0 },
         vCenter: { value: constants.centerCircleStartPos },
-        radius: { value: centerCircle.geometry.parameters.radius }
+        radius: { value: constants.centerCircleStartR }
       };
 
       const material = new ShaderMaterial({
@@ -234,6 +237,9 @@ function Art() {
               bigSphereMeshes.map((x) => (x === undefined ? 'undefined' : x.position))
             );
           }
+        } else {
+          // small circle
+          smallCircle = mesh;
         }
       });
     }
@@ -249,7 +255,7 @@ function Art() {
         console.log('Big spheres in scene', bigSphereMeshes.length);
       }
       if (HAS_SHADERS) {
-        // changeMeshToHaveShaders(set);
+        changeMeshToHaveShaders();
       }
     }
 
@@ -309,6 +315,7 @@ function Art() {
     const uniformDefault = constants.uniformDefault;
     var ground = null;
     var bigSphereMeshes = [];
+    var smallCircle = null;
 
     // CIRCLES IN SCREEN
     var centerCircle = null; // we keep on updating and keep track of the center circle
@@ -331,9 +338,6 @@ function Art() {
       bigSphereMeshes = [];
       initCnt = 0;
       uniforms = {};
-      for (var i = 0; i < INIT_TIMES; i++) {
-        bigSphereMeshes[i] = undefined;
-      }
       if (HAS_SHADERS) {
         initShaderMaterial();
       }
@@ -362,7 +366,14 @@ function Art() {
     }
 
     function initCenterCircle() {
-      centerCircle = createWireframeSphere(scene, centerCircleR, 0, constants.gap * 2, 0);
+      centerCircle = createWireframeSphere(
+        scene,
+        centerCircleR,
+        constants.centerCircleAnimationFrom.x,
+        constants.centerCircleAnimationFrom.y,
+        constants.centerCircleAnimationFrom.z,
+        0
+      );
       animateToScale(centerCircle, centerCircleR);
       animateToDest(centerCircle, constants.centerCircleStartPos);
     }

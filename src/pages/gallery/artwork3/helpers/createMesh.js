@@ -30,9 +30,11 @@ function createSphere(scene, _radius, x, y, z, wireF) {
     return;
   }
   const geometry = new SphereGeometry(radius, 32, 32);
-  const material = new MeshNormalMaterial({
-    color: `pink`,
-    wireframe: false
+  const material = new MeshStandardMaterial({
+    color: 'black',
+    wireframe: false,
+    wireframeLinewidth: 0.1,
+    morphTargets: true
   });
   const sphere = new Mesh(geometry, material);
   sphere.position.set(x, y, z);
