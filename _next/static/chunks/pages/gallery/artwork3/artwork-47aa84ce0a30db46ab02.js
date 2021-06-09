@@ -1,1 +1,0 @@
-_N_E=(window.webpackJsonp_N_E=window.webpackJsonp_N_E||[]).push([[23],{sf0y:function(w,_,n){(window.__NEXT_P=window.__NEXT_P||[]).push(["/gallery/artwork3/artwork",function(){return n("4Fu4")}])}},[["sf0y",0,2,3,1,5,8,9]]]);
