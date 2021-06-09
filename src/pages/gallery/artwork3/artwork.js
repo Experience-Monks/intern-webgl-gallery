@@ -34,7 +34,7 @@ import disposeObjects from '../../../utils/dispose-objects';
 const HAS_SHADERS = true;
 const DEBUG = false;
 const ROTATE_SCENE = true;
-const INIT_TIMES = 6;
+const INIT_TIMES = 7;
 
 function Art() {
   const inputEl = useRef(null);
@@ -59,8 +59,8 @@ function Art() {
       scene.background = new Color('black');
     }
     // CAMERA
-    const camera = new PerspectiveCamera(75, inputEl.current.offsetWidth / inputEl.current.offsetHeight, 0.1, 1500);
-    camera.position.set(0, 600, 20);
+    const camera = new PerspectiveCamera(75, inputEl.current.offsetWidth / inputEl.current.offsetHeight, 0.1, 2000);
+    camera.position.set(0, 700, 100);
     camera.updateProjectionMatrix();
     camera.lookAt(scene.position);
 
@@ -97,10 +97,10 @@ function Art() {
       controls.addEventListener('change', render);
       controls.enableZoom = true;
       controls.enablePan = false;
-      controls.maxPolarAngle = Math.PI * 0.495;
-      controls.target.set(0, 10, 0);
+      controls.maxPolarAngle = Math.PI; //* 0.495;
+      controls.target.set(0, 0, 0);
       controls.minDistance = 40.0;
-      controls.maxDistance = 600.0;
+      controls.maxDistance = 1000.0;
       controls.update();
     }
 
@@ -123,24 +123,51 @@ function Art() {
 
     /* when we init shader material, none of the spheres are present yet */
     function initShaderMaterial() {
+      const _x = 0;
+      const _y = 0;
+      const _z = constants.gap * 2;
       uniforms = {
         vBallPos0: {
-          value: uniformDefault
+          value: {
+            x: _x,
+            y: _y,
+            z: _z
+          }
         },
         vBallPos1: {
-          value: uniformDefault
+          value: {
+            x: _x,
+            y: _y,
+            z: _z
+          }
         },
         vBallPos2: {
-          value: uniformDefault
+          value: {
+            x: _x,
+            y: _y,
+            z: _z
+          }
         },
         vBallPos3: {
-          value: uniformDefault
+          value: {
+            x: _x,
+            y: _y,
+            z: _z
+          }
         },
         vBallPos4: {
-          value: uniformDefault
+          value: {
+            x: _x,
+            y: _y,
+            z: _z
+          }
         },
         vBallPos5: {
-          value: uniformDefault
+          value: {
+            x: _x,
+            y: _y,
+            z: _z
+          }
         },
         u_time: { value: 0.0 },
         vCenter: { value: constants.centerCircleStartPos },
@@ -164,16 +191,12 @@ function Art() {
         uniforms.vBallPos0.value.x = bigSphereMeshes[0].position.x;
         uniforms.vBallPos0.value.y = bigSphereMeshes[0].position.y;
         uniforms.vBallPos0.value.z = bigSphereMeshes[0].position.z;
-
-        // console.log('inside: ', 'uniforms', uniforms.vBallPos0.value.z, 'meshes', bigSphereMeshes[0].position.z);
       }
 
       if (bigSphereMeshes[1] !== undefined) {
         uniforms.vBallPos1.value.x = bigSphereMeshes[1].position.x;
         uniforms.vBallPos1.value.y = bigSphereMeshes[1].position.y;
         uniforms.vBallPos1.value.z = bigSphereMeshes[1].position.z;
-
-        // console.log('inside: ', 'uniforms', uniforms.vBallPos1.value.z, 'meshes', bigSphereMeshes[1].position.z);
       }
 
       if (bigSphereMeshes[2] !== undefined) {
@@ -199,33 +222,8 @@ function Art() {
         uniforms.vBallPos5.value.y = bigSphereMeshes[5].position.y;
         uniforms.vBallPos5.value.z = bigSphereMeshes[5].position.z;
       }
-      uniforms.u_time.value = clock.getElapsedTime();
-      /*
-      if (
-        bigSphereMeshes[0] !== undefined &&
-        bigSphereMeshes[1] !== undefined &&
-        bigSphereMeshes[2] !== undefined &&
-        bigSphereMeshes[3] !== undefined &&
-        bigSphereMeshes[4] !== undefined &&
-        bigSphereMeshes[5] !== undefined
-      )
 
-        console.log(
-          'uniforms',
-          uniforms.vBallPos0.value.z,
-          uniforms.vBallPos1.value.z,
-          uniforms.vBallPos2.value.z,
-          uniforms.vBallPos3.value.z,
-          uniforms.vBallPos4.value.z,
-          uniforms.vBallPos5.value.z,
-          'meshes',
-          bigSphereMeshes[0].position.z,
-          bigSphereMeshes[1].position.z,
-          bigSphereMeshes[2].position.z,
-          bigSphereMeshes[3].position.z,
-          bigSphereMeshes[4].position.z,
-          bigSphereMeshes[5].position.z
-        );*/
+      uniforms.u_time.value = clock.getElapsedTime();
       uniforms.radius.value = centerCircle.geometry.parameters.radius;
     }
 
@@ -343,7 +341,6 @@ function Art() {
 
     // SHADERS
     var uniforms = {}; // for shaders
-    const uniformDefault = constants.uniformDefault;
     var ground = null;
     var bigSphereMeshes = [];
     var smallCircle = null;

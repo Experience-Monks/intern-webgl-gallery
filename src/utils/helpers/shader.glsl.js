@@ -30,13 +30,13 @@ float random (vec2 st) {
 void main (void)
 {
   // constants
-  vec3 color1 = vec3(0.6, 0.5, 0.8);
-  vec3 color2 = vec3(0.9, 0.4, 0.7);
-  vec3 color3 = vec3(0.2, 0.5, 0.3);
+  vec3 color1 = vec3(0.6, 0.2, 0.5);
+  vec3 color2 = vec3(0.1, 0.4, 0.9);
+  vec3 color3 = vec3(0.4, 0.3, 0.3);
   vec3 color4 = vec3(0.7, 0.2, 0.5);
-  vec3 color5 = vec3(0.3, 0.2, 0.1);
+  vec3 color5 = vec3(0.4, 0.4, 0.4);
   float adJust = radius + 100.0; // changes the radius size
-  float stepMin = 0.3;
+  float stepMin = -0.35;
   float stepMax = 1.0;
 
   // get distances
@@ -48,29 +48,33 @@ void main (void)
   float d6 = clamp(abs(distance(vBallPos5.xz, vPosition.xz)) / adJust, 0.0, 1.0);
 
   // smoothstep
-  /*
   d1 = smoothstep(stepMin, stepMax, d1);
   d2 = smoothstep(stepMin, stepMax, d2);
   d3 = smoothstep(stepMin, stepMax, d3);
   d4 = smoothstep(stepMin, stepMax, d4);
   d5 = smoothstep(stepMin, stepMax, d5);
-  d6 = smoothstep(stepMin, stepMax, d6); */
+  d6 = smoothstep(stepMin, stepMax, d6); 
 
   // assemble colors
   float d = d1 * d2 * d3 * d4 * d5 * d6;
 
   // mixes explorations
   vec3 mix1 = mix(color1, color2, d1);
-  vec3 mix2 = mix(mix1, color3, d2);
-  vec3 mix3 = mix(mix2, color4, d3);
-  vec3 mix4 = mix(mix3, color5, d4);
-  vec3 color = mix1 * mix2 * mix3 * mix4; 
+  vec3 mix2 = mix(color1, color2, d2);
+  vec3 mix3 = mix(color1, color2, d3);
+  vec3 mix4 = mix(color1, color2, d4);
+  vec3 mix5 = mix(color1, color2, d5);
+  vec3 mix6 = mix(color1, color2, d6);
+  vec3 color = mix1 * mix2 * mix3 * mix4 * mix5 * mix6; 
 
   // final output
-  color = mix(color2, color1, d + random(vPosition.xz) * 5. * sin(u_time + cos(d + vNormal.y)) / (0.5 + fract(abs(cos(u_time + vPosition.x)))));
-  gl_FragColor = vec4(color.r, clamp(color.g + 0.7*(radius / 1000.0), 0.0, 0.75), vNormal.x- sin(u_time / vPosition.x + vPosition.z), 1.0);
-
-  // gl_FragColor = vec4(vec3(d2), 1.0);
+  float mixVal = d + random(vPosition.xy) * abs(sin(u_time +cos(vPosition.z / d)));
+  color = mix(color, color4, mixVal);
+  float diagPattern = abs(sin(u_time / (vPosition.x / vPosition.z)));
+  float r = clamp(color.r + 0.15 * (1.0 - diagPattern), 0.1, 0.85);
+  float g = clamp(color.g + 0.7 * (radius / 100.0) * diagPattern, 0.1, 0.35);
+  float b = clamp(vNormal.x +  abs(sin(u_time) * diagPattern), 0.1, 0.75);
+  gl_FragColor = vec4(r, 1.0-g, 1.0-b, 1.0);
 }
 `;
 

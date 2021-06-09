@@ -15,7 +15,7 @@ const cameraPositions = {
   horizontal: [0, 0, 600]
 };
 const options = {
-  backgroundColor: `lightblue`,
+  backgroundColor: 'lightblue',
   antialias: true,
   cameraPosition: cameraPositions.horizontal,
   grid: {
@@ -42,10 +42,10 @@ const groundInfo = {
 };
 
 /* information for circle seeds */
-const gap = 400;
+const gap = 500;
 const adjFactor = 1.5;
 const collisionPadding = 5;
-const centerCircleStartPos = new Vector3(0, 0, 350); // used once in init
+const centerCircleStartPos = new Vector3(0, 0, 200); // used once in init
 const centerCircleStartR = 10;
 const sideCircleStartLeftDest = new Vector3(
   centerCircleStartPos.x - centerCircleStartR / adjFactor,
