@@ -1,6 +1,9 @@
 @import '../../styles/shared.scss';
 
 .About {
+  background-color: $dark-grey;
+  color: $white;
+
   > .title {
     margin: 0;
     width: 100%;

@@ -6,8 +6,8 @@
   left: 0;
   width: 100%;
   padding: 0 px(20);
-  box-shadow: $element-shadow;
-  background-color: $white;
+  color: $white;
+
   @include z-index(main-nav);
   @include flex-center-vert;
   height: $navbar-height-mobile;
@@ -47,6 +47,11 @@
 
         .threeLogo {
           width: px(25);
+
+          path {
+            stroke: $white;
+            fill: $white;
+          }
         }
       }
 

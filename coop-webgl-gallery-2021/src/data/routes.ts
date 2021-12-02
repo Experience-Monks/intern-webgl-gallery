@@ -6,6 +6,7 @@ export type Route = {
 export interface Routes {
   readonly Home: Route;
   readonly About: Route;
+  readonly ArtworkAlastair: Route;
 }
 
 const routes: Routes = {
@@ -16,6 +17,10 @@ const routes: Routes = {
   About: {
     path: '/about/',
     title: 'About'
+  },
+  ArtworkAlastair: {
+    path: '/artwork-alastair/',
+    title: 'Alastair'
   }
 };
 
