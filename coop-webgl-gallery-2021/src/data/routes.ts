@@ -7,6 +7,7 @@ export interface Routes {
   readonly Home: Route;
   readonly About: Route;
   readonly ArtworkAlastair: Route;
+  readonly ArtworkAlex: Route;
 }
 
 const routes: Routes = {
@@ -21,6 +22,10 @@ const routes: Routes = {
   ArtworkAlastair: {
     path: '/artwork-alastair/',
     title: 'Alastair'
+  },
+  ArtworkAlex: {
+    path: '/artwork-alex/',
+    title: 'Alex'
   }
 };
 

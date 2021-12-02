@@ -1,0 +1,24 @@
+@import '../../styles/shared.scss';
+
+.Artwork {
+  position: relative;
+
+  > .title {
+    margin: 0;
+    width: 100%;
+    padding-top: px(80);
+    line-height: 1.15;
+    font-size: px(48);
+  }
+
+  > .webgl {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    bottom: 0;
+    > canvas {
+      position: inherit;
+    }
+  }
+}
