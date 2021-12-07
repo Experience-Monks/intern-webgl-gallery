@@ -20,7 +20,7 @@ export default class Floor {
   setTextures() {
     this.textures = {};
 
-    this.textures.color = this.resources.items.grassColorTexture;
+    this.textures.color = this.resources.items.redFabricTexture;
     this.textures.color.encoding = sRGBEncoding;
     this.textures.color.repeat.set(1.5, 1.5);
     this.textures.color.wrapS = RepeatWrapping;

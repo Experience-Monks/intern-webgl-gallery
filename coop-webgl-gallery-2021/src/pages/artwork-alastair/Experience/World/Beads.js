@@ -1,9 +1,10 @@
 import { PlaneGeometry, BoxGeometry, SphereGeometry, Mesh, ShaderMaterial } from 'three/build/three.module';
 
-import { DragControls } from 'three/examples/jsm/controls/DragControls';
-
 import { Vector2 } from 'three/src/math/Vector2.js';
 import { Color } from 'three/src/math/Color.js';
+import { DragControls } from 'three/examples/jsm/controls/DragControls';
+
+import { gtmEvent } from '../../../../utils/analytics';
 
 import Experience from '../Experience.js';
 
@@ -21,14 +22,43 @@ export default class Beads {
     this.debug = this.experience.debug;
     this.objects = [];
 
-    this.debug.active && (this.debugFolder = this.debug.ui.addFolder('beads'));
+    this.debug.active && (this.debugFolder = this.debug.ui.addFolder('draggable beads'));
 
     this.setGeometry();
     this.setMaterial();
     this.setMesh();
-    this.createPlane();
 
-    this.setAnimation();
+    //===== CREATING MODELS =====
+
+    //===== KEY LISTENERS =====
+
+    // Desktop
+    this.setDragControls();
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'KeyC') {
+        this.dragControls.deactivate();
+      }
+
+      if (e.code === 'KeyB') {
+        this.createBox();
+      }
+
+      if (e.code === 'KeyR') {
+        for (const object of this.objects) {
+          this.scene.remove(object);
+        }
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.code === 'KeyC') {
+        this.dragControls.activate();
+      }
+    });
+
+    // VR
+
+    // this.setAnimation();
   }
 
   setGeometry() {
@@ -58,13 +88,14 @@ export default class Beads {
         uColorOffset: { value: 0.08 },
         uColorMultiplier: { value: 5 }
       }
+      // wireframe: true
     });
   }
 
   //===== Objects =====
   createBox() {
     const mesh = new Mesh(this.boxGeometry, this.material);
-    mesh.position.y = 1;
+    mesh.position.y = 0.6;
     mesh.castShadow = true;
     this.scene.add(mesh);
     this.objects.push(mesh);
@@ -73,7 +104,7 @@ export default class Beads {
   createPlane() {
     const mesh = new Mesh(this.planeGeometry, this.material);
     mesh.rotation.x = -Math.PI * 0.5;
-    mesh.position.y = 1;
+    mesh.position.y = 0.6;
     mesh.castShadow = true;
     this.scene.add(mesh);
     this.objects.push(mesh);
@@ -81,7 +112,7 @@ export default class Beads {
 
   createSphere() {
     const mesh = new Mesh(this.sphereGeometry, this.material);
-    mesh.position.y = 1;
+    mesh.position.y = 0.6;
     mesh.castShadow = true;
     this.scene.add(mesh);
     this.objects.push(mesh);
@@ -107,19 +138,34 @@ export default class Beads {
           for (const object of this.objects) {
             this.scene.remove(object);
           }
-          this.objects = [];
-          console.log(this.objects);
+          // this.objects = [];
+          // console.log(this.objects);
+        },
+
+        // Temporary GTM Tester
+        GTM: () => {
+          console.log('GTM');
+          gtmEvent('click', {
+            module: 'Outbound Click',
+            category: 'Outbound',
+            action: 'Click',
+            label: 'Url',
+            value: 'https://jam3.com',
+            name: 'GA - Site - OutboundLinks'
+          });
         }
+        //----
       };
       this.debugFolder.add(debugObject, 'Box');
       this.debugFolder.add(debugObject, 'Plane');
       this.debugFolder.add(debugObject, 'Sphere');
       this.debugFolder.add(debugObject, 'Reset');
+      this.debugFolder.add(debugObject, 'GTM');
     }
   }
 
   setDragControls() {
-    this.dragControls = new DragControls([this.mesh], this.camera.instance, this.canvas);
+    this.dragControls = new DragControls(this.objects, this.camera.instance, this.canvas);
   }
 
   setAnimation() {

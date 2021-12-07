@@ -2,6 +2,7 @@ import Experience from '../Experience';
 import Environment from './Environment.js';
 import Floor from './Floor.js';
 import Beads from './Beads.js';
+import Lava from './Lava.js';
 
 export default class World {
   constructor() {
@@ -13,11 +14,13 @@ export default class World {
       // Setup
       this.floor = new Floor();
       this.beads = new Beads();
+      this.lava = new Lava();
       this.environment = new Environment();
     });
   }
 
   update() {
     this.beads && this.beads.update();
+    this.lava && this.lava.update();
   }
 }
