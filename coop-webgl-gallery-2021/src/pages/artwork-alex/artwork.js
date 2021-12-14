@@ -192,6 +192,7 @@ function Art() {
     var glowSphere = new Mesh(new SphereGeometry(sphereRadius, 64, 64), glowMaterial);
     scene.add(glowSphere);
     glowSphere.position.y = 0.1;
+    glowSphere.scale.multiplyScalar(1.2);
     glowSphere.layers.set(0);
 
     // const geometry = new SphereGeometry();
