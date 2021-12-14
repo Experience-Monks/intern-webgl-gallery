@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react';
+import GUI from 'lil-gui';
 
 import {
   AdditiveBlending,
@@ -240,6 +241,29 @@ function Art() {
     composer.addPass(renderScene);
     // composer.addPass( effectFXAA );
     //composer.addPass(bloomPass);
+
+    // --- GUI ---
+    const gui = new GUI();
+
+    var glowFolder = gui.addFolder('Glow Shader Controls');
+
+    let parameters = { c: 1.0, p: 1.4, color: '#ffff00' };
+
+    var cGUI = glowFolder.add(parameters, 'c').min(0.0).max(1.0).step(0.01).name('c').listen();
+    cGUI.onChange(function (value) {
+      glowMaterial.uniforms['c'].value = parameters.c;
+    });
+
+    var pGUI = glowFolder.add(parameters, 'p').min(0.0).max(6.0).step(0.01).name('p').listen();
+    pGUI.onChange(function (value) {
+      glowMaterial.uniforms['p'].value = parameters.p;
+    });
+
+    var glowColor = glowFolder.addColor(parameters, 'color').name('Glow Color').listen();
+    glowColor.onChange(function (value) {
+      glowMaterial.uniforms.glowColor.value.setHex(value.replace('#', '0x'));
+    });
+    glowFolder.open();
 
     // Render the scene on the page
     // scene.background = new Color(0x4d322a);
