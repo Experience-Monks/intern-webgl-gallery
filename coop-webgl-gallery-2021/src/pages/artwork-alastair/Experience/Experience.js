@@ -1,5 +1,7 @@
 import { Scene, Mesh } from 'three/build/three.module';
 
+// import { OimoPhysics } from 'three/examples/jsm/physics/OimoPhysics.js';
+
 import Sizes from './Utils/Sizes';
 import Time from './Utils/Time';
 import Camera from './Camera.js';
@@ -31,6 +33,7 @@ export default class Experience {
     this.sizes = new Sizes();
     this.time = new Time();
     this.scene = new Scene();
+    // this.setPhysics();
     this.resources = new Resources(sources);
     this.camera = new Camera();
     this.renderer = new Renderer();
@@ -46,6 +49,10 @@ export default class Experience {
       this.update();
     });
   }
+
+  // async setPhysics() {
+  //   this.physics = await OimoPhysics();
+  // }
 
   resize() {
     this.camera.resize();

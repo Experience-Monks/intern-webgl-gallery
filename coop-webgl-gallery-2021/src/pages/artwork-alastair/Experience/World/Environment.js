@@ -1,6 +1,11 @@
-import { DirectionalLight, Mesh, MeshStandardMaterial } from 'three/build/three.module';
-import { Color } from 'three/src/math/Color.js';
-import { Fog } from 'three/src/scenes/Fog.js';
+import {
+  /*  DirectionalLight, */ PointLight,
+  Mesh,
+  MeshStandardMaterial,
+  SphereGeometry
+} from 'three/build/three.module';
+// import { Color } from 'three/src/math/Color.js';
+// import { Fog } from 'three/src/scenes/Fog.js';
 
 import Experience from '../Experience.js';
 
@@ -13,24 +18,29 @@ export default class Environment {
 
     this.debug.active && (this.debugFolder = this.debug.ui.addFolder('environment'));
 
-    this.backgroundColor = '#0793DA';
-    this.fogColor = '#0793DA';
+    // this.backgroundColor = '#000000';
+    this.fogColor = '#8789c0';
 
-    this.scene.background = new Color(this.backgroundColor);
-    this.scene.fog = new Fog(this.fogColor, 3, 20);
+    // this.scene.background = new Color(this.backgroundColor);
+    // this.scene.fog = new Fog(this.fogColor, 20, 40);
 
-    this.setSunLight();
+    // this.setPointLight(6, 8, 0);
+    // this.setPointLight(-6, 8, 0);
     this.setEnvironmentMap();
   }
 
-  setSunLight() {
-    this.sunLight = new DirectionalLight('#ffffff', 4);
-    this.sunLight.castShadow = true;
-    this.sunLight.shadow.camera.far = 15;
-    this.sunLight.shadow.mapSize.set(1024, 1024);
-    this.sunLight.shadow.normalBias = 0.05;
-    this.sunLight.position.set(3, 3, -2.25);
-    this.scene.add(this.sunLight);
+  setPointLight(x, y, z) {
+    this.pointLight = new PointLight(0xffee88, 1, 100, 2);
+    const bulbGeometry = new SphereGeometry(0.5, 16, 8);
+    const bulbMat = new MeshStandardMaterial({
+      emissive: 0xffffee,
+      emissiveIntensity: 1,
+      color: 0x000000
+    });
+    this.pointLight.add(new Mesh(bulbGeometry, bulbMat));
+    this.pointLight.position.set(x, y, z);
+    this.pointLight.intensity = 150;
+    this.scene.add(this.pointLight);
   }
 
   setEnvironmentMap() {
@@ -52,11 +62,11 @@ export default class Environment {
 
     this.environmentMap.updateMaterials();
 
-    if (this.debug.active) {
-      this.debugFolder.add(this.sunLight, 'intensity').name('sunLightIntensity').min(0).max(10).step(0.001);
-      this.debugFolder.add(this.sunLight.position, 'x').name('sunLightX').min(-5).max(5).step(0.001);
-      this.debugFolder.add(this.sunLight.position, 'y').name('sunLightY').min(-5).max(5).step(0.001);
-      this.debugFolder.add(this.sunLight.position, 'z').name('sunLightZ').min(-5).max(5).step(0.001);
-    }
+    // if (this.debug.active) {
+    //   this.debugFolder.add(this.sunLight, 'intensity').name('sunLightIntensity').min(0).max(10).step(0.001);
+    //   this.debugFolder.add(this.sunLight.position, 'x').name('sunLightX').min(-5).max(5).step(0.001);
+    //   this.debugFolder.add(this.sunLight.position, 'y').name('sunLightY').min(-5).max(5).step(0.001);
+    //   this.debugFolder.add(this.sunLight.position, 'z').name('sunLightZ').min(-5).max(5).step(0.001);
+    // }
   }
 }

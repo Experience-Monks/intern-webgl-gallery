@@ -18,4 +18,35 @@
     top: 0;
     bottom: 0;
   }
+
+  .controlsContainer {
+    position: absolute;
+    bottom: px(5);
+    left: px(5);
+    width: px(400);
+    height: px(175);
+
+    color: $white;
+    border: px(3) $white solid;
+
+    padding: px(10);
+
+    .controls {
+      display: flex;
+      gap: px(10);
+      color: $black;
+      font-size: px(12);
+      text-align: center;
+
+      .button {
+        cursor: pointer;
+        width: px(50);
+        height: px(50);
+        border-radius: 50%;
+        background: $white;
+        display: flex;
+        align-items: center;
+      }
+    }
+  }
 }

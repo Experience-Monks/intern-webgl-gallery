@@ -1,8 +1,9 @@
 import Experience from '../Experience';
 import Environment from './Environment.js';
+import Background from './Background.js';
 import Floor from './Floor.js';
 import Beads from './Beads.js';
-import Lava from './Lava.js';
+import Waves from './Waves.js';
 
 export default class World {
   constructor() {
@@ -12,15 +13,16 @@ export default class World {
 
     this.resources.on('ready', () => {
       // Setup
+      this.background = new Background();
       this.floor = new Floor();
       this.beads = new Beads();
-      this.lava = new Lava();
+      this.waves = new Waves();
       this.environment = new Environment();
     });
   }
 
   update() {
     this.beads && this.beads.update();
-    this.lava && this.lava.update();
+    this.waves && this.waves.update();
   }
 }

@@ -23,6 +23,17 @@ function Artwork({ className }: Props) {
     <main className={classnames(styles.Artwork, className)} ref={containerRef}>
       <Head title="Artwork" />
       <div className={styles.webgl}>{isBrowser && <ArtCanvas></ArtCanvas>}</div>
+      <div className={styles.controlsContainer}>
+        <h1>B.E.A.D.</h1>
+        <div className={styles.controls}>
+          <div className={styles.button} id="create-mesh">
+            create mesh
+          </div>
+          <div className={styles.button} id="reset-mesh">
+            reset mesh
+          </div>
+        </div>
+      </div>
     </main>
   );
 }
