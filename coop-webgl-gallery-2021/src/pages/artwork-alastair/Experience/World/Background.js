@@ -1,4 +1,4 @@
-import { SphereGeometry, Mesh, MeshStandardMaterial, BackSide } from 'three/build/three.module';
+import { SphereGeometry, Mesh, MeshBasicMaterial, BackSide } from 'three/build/three.module';
 
 import Experience from '../Experience.js';
 
@@ -19,10 +19,10 @@ export default class Background {
   }
   setTextures() {
     this.textures = {};
-    this.textures.color = '#ffffff';
+    this.textures.color = '#ffcb47';
   }
   setMaterial() {
-    this.material = new MeshStandardMaterial({
+    this.material = new MeshBasicMaterial({
       ...this.textures,
       side: BackSide
     });

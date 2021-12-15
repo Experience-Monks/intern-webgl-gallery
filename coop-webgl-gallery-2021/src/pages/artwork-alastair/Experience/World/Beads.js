@@ -6,7 +6,6 @@ import {
   InstancedMesh,
   Mesh,
   MeshStandardMaterial,
-  MeshBasicMaterial,
   DynamicDrawUsage
   // Raycaster
 } from 'three/build/three.module';
@@ -39,14 +38,13 @@ export default class Beads {
     // this.raycaster = new Raycaster();
     this.mouse = new Vector2(1, 1);
     this.index = 0;
-    console.log(this.camera);
 
     this.debug.active && (this.debugFolder = this.debug.ui.addFolder('beads'));
 
     this.setGeometry();
     this.setMaterial();
-    this.setMesh();
-    this.createMesh(this.resources.items.handModel, 1, 0.1);
+    this.#setMesh();
+    this.createMesh(this.resources.items.handModel, 0.9, 0.1);
 
     //===== EVENT LISTENERS =====
 
@@ -58,13 +56,11 @@ export default class Beads {
       }
 
       if (e.code === 'KeyB') {
-        this.createMesh(this.resources.items.handModel, 0.5, 0.1);
+        this.createMesh(this.resources.items.handModel, 0.9, 0.1);
       }
 
       if (e.code === 'KeyR') {
-        for (const object of this.objects) {
-          this.scene.remove(object);
-        }
+        this.resetMesh();
       }
     });
 
@@ -74,33 +70,24 @@ export default class Beads {
       }
     });
 
-    const createMeshButton = document.getElementById('create-mesh');
-    createMeshButton.addEventListener('click', () => {
-      this.createMesh(this.resources.items.handModel, 0.5, 0.1);
-    });
+    this.buttonColor = '#eac435';
+    this.buttonColorInactive = '#000000';
+    this.meshEventHandler = this.#meshEvent.bind(this);
+    this.createMeshButton = document.getElementById('create-mesh');
 
-    const resetMeshButton = document.getElementById('reset-mesh');
-    resetMeshButton.addEventListener('click', () => {
-      this.dragControls.dispose();
-      for (const object of this.objects) {
-        this.scene.remove(object);
-      }
-      this.objects = [];
-      this.setDragControls();
-    });
+    this.resetMeshEventHandler = this.#resetMeshEvent.bind(this);
+    this.resetMeshButton = document.getElementById('reset-mesh');
 
-    document.addEventListener('mousemove', (event) => {
-      // event.preventDefault();
+    this.resetMeshButton.addEventListener('click', this.resetMeshEventHandler);
 
-      this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-      this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    });
+    // document.addEventListener('mousemove', (event) => {
+    //   this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    //   this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    // });
   }
 
   setGeometry() {
     this.boxGeometry = new BoxGeometry(1, 1, 1, 12, 12, 12);
-    this.boxGeometry.deleteAttribute('normal');
-    this.boxGeometry.deleteAttribute('uv');
     this.planeGeometry = new PlaneGeometry(2, 2, 25, 25);
     this.sphereGeometry = new SphereGeometry(1, 32, 32);
   }
@@ -124,16 +111,15 @@ export default class Beads {
   }
 
   createSphere() {
-    console.log(this.physics);
     const mesh = new Mesh(this.sphereGeometry, this.material);
     mesh.position.y = 5;
     mesh.castShadow = true;
     this.scene.add(mesh);
     this.objects.push(mesh);
-    this.physics.addMesh(mesh, 1);
+    // this.physics.addMesh(mesh, 1);
   }
 
-  combineBuffer(model, bufferName) {
+  #combineBuffer(model, bufferName) {
     let count = 0;
 
     model.traverse(function (child) {
@@ -161,12 +147,23 @@ export default class Beads {
   }
 
   createMesh(model, scale = 0.15, beadScale = 0.5, beadType = 'sphere') {
-    const positions = this.combineBuffer(model, 'position');
+    const positions = this.#combineBuffer(model, 'position');
 
     // ===== VERTICES =====
     const vertices = [];
     for (let i = 0; i < positions.array.length; i += 3) {
       vertices.push([positions.array[i], positions.array[i + 1], positions.array[i + 2]]);
+    }
+
+    // Sort the vertices array
+
+    // vertices =
+    // ----
+
+    // Size check
+    if (vertices.length > 10000) {
+      console.log('Model has too many vertices (> 10000)', vertices.length);
+      return;
     }
 
     let geometry;
@@ -177,7 +174,7 @@ export default class Beads {
       geometry = new SphereGeometry(beadScale, 10, 10);
     }
 
-    this.mesh = new InstancedMesh(geometry, new MeshBasicMaterial() /* this.material */, vertices.length);
+    this.mesh = new InstancedMesh(geometry, this.material, vertices.length);
     this.mesh.instanceMatrix.setUsage(DynamicDrawUsage);
 
     const matrix = new Matrix4();
@@ -186,7 +183,7 @@ export default class Beads {
     let highestVertexY = 0;
 
     for (let i = 0; i < vertices.length; i++) {
-      this.mesh.setMatrixAt(i, matrix.setPosition(vertices[i][0], 0.5, vertices[i][2]));
+      this.mesh.setMatrixAt(i, matrix.setPosition(vertices[i][0], 0, vertices[i][2]));
       if (i !== 0 && vertices[i][1] < lowestVertexY) {
         lowestVertexY = vertices[i][1];
       }
@@ -197,24 +194,21 @@ export default class Beads {
       this.mesh.setColorAt(i, color.setHex(0xffffff * Math.random()));
     }
 
-    console.log(lowestVertexY);
-    console.log(highestVertexY);
     const vertexDifference = highestVertexY - lowestVertexY;
-    console.log(vertexDifference);
-    const positionY = scale * (vertexDifference / 2);
-    console.log(positionY);
+    const positionY = scale * (vertexDifference / 2) - 1;
     // this.physics.addMesh(this.mesh, 1);
 
     console.log({ vertices: vertices.length });
     this.vertices = vertices;
 
     this.mesh.scale.set(scale, scale, scale);
-    this.mesh.position.set(0, scale * (vertexDifference / 2), 0);
+    this.mesh.position.set(0, positionY, 0);
+    this.mesh.castShadow = true;
     this.scene.add(this.mesh);
     this.objects.push(this.mesh);
   }
 
-  setMesh() {
+  #setMesh() {
     //===== DEBUG =====
     if (this.debug.active) {
       const debugObject = {
@@ -231,16 +225,7 @@ export default class Beads {
           this.createMesh(this.resources.items.handModel, 1, 0.1, 'box');
         },
         Reset: () => {
-          this.dragControls.dispose();
-          for (const object of this.objects) {
-            this.scene.remove(object);
-          }
-          this.objects = [];
-
-          //====
-          // Need to handle the reset of Oimo objects
-          //====
-          this.setDragControls();
+          this.resetMesh();
         }
       };
       this.debugFolder.add(debugObject, 'Sphere');
@@ -256,36 +241,45 @@ export default class Beads {
     this.dragControls.deactivate();
   }
 
-  setAnimation() {
-    //===== ANIMATIONS ======
-    this.animation = {};
-
-    this.animation.play = (name) => {
-      console.log('playing animation');
-    };
-    this.animation.pause = (name) => {
-      console.log('pausing animation');
-    };
-
-    //===== DEBUG =====
-    if (this.debug.active) {
-      const debugObject = {
-        playAnimation: () => {
-          this.animation.play();
-        },
-        pauseAnimation: () => {
-          this.animation.pause();
-        }
-      };
-      this.debugFolder.add(debugObject, 'playAnimation');
-      this.debugFolder.add(debugObject, 'pauseAnimation');
+  resetMesh() {
+    this.dragControls.dispose();
+    for (const object of this.objects) {
+      this.scene.remove(object);
     }
+    this.objects = [];
+
+    //====
+    // If adding physics, need to handle the reset of Oimo objects
+    //====
+
+    this.setDragControls();
+    this.mesh = null;
+    this.index = 0;
   }
 
-  onMouseMove(event) {}
+  #meshEvent() {
+    this.createMesh(this.resources.items.handModel, 0.9, 0.1);
+
+    this.createMeshButton.style.background = this.buttonColorInactive;
+    this.createMeshButton.removeEventListener('click', this.meshEventHandler);
+
+    this.resetMeshButton.style.background = this.buttonColor;
+    this.resetMeshButton.addEventListener('click', this.resetMeshEventHandler);
+  }
+
+  #resetMeshEvent() {
+    this.resetMesh();
+
+    this.resetMeshButton.removeEventListener('click', this.resetMeshEventHandler);
+    this.resetMeshButton.style.background = this.buttonColorInactive;
+
+    this.createMeshButton.style.background = this.buttonColor;
+    this.createMeshButton.addEventListener('click', this.meshEventHandler);
+  }
 
   update() {
     const matrix = new Matrix4();
+    //===== RAYCASTER ANIMATION =====
     // this.raycaster.setFromCamera(this.mouse, this.camera.instance);
     // const intersection = this.raycaster.intersectObject(this.mesh);
 
@@ -299,10 +293,8 @@ export default class Beads {
     //   // this.mesh.setColorAt(instanceId, new Color().setHex(Math.random() * 0xffffff));
     // }
 
-    // Timed Animation
-    // const condition = this.time.elapsed % 2 === 0;
-
-    if (this.index < this.vertices.length) {
+    //===== BEADS ANIMATION =====
+    if (this.mesh && this.index < this.vertices.length) {
       this.mesh.setMatrixAt(this.index, matrix.setPosition(...this.vertices[this.index]));
       this.mesh.instanceMatrix.needsUpdate = true;
 

@@ -30,7 +30,7 @@ export default class Camera {
 
   setInstance() {
     this.instance = new PerspectiveCamera(35, this.sizes.width / this.sizes.height, 0.1, 10000);
-    this.instance.position.set(10, 10, 16);
+    this.instance.position.set(10, 5, 16);
     this.scene.add(this.instance);
   }
 
@@ -46,6 +46,8 @@ export default class Camera {
   }
 
   update() {
+    this.controls.autoRotate = true;
+    this.controls.autoRotateSpeed = 2.0;
     this.controls.update();
   }
 }

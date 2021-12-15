@@ -24,14 +24,15 @@ function Artwork({ className }: Props) {
       <Head title="Artwork" />
       <div className={styles.webgl}>{isBrowser && <ArtCanvas></ArtCanvas>}</div>
       <div className={styles.controlsContainer}>
-        <h1>B.E.A.D.</h1>
+        <h1 className={styles.title}>B.E.A.D.</h1>
         <div className={styles.controls}>
           <div className={styles.button} id="create-mesh">
             create mesh
           </div>
-          <div className={styles.button} id="reset-mesh">
+          <div className={classnames(styles.button, styles.resetButton)} id="reset-mesh">
             reset mesh
           </div>
+          <div className={styles.fileUpload}>Drag here or click to upload</div>
         </div>
       </div>
     </main>

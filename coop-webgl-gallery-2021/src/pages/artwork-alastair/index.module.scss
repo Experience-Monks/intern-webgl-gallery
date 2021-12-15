@@ -23,13 +23,22 @@
     position: absolute;
     bottom: px(5);
     left: px(5);
-    width: px(400);
-    height: px(175);
+    width: 90vw;
+    height: px(150);
+
+    @include breakpoint(tablet) {
+      width: px(250);
+      height: px(175);
+    }
 
     color: $white;
     border: px(3) $white solid;
 
     padding: px(10);
+
+    .title {
+      margin-bottom: px(15);
+    }
 
     .controls {
       display: flex;
@@ -43,7 +52,21 @@
         width: px(50);
         height: px(50);
         border-radius: 50%;
-        background: $white;
+        background: #000000;
+        display: flex;
+        align-items: center;
+      }
+
+      .resetButton {
+        background: #eac435;
+      }
+
+      .fileUpload {
+        cursor: pointer;
+        width: px(100);
+        height: px(50);
+        border: px(2) $white dotted;
+        background: rgba(255, 255, 255, 0.5);
         display: flex;
         align-items: center;
       }
