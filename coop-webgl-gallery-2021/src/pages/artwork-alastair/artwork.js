@@ -1,53 +1,21 @@
 import { useRef, useEffect } from 'react';
 
-import {
-  Scene,
-  PerspectiveCamera,
-  WebGLRenderer,
-  BoxGeometry,
-  MeshBasicMaterial,
-  Mesh
-} from 'three/build/three.module';
-
-import disposeObjects from '../../utils/dispose-objects';
+import Experience from './Experience/Experience';
 
 function Art() {
   const inputEl = useRef(null);
 
   useEffect(() => {
+    console.log('Creating Artwork Alastair');
+    const experience = new Experience(inputEl.current, true);
+
     return () => {
-      disposeObjects(inputEl.renderer, inputEl);
+      experience.destroy();
+      console.log('Destroying Artwork Alastair');
     };
   }, []);
 
-  useEffect(() => {
-    const scene = new Scene();
-    const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-
-    const renderer = new WebGLRenderer();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    inputEl.current.append(renderer.domElement);
-
-    const geometry = new BoxGeometry();
-    const material = new MeshBasicMaterial({ color: 0x00ff00 });
-    const cube = new Mesh(geometry, material);
-    scene.add(cube);
-
-    camera.position.z = 5;
-
-    const animate = function () {
-      requestAnimationFrame(animate);
-
-      cube.rotation.x += 0.01;
-      cube.rotation.y += 0.01;
-
-      renderer.render(scene, camera);
-    };
-
-    animate();
-  }, []);
-
-  return <div ref={inputEl}></div>;
+  return <canvas ref={inputEl}></canvas>;
 }
 
 export default Art;

@@ -12,7 +12,7 @@ import { setPrevRoute, setIsWebpSupported, useAppDispatch } from '@/redux';
 import { checkWebpSupport } from '@/utils/basic-functions';
 import useCookieBanner from '@/hooks/use-cookie-banner';
 
-const AppAdmin = dynamic(() => import('@/components/AppAdmin/AppAdmin'), { ssr: false });
+// const AppAdmin = dynamic(() => import('@/components/AppAdmin/AppAdmin'), { ssr: false });
 const RotateScreen = dynamic(() => import('@/components/RotateScreen/RotateScreen'), { ssr: false });
 
 export type Props = PropsWithChildren<{}>;
@@ -63,7 +63,7 @@ function Layout({ children }: Props) {
         />
       )}
 
-      {process.env.NEXT_PUBLIC_ENVIRONMENT !== 'production' && <AppAdmin />}
+      {/* {process.env.NEXT_PUBLIC_ENVIRONMENT !== 'production' && <AppAdmin />} */}
     </>
   );
 }

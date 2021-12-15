@@ -1,12 +1,10 @@
-import { memo, useRef, useEffect } from 'react';
+import { memo, useRef } from 'react';
 import classnames from 'classnames';
 import dynamic from 'next/dynamic';
 
 import styles from './index.module.scss';
 
 import Head from '@/components/Head/Head';
-
-import disposeObjects from '@/utils/dispose-objects';
 
 type Props = {
   className: string;
@@ -21,18 +19,22 @@ const ArtCanvas = dynamic(() => import('./artwork'), {
 function Artwork({ className }: Props) {
   const containerRef = useRef<HTMLElement>(null);
 
-  useEffect(() => {
-    return () => {
-      if (ArtCanvas && isBrowser) {
-        disposeObjects(ArtCanvas, this);
-      }
-    };
-  }, []);
-
   return (
     <main className={classnames(styles.Artwork, className)} ref={containerRef}>
       <Head title="Artwork" />
       <div className={styles.webgl}>{isBrowser && <ArtCanvas></ArtCanvas>}</div>
+      <div className={styles.controlsContainer}>
+        <h1 className={styles.title}>B.E.A.D.</h1>
+        <div className={styles.controls}>
+          <div className={styles.button} id="create-mesh">
+            create mesh
+          </div>
+          <div className={classnames(styles.button, styles.resetButton)} id="reset-mesh">
+            reset mesh
+          </div>
+          <div className={styles.fileUpload}>Drag here or click to upload</div>
+        </div>
+      </div>
     </main>
   );
 }
