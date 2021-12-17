@@ -2,7 +2,7 @@ import { SphereGeometry, Mesh, MeshBasicMaterial, BackSide } from 'three';
 
 import Experience from '../Experience.js';
 
-import data from '../../data.json';
+import data from '../data.json';
 
 export default class Background {
   constructor() {

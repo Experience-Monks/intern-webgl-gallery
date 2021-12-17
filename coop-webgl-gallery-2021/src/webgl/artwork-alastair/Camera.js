@@ -1,8 +1,6 @@
 import { PerspectiveCamera, Vector3 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-import { Vector3 } from 'three/src/math/Vector3.js';
-
 import data from './data.json';
 
 import Experience from './Experience';

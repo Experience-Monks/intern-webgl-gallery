@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 
 import styles from './index.module.scss';
 
-import data from './data.json';
+import data from '../../webgl/artwork-alastair/data.json';
 
 import Head from '@/components/Head/Head';
 
