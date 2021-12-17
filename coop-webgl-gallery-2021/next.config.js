@@ -4,7 +4,6 @@ const withPWA = require('next-pwa');
 const runtimeCaching = require('next-pwa/cache');
 const withPlugins = require('next-compose-plugins');
 const optimizedImages = require('next-optimized-images');
-const withTM = require('next-transpile-modules')(['three']);
 
 const optimizedImagesConfig = {
   inlineImageLimit: 1,
@@ -48,6 +47,7 @@ const nextJSConfig = {
   sassOptions: {
     includePaths: [path.join(__dirname, 'src/styles')]
   },
+  basePath: process.env.NEXT_PUBLIC_URL,
   webpack: function (config, options) {
     config.module.rules.push({
       test: /\.svg$/,
