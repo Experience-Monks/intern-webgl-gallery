@@ -4,6 +4,8 @@ import dynamic from 'next/dynamic';
 
 import styles from './index.module.scss';
 
+import data from './data.json';
+
 import Head from '@/components/Head/Head';
 
 type Props = {
@@ -23,18 +25,28 @@ function Artwork({ className }: Props) {
     <main className={classnames(styles.Artwork, className)} ref={containerRef}>
       <Head title="Artwork" />
       <div className={styles.webgl}>{isBrowser && <ArtCanvas></ArtCanvas>}</div>
-      <div className={styles.controlsContainer}>
-        <h1 className={styles.title}>B.E.A.D.</h1>
+      <div className={styles.controlsContainer} id="controls-container">
+        <h1 className={styles.title}>{data.title}</h1>
         <div className={styles.controls}>
           <div className={styles.button} id="create-mesh">
-            create mesh
+            {data.buttons.create}
+          </div>
+          <div className={styles.button} id="create-mug">
+            {data.buttons.coffeeMug}
+          </div>
+          <div className={styles.button} id="create-mandalorian">
+            {data.buttons.mandalorian}
           </div>
           <div className={classnames(styles.button, styles.resetButton)} id="reset-mesh">
-            reset mesh
+            {data.buttons.reset}
           </div>
-          <div className={styles.fileUpload}>Drag here or click to upload</div>
+          <div className={classnames(styles.button, styles.rotateToggleButton)} id="rotate-toggle">
+            {data.buttons.autoRotateOn}
+          </div>
+          <div className={styles.fileUpload}>{data.buttons.fileUpload}</div>
         </div>
       </div>
+      <div id="loading-bar"></div>
     </main>
   );
 }

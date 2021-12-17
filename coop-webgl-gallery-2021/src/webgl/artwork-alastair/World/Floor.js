@@ -1,11 +1,4 @@
-import {
-  CircleGeometry,
-  // BoxGeometry,
-  sRGBEncoding,
-  RepeatWrapping,
-  Mesh,
-  MeshStandardMaterial
-} from 'three';
+import { CircleGeometry, sRGBEncoding, RepeatWrapping, Mesh, MeshStandardMaterial } from 'three';
 
 import Experience from '../Experience.js';
 
@@ -24,7 +17,6 @@ export default class Floor {
 
   setGeometry() {
     this.geometry = new CircleGeometry(32, 64);
-    // this.boxGeometry = new BoxGeometry(32, 0.1, 32);
   }
   setTextures() {
     this.textures = {};
@@ -56,11 +48,6 @@ export default class Floor {
     });
   }
   setMesh() {
-    // this.box = new Mesh(this.boxGeometry);
-    // this.box.position.y = 0.5;
-    // this.scene.add(this.box);
-    // this.physics.addMesh(this.box);
-
     this.mesh = new Mesh(this.geometry, this.material);
     this.mesh.rotation.x = -Math.PI * 0.5;
     this.mesh.receiveShadow = true;

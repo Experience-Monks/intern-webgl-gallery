@@ -1,14 +1,15 @@
 import Experience from '../Experience';
 import Environment from './Environment.js';
+import LoadingScreen from './LoadingScreen.js';
 import Background from './Background.js';
 import Floor from './Floor.js';
 import Beads from './Beads.js';
-import Waves from './Waves.js';
 
 export default class World {
   constructor() {
     this.experience = new Experience();
     this.scene = this.experience.scene;
+    this.loadingScreen = new LoadingScreen();
     this.resources = this.experience.resources;
 
     this.resources.on('ready', () => {
@@ -16,7 +17,6 @@ export default class World {
       this.background = new Background();
       this.floor = new Floor();
       this.beads = new Beads();
-      this.waves = new Waves();
       this.environment = new Environment();
     });
   }
