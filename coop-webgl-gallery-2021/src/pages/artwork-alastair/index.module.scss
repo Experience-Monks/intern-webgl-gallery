@@ -25,16 +25,16 @@
     left: px(5);
     width: 90vw;
     height: px(150);
-
-    @include breakpoint(tablet) {
-      width: px(250);
-      height: px(175);
-    }
-
+    opacity: 0;
     color: $white;
     border: px(3) $white solid;
-
+    border-radius: px(10);
     padding: px(10);
+
+    @include breakpoint(tablet) {
+      width: px(500);
+      height: px(175);
+    }
 
     .title {
       margin-bottom: px(15);
@@ -46,6 +46,7 @@
       color: $black;
       font-size: px(12);
       text-align: center;
+      justify-content: center;
 
       .button {
         cursor: pointer;
@@ -58,6 +59,10 @@
       }
 
       .resetButton {
+        background: #eac435;
+      }
+
+      .rotateToggleButton {
         background: #eac435;
       }
 

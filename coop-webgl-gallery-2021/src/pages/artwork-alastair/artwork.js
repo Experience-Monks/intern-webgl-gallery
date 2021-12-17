@@ -6,12 +6,10 @@ function Art() {
   const inputEl = useRef(null);
 
   useEffect(() => {
-    console.log('Creating Artwork Alastair');
     const experience = new Experience(inputEl.current, true);
 
     return () => {
       experience.destroy();
-      console.log('Destroying Artwork Alastair');
     };
   }, []);
 

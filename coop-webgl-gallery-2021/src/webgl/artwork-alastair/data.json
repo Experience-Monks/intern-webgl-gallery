@@ -1,0 +1,22 @@
+{
+  "title": "BEAD",
+  "buttons": {
+    "create": "create mesh",
+    "coffeeMug": "create mug",
+    "mandalorian": "create mando",
+    "reset": "reset mesh",
+    "autoRotateOn": "auto rotate on",
+    "autoRotateOff": "auto rotate off",
+    "fileUpload": "Drag here or click to upload"
+  },
+  "colors": {
+    "activeButton": "#eac435",
+    "inactiveButton": "#000000",
+    "activeText": "#000000",
+    "inactiveText": "#ffffff",
+    "background": "#253841"
+  },
+  "sizes": {
+    "background": [30, 32, 32]
+  }
+}

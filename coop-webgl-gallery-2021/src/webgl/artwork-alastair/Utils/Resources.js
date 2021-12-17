@@ -1,5 +1,4 @@
-import { TextureLoader, CubeTextureLoader } from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { TextureLoader, CubeTextureLoader, LoadingManager } from 'three';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 
@@ -17,26 +16,45 @@ export default class Resources extends EventEmitter {
     this.toLoad = this.sources.length;
     this.loaded = 0;
 
+    this.loadingBarElement = document.getElementById('loading-bar');
+    this.controlsContainer = document.getElementById('controls-container');
+
+    // Styling
+    this.loadingBarElement.style.position = 'absolute';
+    this.loadingBarElement.style.top = '50%';
+    this.loadingBarElement.style.width = '100%';
+    this.loadingBarElement.style.height = '2px';
+    this.loadingBarElement.style.background = '#ffffff';
+    this.loadingBarElement.style.transformOrigin = 'top left';
+    this.loadingBarElement.style.transform = 'scaleX(0)';
+
+    this.manager = new LoadingManager();
+    this.manager.onLoad = () => {
+      this.controlsContainer.style.opacity = '1.0';
+      this.loadingBarElement.style.transform = 'scaleX(0)';
+      this.loadingBarElement.style.transformOrigin = `100% 0`;
+    };
+
+    this.manager.onProgress = (url, itemsLoaded, itemsTotal) => {
+      const progressRatio = itemsLoaded / itemsTotal;
+      this.loadingBarElement.style.transform = `scaleX(${progressRatio})`;
+    };
+
     this.setLoaders();
     this.startLoading();
   }
 
   setLoaders() {
     this.loaders = {};
-    this.loaders.gltfLoader = new GLTFLoader();
-    this.loaders.objLoader = new OBJLoader();
-    this.loaders.fbxLoader = new FBXLoader();
-    this.loaders.textureLoader = new TextureLoader();
-    this.loaders.cubeTextureLoader = new CubeTextureLoader();
+    this.loaders.objLoader = new OBJLoader(this.manager);
+    this.loaders.fbxLoader = new FBXLoader(this.manager);
+    this.loaders.textureLoader = new TextureLoader(this.manager);
+    this.loaders.cubeTextureLoader = new CubeTextureLoader(this.manager);
   }
 
   startLoading() {
     for (const source of this.sources) {
-      if (source.type === 'gltfModel') {
-        this.loaders.gltfLoader.load(source.path, (file) => {
-          this.sourceLoaded(source, file);
-        });
-      } else if (source.type === 'objModel') {
+      if (source.type === 'objModel') {
         this.loaders.objLoader.load(source.path, (file) => {
           this.sourceLoaded(source, file);
         });

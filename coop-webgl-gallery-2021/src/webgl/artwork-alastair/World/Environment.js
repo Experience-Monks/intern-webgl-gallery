@@ -1,7 +1,9 @@
-import { PointLight, Mesh, MeshStandardMaterial, SphereGeometry, Fog } from 'three';
+import { SpotLight, Mesh, MeshStandardMaterial, SphereGeometry, Fog } from 'three';
 import { Lensflare, LensflareElement } from 'three/examples/jsm/objects/Lensflare.js';
 
 import Experience from '../Experience.js';
+
+// import { getNestedElements } from '../Utils/basic-functions.js';
 
 export default class Environment {
   constructor() {
@@ -12,29 +14,33 @@ export default class Environment {
 
     this.debug.active && (this.debugFolder = this.debug.ui.addFolder('environment'));
 
-    this.fogColor = '#8789c0';
+    this.fogColor = '#436575';
 
     this.scene.fog = new Fog(this.fogColor, 10, 40);
 
-    this.setPointLight(7, 10, 0);
+    this.setSpotLight(7, 10, 0);
     this.setStudioModel();
     this.setEnvironmentMap();
   }
 
-  setPointLight(x, y, z) {
-    this.pointLight = new PointLight(0xffee88, 1, 100, 2);
+  setSpotLight(x, y, z) {
+    this.spotLight = new SpotLight(0xffee88);
     const bulbGeometry = new SphereGeometry(0.15, 16, 8);
     const bulbMat = new MeshStandardMaterial({
-      emissive: 0xffffee,
+      emissive: 0xffffff,
       emissiveIntensity: 1,
       color: 0x000000
     });
-    this.pointLight.add(new Mesh(bulbGeometry, bulbMat));
-    this.pointLight.position.set(x, y, z);
-    this.pointLight.intensity = 250;
-    this.pointLight.castShadow = true;
+    this.spotLight.add(new Mesh(bulbGeometry, bulbMat));
+    this.spotLight.position.set(x, y, z);
+    this.spotLight.distance = 40;
+    this.spotLight.decay = 1.5;
+    this.spotLight.angle = Math.PI / 4;
+    this.spotLight.penumbra = 0.5;
+    this.spotLight.intensity = 150;
+    this.spotLight.castShadow = true;
     this.setLensflare();
-    this.scene.add(this.pointLight);
+    this.scene.add(this.spotLight);
   }
 
   setStudioModel() {
@@ -44,17 +50,19 @@ export default class Environment {
     this.studioModel.position.set(8, 7.4, 0);
     this.studioModel.rotation.set(0, -Math.PI * 0.5, 0);
 
+    // getNestedElements(this.studioModel);
+
     this.scene.add(this.studioModel);
   }
 
   setLensflare() {
     const lensflare = new Lensflare();
-    lensflare.addElement(new LensflareElement(this.resources.items.lensflare0, 700, 0, this.pointLight.color));
+    lensflare.addElement(new LensflareElement(this.resources.items.lensflare0, 700, 0, this.spotLight.color));
     lensflare.addElement(new LensflareElement(this.resources.items.lensflare1, 60, 0.6));
     lensflare.addElement(new LensflareElement(this.resources.items.lensflare1, 70, 0.7));
     lensflare.addElement(new LensflareElement(this.resources.items.lensflare1, 120, 0.9));
     lensflare.addElement(new LensflareElement(this.resources.items.lensflare1, 70, 1));
-    this.pointLight.add(lensflare);
+    this.spotLight.add(lensflare);
   }
 
   setEnvironmentMap() {
@@ -76,11 +84,11 @@ export default class Environment {
 
     this.environmentMap.updateMaterials();
 
-    if (this.debug.active) {
-      this.debugFolder.add(this.pointLight, 'intensity').name('sunLightIntensity').min(0).max(300).step(1);
-      this.debugFolder.add(this.pointLight.position, 'x').name('pointLightX').min(-5).max(5).step(0.001);
-      this.debugFolder.add(this.pointLight.position, 'y').name('pointLightY').min(-5).max(5).step(0.001);
-      this.debugFolder.add(this.pointLight.position, 'z').name('pointLightZ').min(-5).max(5).step(0.001);
-    }
+    // if (this.debug.active) {
+    //   this.debugFolder.add(this.pointLight, 'intensity').name('sunLightIntensity').min(0).max(300).step(1);
+    //   this.debugFolder.add(this.pointLight.position, 'x').name('pointLightX').min(-5).max(5).step(0.001);
+    //   this.debugFolder.add(this.pointLight.position, 'y').name('pointLightY').min(-5).max(5).step(0.001);
+    //   this.debugFolder.add(this.pointLight.position, 'z').name('pointLightZ').min(-5).max(5).step(0.001);
+    // }
   }
 }

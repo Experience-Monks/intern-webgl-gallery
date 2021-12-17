@@ -2,11 +2,14 @@ import { SphereGeometry, Mesh, MeshBasicMaterial, BackSide } from 'three';
 
 import Experience from '../Experience.js';
 
+import data from '../data.json';
+
 export default class Background {
   constructor() {
     this.experience = new Experience();
     this.scene = this.experience.scene;
     this.resources = this.experience.resources;
+    this.data = data;
 
     this.setGeometry();
     this.setTextures();
@@ -15,11 +18,11 @@ export default class Background {
   }
 
   setGeometry() {
-    this.geometry = new SphereGeometry(30, 32, 32);
+    this.geometry = new SphereGeometry(...this.data.sizes.background);
   }
   setTextures() {
     this.textures = {};
-    this.textures.color = '#ffcb47';
+    this.textures.color = this.data.colors.background;
   }
   setMaterial() {
     this.material = new MeshBasicMaterial({
