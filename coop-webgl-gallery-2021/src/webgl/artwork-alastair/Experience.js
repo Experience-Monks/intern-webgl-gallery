@@ -1,4 +1,4 @@
-import { Scene, Mesh } from 'three/build/three.module';
+import { Scene, Mesh } from 'three';
 
 // import { OimoPhysics } from 'three/examples/jsm/physics/OimoPhysics.js';
 

@@ -1,5 +1,4 @@
-import { WebGLRenderer } from 'three/build/three.module';
-import { sRGBEncoding, CineonToneMapping, PCFSoftShadowMap } from 'three/src/constants';
+import { WebGLRenderer, sRGBEncoding, CineonToneMapping, PCFSoftShadowMap } from 'three';
 
 import Experience from './Experience';
 

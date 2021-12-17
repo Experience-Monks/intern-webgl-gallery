@@ -1,4 +1,4 @@
-import { SphereGeometry, Mesh, MeshBasicMaterial, BackSide } from 'three/build/three.module';
+import { SphereGeometry, Mesh, MeshBasicMaterial, BackSide } from 'three';
 
 import Experience from '../Experience.js';
 
