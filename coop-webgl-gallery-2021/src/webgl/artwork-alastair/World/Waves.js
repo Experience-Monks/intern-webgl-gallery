@@ -1,7 +1,4 @@
-import { PlaneGeometry, BoxGeometry, SphereGeometry, Mesh, ShaderMaterial } from 'three/build/three.module';
-
-import { Vector2 } from 'three/src/math/Vector2.js';
-import { Color } from 'three/src/math/Color.js';
+import { PlaneGeometry, BoxGeometry, SphereGeometry, Mesh, ShaderMaterial, Vector2, Color } from 'three';
 
 import Experience from '../Experience.js';
 

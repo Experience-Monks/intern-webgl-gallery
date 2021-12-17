@@ -5,7 +5,7 @@ import {
   RepeatWrapping,
   Mesh,
   MeshStandardMaterial
-} from 'three/build/three.module';
+} from 'three';
 
 import Experience from '../Experience.js';
 

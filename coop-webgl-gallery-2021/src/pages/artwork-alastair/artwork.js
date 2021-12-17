@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react';
 
-import Experience from './Experience/Experience';
+import Experience from '../../webgl/artwork-alastair/Experience';
 
 function Art() {
   const inputEl = useRef(null);

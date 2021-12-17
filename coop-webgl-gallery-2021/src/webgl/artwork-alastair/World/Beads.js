@@ -6,14 +6,13 @@ import {
   InstancedMesh,
   Mesh,
   MeshStandardMaterial,
-  DynamicDrawUsage
+  DynamicDrawUsage,
+  Vector2,
+  Matrix4,
+  Color,
+  BufferAttribute
   // Raycaster
-} from 'three/build/three.module';
-
-import { Vector2 } from 'three/src/math/Vector2.js';
-import { Matrix4 } from 'three/src/math/Matrix4.js';
-import { Color } from 'three/src/math/Color.js';
-import { BufferAttribute } from 'three/src/core/BufferAttribute.js';
+} from 'three';
 import { DragControls } from 'three/examples/jsm/controls/DragControls';
 
 import Experience from '../Experience.js';

@@ -1,5 +1,4 @@
-import { PointLight, Mesh, MeshStandardMaterial, SphereGeometry } from 'three/build/three.module';
-import { Fog } from 'three/src/scenes/Fog.js';
+import { PointLight, Mesh, MeshStandardMaterial, SphereGeometry, Fog } from 'three';
 import { Lensflare, LensflareElement } from 'three/examples/jsm/objects/Lensflare.js';
 
 import Experience from '../Experience.js';

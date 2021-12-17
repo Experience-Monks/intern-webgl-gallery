@@ -4,6 +4,7 @@ const withPWA = require('next-pwa');
 const runtimeCaching = require('next-pwa/cache');
 const withPlugins = require('next-compose-plugins');
 const optimizedImages = require('next-optimized-images');
+const withTM = require('next-transpile-modules')(['three']);
 
 const optimizedImagesConfig = {
   inlineImageLimit: 1,

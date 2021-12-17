@@ -1,4 +1,4 @@
-import { TextureLoader, CubeTextureLoader } from 'three/build/three.module';
+import { TextureLoader, CubeTextureLoader } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
