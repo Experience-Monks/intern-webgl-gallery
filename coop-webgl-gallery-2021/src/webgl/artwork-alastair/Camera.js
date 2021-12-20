@@ -14,22 +14,7 @@ export default class Camera {
 
     this.setInstance();
     this.setOrbitControls();
-
-    window.addEventListener('keydown', (e) => {
-      if (e.code === 'KeyC') {
-        this.controls.enabled = false;
-      }
-    });
-
-    window.addEventListener('keyup', (e) => {
-      if (e.code === 'KeyC') {
-        this.controls.enabled = true;
-      }
-    });
-
-    this.rotateToggleEventHandler = this.#rotateToggleEvent.bind(this);
-    this.rotateToggleButton = document.getElementById('rotate-toggle');
-    this.rotateToggleButton.addEventListener('click', this.rotateToggleEventHandler);
+    this.setEventListeners();
   }
 
   setInstance() {
@@ -65,6 +50,24 @@ export default class Camera {
     this.rotateToggleButton.innerHTML = this.controls.autoRotate
       ? data.buttons.autoRotateOn
       : data.buttons.autoRotateOff;
+  }
+
+  setEventListeners() {
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'KeyC') {
+        this.controls.enabled = false;
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.code === 'KeyC') {
+        this.controls.enabled = true;
+      }
+    });
+
+    this.rotateToggleEventHandler = this.#rotateToggleEvent.bind(this);
+    this.rotateToggleButton = document.getElementById('rotate-toggle');
+    this.rotateToggleButton.addEventListener('click', this.rotateToggleEventHandler);
   }
 
   update() {

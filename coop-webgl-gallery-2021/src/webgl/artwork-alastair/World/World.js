@@ -12,13 +12,33 @@ export default class World {
     this.loadingScreen = new LoadingScreen();
     this.resources = this.experience.resources;
 
-    this.resources.on('ready', () => {
-      // Setup
+    this.loadingBarElement = document.getElementById('loading-bar');
+    this.controlsContainer = document.getElementById('controls-container');
+
+    // Styling
+    this.loadingBarElement.style.position = 'absolute';
+    this.loadingBarElement.style.top = '50%';
+    this.loadingBarElement.style.width = '100%';
+    this.loadingBarElement.style.height = '2px';
+    this.loadingBarElement.style.background = '#ffffff';
+    this.loadingBarElement.style.transformOrigin = 'top left';
+    this.loadingBarElement.style.transform = 'scaleX(0)';
+
+    this.resources.manager.onLoad = () => {
+      this.controlsContainer.style.opacity = '1.0';
+      this.loadingBarElement.style.transform = 'scaleX(0)';
+      this.loadingBarElement.style.transformOrigin = `100% 0`;
+
       this.background = new Background();
       this.floor = new Floor();
       this.beads = new Beads();
       this.environment = new Environment();
-    });
+    };
+
+    this.resources.manager.onProgress = (url, itemsLoaded, itemsTotal) => {
+      const progressRatio = itemsLoaded / itemsTotal;
+      this.loadingBarElement.style.transform = `scaleX(${progressRatio})`;
+    };
   }
 
   update() {
