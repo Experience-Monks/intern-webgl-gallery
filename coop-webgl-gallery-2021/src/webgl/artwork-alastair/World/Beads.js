@@ -124,9 +124,7 @@ export default class Beads {
     }
 
     const reduceVertices = (array) => {
-      if (array.length < 10000) {
-        return array;
-      } else return reduceVertices(array.filter((element, i) => i % 2 === 0));
+      return array.length < 10000 ? array : reduceVertices(array.filter((element, i) => i % 2 === 0));
     };
 
     vertices = reduceVertices(vertices);
@@ -141,32 +139,27 @@ export default class Beads {
       }
     }
 
+    //===== MODEL SIZE CALCULATION =====
     const vertexDifference = highestVertexY - lowestVertexY;
     const scale = 6 / vertexDifference;
     const beadScale = 0.01 * vertexDifference;
     const positionY = scale * (vertexDifference / 2);
-
-    //===== Geometry =====
+    //=====
 
     const geometry = this.setGeometry(beadScale, beadType);
 
     this.mesh = new InstancedMesh(geometry, this.material, vertices.length);
     this.mesh.instanceMatrix.setUsage(DynamicDrawUsage);
 
-    let count = 0;
-
     for (let i = 0; i < vertices.length; i++) {
-      if (this.animateLoad) {
-        this.mesh.setMatrixAt(i, matrix.setPosition(vertices[i][0], 0, vertices[i][2]));
-      } else this.mesh.setMatrixAt(i, matrix.setPosition(...vertices[i]));
+      this.animateLoad
+        ? this.mesh.setMatrixAt(i, matrix.setPosition(vertices[i][0], 0, vertices[i][2]))
+        : this.mesh.setMatrixAt(i, matrix.setPosition(...vertices[i]));
 
-      if (multiColored === true) {
-        this.mesh.setColorAt(i, color.setHex(0xffffff * Math.random()));
-      } else this.mesh.setColorAt(i, color.setHex(0xffffff));
-      count++;
+      multiColored
+        ? this.mesh.setColorAt(i, color.setHex(0xffffff * Math.random()))
+        : this.mesh.setColorAt(i, color.setHex(0xffffff));
     }
-
-    console.log(count);
 
     // this.physics.addMesh(this.mesh, 1);
 
@@ -183,28 +176,15 @@ export default class Beads {
     //===== DEBUG =====
     if (this.debug.active) {
       const debugObject = {
-        HandSphere: () => {
-          this.createMesh(this.resources.items.handModel);
-        },
-        HandBox: () => {
-          this.createMesh(this.resources.items.handModel, 'box', false);
-        },
-        HandTetrahedron: () => {
-          this.createMesh(this.resources.items.handModel, 'tetrahedron', false);
-        },
-        SkullModel: () => {
-          this.createMesh(this.resources.items.skullModel, 'tetrahedron', false);
-        },
-        MaleHeadModel: () => {
-          this.createMesh(this.resources.items.maleHeadModel);
-        },
-        LoadAsset: () => {
-          this.loadAsset();
-        },
-        Reset: () => {
-          this.resetMesh();
-        }
+        HandSphere: () => this.createMesh(this.resources.items.handModel),
+        HandBox: () => this.createMesh(this.resources.items.handModel, 'box', false),
+        HandTetrahedron: () => this.createMesh(this.resources.items.handModel, 'tetrahedron', false),
+        SkullModel: () => this.createMesh(this.resources.items.skullModel, 'tetrahedron', false),
+        MaleHeadModel: () => this.createMesh(this.resources.items.maleHeadModel),
+        LoadAsset: () => this.loadAsset(),
+        Reset: () => this.resetMesh()
       };
+
       this.debugFolder.add(debugObject, 'HandSphere');
       this.debugFolder.add(debugObject, 'HandBox');
       this.debugFolder.add(debugObject, 'HandTetrahedron');
@@ -239,105 +219,57 @@ export default class Beads {
   #meshEvent() {
     this.animateLoad = true;
     this.createMesh(this.resources.items.handModel);
-
-    this.createMeshButton.style.background = data.colors.inactiveButton;
-    this.createMeshButton.removeEventListener('click', this.meshEventHandler);
-
-    this.createMugButton.style.background = data.colors.inactiveButton;
-    this.createMugButton.removeEventListener('click', this.mugEventHandler);
-
-    this.createMandalorianButton.style.background = data.colors.inactiveButton;
-    this.createMandalorianButton.removeEventListener('click', this.mandalorianEventHandler);
-
-    this.resetMeshButton.style.background = data.colors.activeButton;
-    this.resetMeshButton.addEventListener('click', this.resetMeshEventHandler);
+    this.handleMeshEvent();
   }
 
   // Temporary for demo
   #mugEvent() {
     this.createMesh(this.resources.items.coffeeMugModel, 'sphere', false);
-
-    this.createMeshButton.style.background = data.colors.inactiveButton;
-    this.createMeshButton.removeEventListener('click', this.meshEventHandler);
-
-    this.createMugButton.style.background = data.colors.inactiveButton;
-    this.createMugButton.removeEventListener('click', this.mugEventHandler);
-
-    this.createMandalorianButton.style.background = data.colors.inactiveButton;
-    this.createMandalorianButton.removeEventListener('click', this.mandalorianEventHandler);
-
-    this.resetMeshButton.style.background = data.colors.activeButton;
-    this.resetMeshButton.addEventListener('click', this.resetMeshEventHandler);
+    this.handleMeshEvent();
   }
 
   #mandalorianEvent() {
     this.createMesh(this.resources.items.mandalorianModel, 'tetrahedron');
-
-    this.createMeshButton.style.background = data.colors.inactiveButton;
-    this.createMeshButton.removeEventListener('click', this.meshEventHandler);
-
-    this.createMugButton.style.background = data.colors.inactiveButton;
-    this.createMugButton.removeEventListener('click', this.mugEventHandler);
-
-    this.createMandalorianButton.style.background = data.colors.inactiveButton;
-    this.createMandalorianButton.removeEventListener('click', this.mandalorianEventHandler);
-
-    this.resetMeshButton.style.background = data.colors.activeButton;
-    this.resetMeshButton.addEventListener('click', this.resetMeshEventHandler);
+    this.handleMeshEvent();
   }
-
-  //-----
+  // ---
 
   #resetMeshEvent() {
     this.resetMesh();
     this.animateLoad = false;
 
     this.resetMeshButton.removeEventListener('click', this.resetMeshEventHandler);
-    this.resetMeshButton.style.background = data.colors.inactiveButton;
-
-    this.createMeshButton.style.background = data.colors.activeButton;
     this.createMeshButton.addEventListener('click', this.meshEventHandler);
-
-    this.createMugButton.style.background = data.colors.activeButton;
     this.createMugButton.addEventListener('click', this.mugEventHandler);
-
-    this.createMandalorianButton.style.background = data.colors.activeButton;
     this.createMandalorianButton.addEventListener('click', this.mandalorianEventHandler);
+
+    this.resetMeshButton.style.background = data.colors.inactiveButton;
+    this.createMeshButton.style.background = data.colors.activeButton;
+    this.createMugButton.style.background = data.colors.activeButton;
+    this.createMandalorianButton.style.background = data.colors.activeButton;
   }
 
   setEventListeners() {
     this.setDragControls();
 
     window.addEventListener('keydown', (e) => {
-      if (e.code === 'KeyC') {
-        this.dragControls.activate();
-      }
-
-      if (e.code === 'KeyB') {
-        this.createMesh(this.resources.items.handModel);
-      }
-
-      if (e.code === 'KeyR') {
-        this.resetMesh();
-      }
+      e.code === 'KeyC' && this.dragControls.activate();
+      e.code === 'KeyB' && this.createMesh(this.resources.items.handModel);
+      e.code === 'KeyR' && this.resetMesh();
     });
 
     window.addEventListener('keyup', (e) => {
-      if (e.code === 'KeyC') {
-        this.dragControls.deactivate();
-      }
+      e.code === 'KeyC' && this.dragControls.deactivate();
     });
 
     this.meshEventHandler = this.#meshEvent.bind(this);
-    this.createMeshButton = document.getElementById('create-mesh');
-
     this.mugEventHandler = this.#mugEvent.bind(this);
-    this.createMugButton = document.getElementById('create-mug');
-
     this.mandalorianEventHandler = this.#mandalorianEvent.bind(this);
-    this.createMandalorianButton = document.getElementById('create-mandalorian');
-
     this.resetMeshEventHandler = this.#resetMeshEvent.bind(this);
+
+    this.createMeshButton = document.getElementById('create-mesh');
+    this.createMugButton = document.getElementById('create-mug');
+    this.createMandalorianButton = document.getElementById('create-mandalorian');
     this.resetMeshButton = document.getElementById('reset-mesh');
 
     this.resetMeshButton.addEventListener('click', this.resetMeshEventHandler);
@@ -346,6 +278,39 @@ export default class Beads {
     //   this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     //   this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     // });
+  }
+
+  handleMeshEvent() {
+    this.createMeshButton.style.background = data.colors.inactiveButton;
+    this.createMugButton.style.background = data.colors.inactiveButton;
+    this.createMandalorianButton.style.background = data.colors.inactiveButton;
+    this.resetMeshButton.style.background = data.colors.activeButton;
+
+    this.createMeshButton.removeEventListener('click', this.meshEventHandler);
+    this.createMugButton.removeEventListener('click', this.mugEventHandler);
+    this.createMandalorianButton.removeEventListener('click', this.mandalorianEventHandler);
+    this.resetMeshButton.addEventListener('click', this.resetMeshEventHandler);
+  }
+
+  //===== LOADING CUSTOM ASSET =====
+  loadAsset() {
+    this.loaders = {};
+    this.loaders.objLoader = new OBJLoader();
+
+    for (const source of sources) {
+      if (source.type === 'objModel') {
+        this.loaders.objLoader.load(
+          source.path,
+          (file) => {
+            this.createMesh(file);
+          },
+          () => {},
+          (e) => {
+            console.log(e);
+          }
+        );
+      }
+    }
   }
 
   update() {
@@ -370,28 +335,6 @@ export default class Beads {
       this.mesh.instanceMatrix.needsUpdate = true;
 
       this.index++;
-    }
-  }
-
-  //===== LOADING CUSTOM ASSET =====
-  loadAsset() {
-    this.loaders = {};
-    this.loaders.objLoader = new OBJLoader();
-
-    for (const source of sources) {
-      if (source.type === 'objModel') {
-        this.loaders.objLoader.load(
-          source.path,
-          (file) => {
-            console.log(` ${source.path} loaded`);
-            this.createMesh(file);
-          },
-          () => {},
-          (e) => {
-            console.log(e);
-          }
-        );
-      }
     }
   }
 }

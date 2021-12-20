@@ -1,8 +1,11 @@
-import { PlaneGeometry, ShaderMaterial, Mesh } from 'three/build/three.module';
+import { PlaneGeometry, ShaderMaterial, Mesh } from 'three';
 
 import { gsap } from 'gsap';
 
 import Experience from '../Experience.js';
+
+import vertexShader from './shaders/loading/vertex.glsl.js';
+import fragmentShader from './shaders/loading/fragment.glsl.js';
 
 export default class LoadingScreen {
   constructor() {
@@ -28,20 +31,8 @@ export default class LoadingScreen {
       uniforms: {
         uAlpha: { value: 1 }
       },
-      vertexShader: `
-        void main()
-        {
-            gl_Position = vec4(position, 1.0);
-        }
-    `,
-      fragmentShader: `
-        uniform float uAlpha;
-
-        void main()
-        {
-            gl_FragColor = vec4(0.0, 0.0, 0.0, uAlpha);
-        }
-    `
+      vertexShader,
+      fragmentShader
     };
   }
 
