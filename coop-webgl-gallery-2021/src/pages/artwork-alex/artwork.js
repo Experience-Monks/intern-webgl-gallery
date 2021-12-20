@@ -3,38 +3,32 @@ import GUI from 'lil-gui';
 
 import {
   AdditiveBlending,
-  AmbientLight,
-  ClampToEdgeWrapping,
   Color,
-  DirectionalLight,
   DoubleSide,
   FrontSide,
-  LinearFilter,
-  Scene,
-  PerspectiveCamera,
-  WebGLRenderer,
-  SphereGeometry,
-  MeshBasicMaterial,
   MeshPhongMaterial,
   Mesh,
   PCFSoftShadowMap,
+  PerspectiveCamera,
   PlaneBufferGeometry,
+  Scene,
   ShaderMaterial,
   ShadowMaterial,
+  SphereGeometry,
   SpotLight,
   Texture,
-  Vector2,
   Vector3,
-  videoImageContext
+  videoImageContext,
+  WebGLRenderer
 } from 'three/build/three.module';
 
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+// import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
-import { FXAAShader } from 'three/examples/js/shaders/FXAAShader.js';
+// import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+// import { FXAAShader } from 'three/examples/js/shaders/FXAAShader.js';
 
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+// import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 import disposeObjects from '../../utils/dispose-objects';
 
@@ -56,9 +50,7 @@ function Art() {
     const videoImage = videoImg.current;
 
     const scene = new Scene();
-    //const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-    //const renderer = new WebGLRenderer({ antialias: true });
     const renderer = new WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -69,10 +61,6 @@ function Art() {
     // renderer.gammaOutput = true;
     // renderer.setClearColor(0x000fff);
 
-    // grid & axis helper
-    // y frame on material
-
-    // Create a camera and position it
     const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 100);
     camera.position.z = 2.9 * sphereRadius;
     camera.position.y = 1.5 * sphereRadius;
@@ -82,7 +70,7 @@ function Art() {
     // const controls = new OrbitControls(camera, inputEl.current);
     // controls.enableDamping = true;
 
-    // Add a spotLight to cast shadows and tweak its position
+    // SpotLight to cast shadows
     const spotLight = new SpotLight(0x0077a6, 2);
     spotLight.position.set(-10, 150, -10);
     spotLight.distance = 1700;
@@ -94,10 +82,13 @@ function Art() {
     spotLight.shadow.mapSize.height = 4096;
     scene.add(spotLight);
 
-    // // ambient light
+    // Fog
+    // scene.fog = new FogExp2(0xefd1b5, 0.025);
+
+    // // Ambient light
     // scene.add(new AmbientLight(0x222222));
 
-    // // directional light
+    // // Directional light
     // var light = new DirectionalLight(0xffffff, 1);
     // light.position.set(80, 80, 80);
     // scene.add(light);
@@ -112,7 +103,7 @@ function Art() {
 
     // Video to canvas
     videoImageContext = videoImage.getContext('2d');
-    // background color if no video present
+    // Background color if no video is present
     videoImageContext.fillStyle = '#000000';
     videoImageContext.fillRect(0, 0, videoImage.width, videoImage.height);
     videoImageContext.scale(0.5, 1);
@@ -146,11 +137,12 @@ function Art() {
               }`
     });
 
+    // Glow for orb
     var glowMaterial = new ShaderMaterial({
       uniforms: {
-        c: { type: 'f', value: 1.0 },
-        p: { type: 'f', value: 1.4 },
-        glowColor: { type: 'c', value: new Color(0xffff00) },
+        c: { type: 'f', value: 0.3 },
+        p: { type: 'f', value: 2.0 },
+        glowColor: { type: 'c', value: new Color(0x2288b4) },
         viewVector: { type: 'v3', value: camera.position }
       },
       fragmentShader: `
@@ -195,13 +187,7 @@ function Art() {
     glowSphere.scale.multiplyScalar(1.2);
     glowSphere.layers.set(0);
 
-    // const geometry = new SphereGeometry();
-    // const material = new MeshBasicMaterial({ color: 0xffff00 });
-    // const sphere = new Mesh(geometry, material);
-    // scene.add(sphere);
-
-    // The shader material does not do shadows. We can either compute the shadows in the fragment shader, or
-    // Create a second sphere identical to the first except that it is transparent to do the shadows
+    // Second sphere for the shadows
     const shadowMaterial = new ShadowMaterial();
     shadowMaterial.opacity = 0.5;
     shadowMaterial.dithering = true;
@@ -213,7 +199,7 @@ function Art() {
     sphere.layers.set(0);
     scene.add(sphere);
 
-    // Add and position the floor
+    // Floor
     var floorGeometry = new PlaneBufferGeometry(1000, 1000);
     var floor = new Mesh(floorGeometry, new MeshPhongMaterial({ color: 0x0f0000 }));
 
@@ -226,11 +212,12 @@ function Art() {
     floor.layers.set(0);
     scene.add(floor);
 
-    let bloomPass = new UnrealBloomPass(new Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-    bloomPass.threshold = 0.21;
-    bloomPass.strength = 1.2;
-    bloomPass.radius = 0.55;
-    bloomPass.renderToScreen = true;
+    // let bloomPass = new UnrealBloomPass(new Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+
+    // bloomPass.threshold = 0.21;
+    // bloomPass.strength = 1.2;
+    // bloomPass.radius = 0.55;
+    // bloomPass.renderToScreen = true;
 
     let renderScene = new RenderPass(scene, camera);
 
@@ -243,12 +230,12 @@ function Art() {
     // composer.addPass( effectFXAA );
     //composer.addPass(bloomPass);
 
-    // --- GUI ---
+    // Add gui slider
     const gui = new GUI();
 
     var glowFolder = gui.addFolder('Glow Shader Controls');
 
-    let parameters = { c: 1.0, p: 1.4, color: '#ffff00' };
+    let parameters = { c: 0.3, p: 2.0, color: '#2288b4' };
 
     var cGUI = glowFolder.add(parameters, 'c').min(0.0).max(1.0).step(0.01).name('c').listen();
     cGUI.onChange(function (value) {
@@ -285,60 +272,6 @@ function Art() {
       requestAnimationFrame(render);
       composer.render();
     }
-
-    // let x = 0;
-    // let y = 0;
-    // let h = videoImage.height;
-    // let w = videoImage.width;
-    // render();
-    // function render() {
-    //   requestAnimationFrame(render);
-    //   if (video.readyState === video.HAVE_ENOUGH_DATA) {
-    //     videoImageContext.clearRect(0, 0, videoImage.width, videoImage.height);
-    //     videoImageContext.drawImage(video, x, y, w, h);
-    //     if (videoTextureM) videoTextureM.needsUpdate = true;
-    //   }
-    //   // delta += 0.1;
-    //   // objBack.material.color.r= 0.8 + 0.2*Math.sin(delta);
-    //   // objRed.material.color.r = Math.sin(delta);
-
-    //   renderer.clear();
-    //   camera.layers.set(1);
-    //   composer.render();
-    //   renderer.clearDepth();
-    //   camera.layers.set(0);
-    //   renderer.render(scene, camera);
-    // }
-
-    // Gyroscope events
-    // window.addEventListener(
-    //   'deviceorientation',
-    //   function (event) {
-    //     // alpha: rotation around z-axis
-    //     var rotateDegrees = event.alpha; //0 to 360
-    //     // gamma: left to right
-    //     var leftToRight = event.gamma; //-90 to +90
-    //     // beta: front back motion
-    //     var frontToBack = event.beta; //-180 to +180
-
-    //     // Move the light to match the position of gravity
-    //     spotLight.position.x = event.gamma / 3;
-    //   },
-    //   true
-    // );
-
-    //camera.position.z = 5;
-
-    // const animate = function () {
-    //   requestAnimationFrame(animate);
-
-    //   sphere.rotation.x += 0.01;
-    //   sphere.rotation.y += 0.01;
-
-    //   renderer.render(scene, camera);
-    // };
-
-    // animate();
   }, []);
 
   return (
