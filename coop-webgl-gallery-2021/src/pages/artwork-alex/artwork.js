@@ -38,12 +38,6 @@ function Art() {
   const videoImg = useRef(null);
 
   useEffect(() => {
-    return () => {
-      disposeObjects(inputEl.renderer, inputEl);
-    };
-  }, []);
-
-  useEffect(() => {
     const sphereRadius = 0.54;
 
     const video = videoElement.current;
@@ -94,12 +88,19 @@ function Art() {
     // scene.add(light);
 
     // Send webcam stream to the <video> tag
-    if (navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices
-        .getUserMedia({ video: true })
-        .then((stream) => (video.srcObject = stream))
-        .catch((err) => {});
-    }
+    // if (navigator.mediaDevices.getUserMedia) {
+    //   navigator.mediaDevices
+    //     .getUserMedia({ video: true })
+    //     .then((stream) => (video.srcObject = stream))
+    //     .catch((err) => {});
+    // }
+
+    let stream;
+
+    (async () => {
+      stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      video.srcObject = stream;
+    })();
 
     // Video to canvas
     videoImageContext = videoImage.getContext('2d');
@@ -272,12 +273,20 @@ function Art() {
       requestAnimationFrame(render);
       composer.render();
     }
+
+    return () => {
+      disposeObjects(inputEl.renderer, inputEl);
+      stream.getTracks().forEach((track) => {
+        track.stop();
+      });
+      gui.destroy();
+    };
   }, []);
 
   return (
     <>
       <div ref={inputEl}></div>
-      <video autoPlay="true" ref={videoElement} id="videoElement" style={{ display: 'none' }}></video>
+      <video autoPlay={true} ref={videoElement} id="videoElement" style={{ display: 'none' }}></video>
       <canvas height="1000" width="1000" ref={videoImg} id="videoImage" style={{ display: 'none' }}></canvas>
     </>
   );
