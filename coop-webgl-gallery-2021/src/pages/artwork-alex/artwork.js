@@ -272,6 +272,10 @@ function Art() {
       requestAnimationFrame(render);
       composer.render();
     }
+
+    return () => {
+      gui.destroy();
+    };
   }, []);
 
   return (
