@@ -3,6 +3,8 @@ import { Lensflare, LensflareElement } from 'three/examples/jsm/objects/Lensflar
 
 import Experience from '../Experience.js';
 
+import data from '../data.json';
+
 export default class Environment {
   constructor() {
     this.experience = new Experience();
@@ -10,9 +12,7 @@ export default class Environment {
     this.resources = this.experience.resources;
     this.debug = this.experience.debug;
 
-    this.debug.active && (this.debugFolder = this.debug.ui.addFolder('environment'));
-
-    this.fogColor = '#436575';
+    this.fogColor = data.colors.fogColor;
 
     this.scene.fog = new Fog(this.fogColor, 10, 40);
 

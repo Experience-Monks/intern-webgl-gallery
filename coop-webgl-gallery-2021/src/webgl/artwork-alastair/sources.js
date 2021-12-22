@@ -52,11 +52,6 @@ export default [
   },
   //===== TEST MODELS =====
   {
-    name: 'coffeeMugModel',
-    type: 'objModel',
-    path: `${path_start}models/coffeeMug1_free_obj/coffeeMug.obj`
-  },
-  {
     name: 'skullModel',
     type: 'objModel',
     path: `${path_start}models/skull.obj`

@@ -1,25 +1,32 @@
 @import '../../styles/shared.scss';
 
+$yellow: #ffd849;
+
 .Artwork {
   position: relative;
+  font-weight: 600;
 
   .webgl {
     @include position-100(absolute);
+  }
+
+  .hidden {
+    visibility: hidden;
   }
 
   .controlsContainer {
     position: absolute;
     bottom: px(5);
     left: px(5);
-    @include box(90vw, px(150));
-    opacity: 0;
+    @include box(90vw, px(300));
+    opacity: 1;
     color: $white;
-    border: px(3) $white solid;
     border-radius: px(10);
     padding: px(10);
+    background-color: rgba($color: $black, $alpha: 0.8);
 
     @include breakpoint(tablet) {
-      @include box(px(500), px(175));
+      @include box(px(500), px(200));
     }
 
     .title {
@@ -28,6 +35,7 @@
 
     .controls {
       display: flex;
+      flex-wrap: wrap;
       gap: px(10);
       color: $black;
       font-size: px(12);
@@ -36,29 +44,54 @@
 
       .button {
         cursor: pointer;
-        @include box(px(50));
+        @include box(px(60));
         border-radius: 50%;
-        background: #000;
+        background: $yellow;
+
         display: flex;
         align-items: center;
       }
 
-      .resetButton {
-        background: #eac435;
+      .createMeshButton {
+        background: $dark-grey;
       }
 
-      .rotateToggleButton {
-        background: #eac435;
+      .beadTypeButton {
+        @include box(px(100), px(50));
+        border-radius: px(10);
+        background: $yellow;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        select {
+          background-color: $black;
+          color: $white;
+          border: none;
+        }
       }
 
       .fileUpload {
         cursor: pointer;
         @include box(px(200), px(50));
         border: px(2) $white dotted;
-        background: rgba(255, 255, 255, 0.5);
+        border-radius: px(10);
+
+        background: $dark-grey;
+        color: $white;
         display: flex;
         align-items: center;
       }
     }
+  }
+
+  .hideControls {
+    cursor: pointer;
+    position: absolute;
+    bottom: px(10);
+    left: px(10);
+    font-size: px(15);
+    color: white;
   }
 }
