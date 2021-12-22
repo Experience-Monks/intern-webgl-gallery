@@ -1,0 +1,9 @@
+@import '../../styles/shared.scss';
+
+.Artwork {
+  position: relative;
+  .Piece {
+    position: absolute;
+    top: 0;
+  }
+}
