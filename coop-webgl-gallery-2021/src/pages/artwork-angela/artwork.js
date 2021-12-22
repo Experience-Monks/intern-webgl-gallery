@@ -162,5 +162,6 @@ export default function Artwork() {
     }
     window.addEventListener('resize', onWindowResize);
   }, []);
+
   return <div ref={inputEl}></div>;
 }

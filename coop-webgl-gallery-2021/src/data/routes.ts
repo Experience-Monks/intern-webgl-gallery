@@ -29,7 +29,7 @@ const routes: Routes = {
     title: 'Alex'
   },
   ArtworkAngela: {
-    path: './artwork-angela/',
+    path: '/artwork-angela/',
     title: 'Angela'
   }
 };
