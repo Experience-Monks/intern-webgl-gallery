@@ -19,7 +19,7 @@ export default function Artwork() {
     const scene = new THREE.Scene();
     scene.background = new THREE.Color('rgb(0,0,0)'); // sky
 
-    const radius = 200000;
+    const radius = 100000;
 
     // CAMERA
     const camera = new THREE.PerspectiveCamera(
@@ -42,7 +42,7 @@ export default function Artwork() {
     audioLoader.load(`${path_start}/others/beach_vibe.mp3`, function (buffer) {
       sound.setBuffer(buffer);
       sound.setLoop(true);
-      sound.setVolume(0.25);
+      sound.setVolume(0.15);
       sound.play();
     });
     console.log('IS PLAYING:', sound.isPlaying);
