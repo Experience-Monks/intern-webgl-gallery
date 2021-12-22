@@ -1,4 +1,4 @@
-import { memo, useRef, useEffect } from 'react';
+import { memo, useRef } from 'react';
 import classnames from 'classnames';
 import dynamic from 'next/dynamic';
 
