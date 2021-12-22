@@ -2,26 +2,18 @@ import {
   BoxGeometry,
   TetrahedronGeometry,
   SphereGeometry,
-  ShaderMaterial,
   InstancedMesh,
   MeshStandardMaterial,
   DynamicDrawUsage,
-  Vector2,
   Matrix4,
   Color,
-  BufferAttribute
-  // Raycaster
+  BufferAttribute,
+  LoadingManager
 } from 'three';
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
-import { DragControls } from 'three/examples/jsm/controls/DragControls';
 
 import Experience from '../Experience.js';
 
 import data from '../data.json';
-import sources from '../sourcesImported.js';
-
-import beadVertexShader from './shaders/beads/vertex.glsl.js';
-import beadFragmentShader from './shaders/beads/fragment.glsl.js';
 
 export default class Beads {
   constructor() {
@@ -33,29 +25,29 @@ export default class Beads {
     this.time = this.experience.time;
     this.debug = this.experience.debug;
     this.objects = [];
-    this.physics = this.experience.physics;
     this.vertices = [];
     this.matrix = new Matrix4();
     this.color = new Color();
-    this.mouse = new Vector2(1, 1);
     this.index = 0;
-    this.animateLoad = false;
-    // this.raycaster = new Raycaster();
+    this.animateLoad = true;
+    this.multiColored = true;
+    this.beadType = data.beadType.sphere;
 
     this.debug.active && (this.debugFolder = this.debug.ui.addFolder('beads'));
 
     this.setMaterial();
     this.#setMeshDebugger();
-    this.createMesh(this.resources.items.handModel);
+    this.object = this.resources.items.handModel;
+    this.createMesh(this.object);
     this.setEventListeners();
   }
 
   setGeometry(beadScale, beadType) {
     let geometry;
 
-    if (beadType === 'box') {
+    if (beadType === data.beadType.box) {
       geometry = new BoxGeometry(beadScale, beadScale, beadScale);
-    } else if (beadType === 'tetrahedron') {
+    } else if (beadType === data.beadType.tetrahedron) {
       geometry = new TetrahedronGeometry(beadScale);
     } else {
       geometry = new SphereGeometry(beadScale, 10, 10);
@@ -65,20 +57,11 @@ export default class Beads {
   }
 
   setMaterial() {
-    this.shaderMaterial = new ShaderMaterial({
-      uniforms: {
-        color: { value: new Color(0xffffff) },
-        pointTexture: { value: this.resources.items.beadParticle }
-      },
-      vertexShader: beadVertexShader,
-      fragmentShader: beadFragmentShader,
-      transparent: true
-    });
-
     this.material = new MeshStandardMaterial({
       precision: 'lowp',
       metalness: 1.0,
-      roughness: 0.0
+      roughness: 0.0,
+      color: '#ffffff'
     });
   }
 
@@ -109,7 +92,7 @@ export default class Beads {
     return new BufferAttribute(combined, 3);
   }
 
-  createMesh(model, beadType = 'sphere', multiColored = true) {
+  createMesh(model) {
     const positions = this.#combineBuffer(model, 'position');
 
     const matrix = new Matrix4();
@@ -144,30 +127,28 @@ export default class Beads {
     const scale = 6 / vertexDifference;
     const beadScale = 0.01 * vertexDifference;
     const positionY = scale * (vertexDifference / 2);
+    const lowestStart = -vertexDifference;
     //=====
 
-    const geometry = this.setGeometry(beadScale, beadType);
+    const geometry = this.setGeometry(beadScale, this.beadType);
 
     this.mesh = new InstancedMesh(geometry, this.material, vertices.length);
     this.mesh.instanceMatrix.setUsage(DynamicDrawUsage);
 
     for (let i = 0; i < vertices.length; i++) {
       this.animateLoad
-        ? this.mesh.setMatrixAt(i, matrix.setPosition(vertices[i][0], 0, vertices[i][2]))
+        ? this.mesh.setMatrixAt(i, matrix.setPosition(vertices[i][0], lowestStart, vertices[i][2]))
         : this.mesh.setMatrixAt(i, matrix.setPosition(...vertices[i]));
 
-      multiColored
+      this.multiColored
         ? this.mesh.setColorAt(i, color.setHex(0xffffff * Math.random()))
         : this.mesh.setColorAt(i, color.setHex(0xffffff));
     }
-
-    // this.physics.addMesh(this.mesh, 1);
 
     this.vertices = vertices;
 
     this.mesh.scale.set(scale, scale, scale);
     this.mesh.position.set(0, positionY, 0);
-    this.mesh.castShadow = true;
     this.scene.add(this.mesh);
     this.objects.push(this.mesh);
   }
@@ -176,63 +157,55 @@ export default class Beads {
     //===== DEBUG =====
     if (this.debug.active) {
       const debugObject = {
-        HandSphere: () => this.createMesh(this.resources.items.handModel),
-        HandBox: () => this.createMesh(this.resources.items.handModel, 'box', false),
-        HandTetrahedron: () => this.createMesh(this.resources.items.handModel, 'tetrahedron', false),
-        SkullModel: () => this.createMesh(this.resources.items.skullModel, 'tetrahedron', false),
-        MaleHeadModel: () => this.createMesh(this.resources.items.maleHeadModel),
-        LoadAsset: () => this.loadAsset(),
-        Reset: () => this.resetMesh()
+        Hand: () => {
+          this.resetMesh();
+          this.createMesh(this.resources.items.handModel);
+        },
+        SkullModel: () => {
+          this.resetMesh();
+          this.createMesh(this.resources.items.skullModel);
+        },
+        Remove: () => this.resetMesh()
       };
 
-      this.debugFolder.add(debugObject, 'HandSphere');
-      this.debugFolder.add(debugObject, 'HandBox');
-      this.debugFolder.add(debugObject, 'HandTetrahedron');
+      this.debugFolder.add(debugObject, 'Hand');
       this.debugFolder.add(debugObject, 'SkullModel');
-      this.debugFolder.add(debugObject, 'MaleHeadModel');
-      this.debugFolder.add(debugObject, 'LoadAsset');
-      this.debugFolder.add(debugObject, 'Reset');
+      this.debugFolder.add(debugObject, 'Remove');
     }
   }
 
-  setDragControls() {
-    this.dragControls = new DragControls(this.objects, this.camera.instance, this.canvas);
-    this.dragControls.deactivate();
-  }
-
   resetMesh() {
-    this.dragControls.dispose();
     for (const object of this.objects) {
       this.scene.remove(object);
     }
     this.objects = [];
 
-    //====
-    // If adding physics, need to handle the reset of Oimo objects
-    //====
-
-    this.setDragControls();
     this.mesh = null;
     this.index = 0;
   }
 
   #meshEvent() {
-    this.animateLoad = true;
-    this.createMesh(this.resources.items.handModel);
-    this.handleMeshEvent();
+    this.createMesh(this.object);
+    this.#handleMeshEvent();
   }
 
-  // Temporary for demo
-  #mugEvent() {
-    this.createMesh(this.resources.items.coffeeMugModel, 'sphere', false);
-    this.handleMeshEvent();
+  #handleMeshEvent() {
+    this.createMeshButton.style.background = data.colors.inactiveButton;
+    this.resetMeshButton.style.background = data.colors.activeButton;
+
+    this.createMeshButton.removeEventListener('click', this.meshEventHandler);
+    this.resetMeshButton.addEventListener('click', this.resetMeshEventHandler);
   }
 
-  #mandalorianEvent() {
-    this.createMesh(this.resources.items.mandalorianModel, 'tetrahedron');
-    this.handleMeshEvent();
+  #animateEvent() {
+    this.animateLoad = !this.animateLoad;
+    this.animateButton.style.background = this.animateLoad ? data.colors.activeButton : data.colors.inactiveButton;
+    this.animateButton.style.color = this.animateLoad ? data.colors.activeText : data.colors.inactiveText;
+    this.animateButton.innerHTML = this.animateLoad ? data.buttons.animateOn : data.buttons.animateOff;
+    this.#handleMeshEvent();
+    this.resetMesh();
+    this.createMesh(this.object);
   }
-  // ---
 
   #resetMeshEvent() {
     this.resetMesh();
@@ -240,96 +213,170 @@ export default class Beads {
 
     this.resetMeshButton.removeEventListener('click', this.resetMeshEventHandler);
     this.createMeshButton.addEventListener('click', this.meshEventHandler);
-    this.createMugButton.addEventListener('click', this.mugEventHandler);
-    this.createMandalorianButton.addEventListener('click', this.mandalorianEventHandler);
 
     this.resetMeshButton.style.background = data.colors.inactiveButton;
     this.createMeshButton.style.background = data.colors.activeButton;
-    this.createMugButton.style.background = data.colors.activeButton;
-    this.createMandalorianButton.style.background = data.colors.activeButton;
+  }
+
+  #changeColorEvent() {
+    this.multiColored = !this.multiColored;
+    this.colorButton.style.background = this.multiColored ? data.colors.activeButton : data.colors.inactiveButton;
+    this.colorButton.style.color = this.multiColored ? data.colors.activeText : data.colors.inactiveText;
+    this.colorButton.innerHTML = this.multiColored ? data.buttons.colorTypeOn : data.buttons.colorTypeOff;
+    this.#handleMeshEvent();
+    this.resetMesh();
+    this.createMesh(this.object);
+  }
+
+  #beadTypeEvent(e) {
+    const selectedIndex = e.target.selectedIndex;
+    const beadType = e.target[selectedIndex].value;
+    this.beadType = beadType;
+    this.#handleMeshEvent();
+    this.resetMesh();
+    this.createMesh(this.object);
   }
 
   setEventListeners() {
-    this.setDragControls();
+    document.addEventListener(
+      'dragover',
+      (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+      },
+      false
+    );
 
-    window.addEventListener('keydown', (e) => {
-      e.code === 'KeyC' && this.dragControls.activate();
-      e.code === 'KeyB' && this.createMesh(this.resources.items.handModel);
-      e.code === 'KeyR' && this.resetMesh();
-    });
+    document.addEventListener(
+      'drop',
+      (e) => {
+        e.preventDefault();
 
-    window.addEventListener('keyup', (e) => {
-      e.code === 'KeyC' && this.dragControls.deactivate();
-    });
+        if (e.dataTransfer.types[0] === 'text/plain') return;
+
+        e.dataTransfer.files && this.loadFiles(e.dataTransfer.files);
+      },
+      false
+    );
 
     this.meshEventHandler = this.#meshEvent.bind(this);
-    this.mugEventHandler = this.#mugEvent.bind(this);
-    this.mandalorianEventHandler = this.#mandalorianEvent.bind(this);
+    this.animateHandler = this.#animateEvent.bind(this);
     this.resetMeshEventHandler = this.#resetMeshEvent.bind(this);
+    this.colorEventHandler = this.#changeColorEvent.bind(this);
+    this.beadTypeHandler = this.#beadTypeEvent.bind(this);
 
     this.createMeshButton = document.getElementById('create-mesh');
-    this.createMugButton = document.getElementById('create-mug');
-    this.createMandalorianButton = document.getElementById('create-mandalorian');
+    this.animateButton = document.getElementById('animate');
     this.resetMeshButton = document.getElementById('reset-mesh');
+    this.beadTypeButton = document.getElementById('bead-type');
+    this.colorButton = document.getElementById('color-type');
+    this.fileUploadButton = document.getElementById('file-upload');
 
+    this.animateButton.addEventListener('click', this.animateHandler);
     this.resetMeshButton.addEventListener('click', this.resetMeshEventHandler);
-
-    // document.addEventListener('mousemove', (event) => {
-    //   this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    //   this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    // });
-  }
-
-  handleMeshEvent() {
-    this.createMeshButton.style.background = data.colors.inactiveButton;
-    this.createMugButton.style.background = data.colors.inactiveButton;
-    this.createMandalorianButton.style.background = data.colors.inactiveButton;
-    this.resetMeshButton.style.background = data.colors.activeButton;
-
-    this.createMeshButton.removeEventListener('click', this.meshEventHandler);
-    this.createMugButton.removeEventListener('click', this.mugEventHandler);
-    this.createMandalorianButton.removeEventListener('click', this.mandalorianEventHandler);
-    this.resetMeshButton.addEventListener('click', this.resetMeshEventHandler);
+    this.colorButton.addEventListener('click', this.colorEventHandler);
+    this.beadTypeButton.addEventListener('change', this.beadTypeHandler);
+    this.fileUploadButton.addEventListener('change', (e) => e.target.files && this.loadFiles(e.target.files));
   }
 
   //===== LOADING CUSTOM ASSET =====
-  loadAsset() {
-    this.loaders = {};
-    this.loaders.objLoader = new OBJLoader();
 
-    for (const source of sources) {
-      if (source.type === 'objModel') {
-        this.loaders.objLoader.load(
-          source.path,
-          (file) => {
-            this.createMesh(file);
-          },
-          () => {},
-          (e) => {
-            console.log(e);
-          }
-        );
+  loadFiles(files) {
+    function createFilesMap(files) {
+      let map = {};
+
+      for (let i = 0; i < files.length; i++) {
+        let file = files[i];
+        map[file.name] = file;
+      }
+
+      return map;
+    }
+
+    if (files.length > 0) {
+      let filesMap = createFilesMap(files);
+
+      this.manager = new LoadingManager();
+      this.manager.setURLModifier(function (url) {
+        url = url.replace(/^(\.?\/)/, ''); // remove './'
+
+        let file = filesMap[url];
+
+        if (file) {
+          return URL.createObjectURL(file);
+        }
+
+        return url;
+      });
+
+      for (let i = 0; i < files.length; i++) {
+        this.loadFile(files[i], this.manager);
       }
     }
   }
 
+  loadFile(file, manager) {
+    const scope = this;
+    const filename = file.name;
+    const extension = filename.split('.').pop().toLowerCase();
+
+    const reader = new FileReader();
+
+    switch (extension) {
+      case 'fbx':
+        reader.addEventListener(
+          'load',
+          async function (event) {
+            let contents = event.target.result;
+
+            let { FBXLoader } = await import('three/examples/jsm/loaders/FBXLoader.js');
+
+            let loader = new FBXLoader(manager);
+            let object = loader.parse(contents);
+            this.object = object;
+
+            scope.resetMesh();
+            scope.createMesh(object);
+            scope.#handleMeshEvent();
+          },
+          false
+        );
+        reader.readAsArrayBuffer(file);
+
+        break;
+
+      case 'obj':
+        reader.addEventListener(
+          'load',
+          async (event) => {
+            let contents = event.target.result;
+
+            let { OBJLoader } = await import('three/examples/jsm/loaders/OBJLoader.js');
+
+            let object = new OBJLoader().parse(contents);
+            object.name = filename;
+            this.object = object;
+
+            scope.resetMesh();
+            scope.createMesh(object);
+            scope.#handleMeshEvent();
+          },
+          false
+        );
+        reader.readAsText(file);
+
+        break;
+
+      default:
+        console.error('Unsupported file format (' + extension + ').');
+
+        break;
+    }
+  }
+
   update() {
-    const matrix = new Matrix4();
-    //===== RAYCASTER ANIMATION =====
-    // this.raycaster.setFromCamera(this.mouse, this.camera.instance);
-    // const intersection = this.raycaster.intersectObject(this.mesh);
-
-    // if (intersection.length > 0) {
-    //   const instanceId = intersection[0].instanceId;
-    //   const position = intersection[0].point;
-
-    //   this.mesh.setMatrixAt(instanceId, matrix.setPosition(position.x, (position.y -= 0.05), position.z));
-    //   this.mesh.instanceMatrix.needsUpdate = true;
-
-    //   // this.mesh.setColorAt(instanceId, new Color().setHex(Math.random() * 0xffffff));
-    // }
-
     //===== BEADS ANIMATION =====
+    const matrix = new Matrix4();
     if (this.animateLoad && this.mesh && this.index < this.vertices.length) {
       this.mesh.setMatrixAt(this.index, matrix.setPosition(...this.vertices[this.index]));
       this.mesh.instanceMatrix.needsUpdate = true;

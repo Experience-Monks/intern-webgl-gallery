@@ -2,19 +2,30 @@
   "title": "BEAD",
   "buttons": {
     "create": "create mesh",
-    "coffeeMug": "create mug",
-    "mandalorian": "create mando",
-    "reset": "reset mesh",
+    "animateOn": "animate load on",
+    "animateOff": "animate load off",
+    "reset": "remove mesh",
     "autoRotateOn": "auto rotate on",
     "autoRotateOff": "auto rotate off",
-    "fileUpload": "Drag here or click to upload"
+    "fileUpload": "Drag a .obj file onto screen or click here to upload",
+    "colorTypeOn": "multi- colored on",
+    "colorTypeOff": "multi- colored off",
+    "beadType": "bead type",
+    "hide": "hide",
+    "show": "show"
+  },
+  "beadType": {
+    "sphere": "sphere",
+    "box": "box",
+    "tetrahedron": "tetrahedron"
   },
   "colors": {
     "activeButton": "#eac435",
-    "inactiveButton": "#000000",
+    "inactiveButton": "#333",
     "activeText": "#000000",
     "inactiveText": "#ffffff",
-    "background": "#253841"
+    "background": "#253841",
+    "fogColor": "#436575"
   },
   "sizes": {
     "background": [30, 32, 32]

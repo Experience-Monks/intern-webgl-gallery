@@ -41,33 +41,21 @@ export default class Camera {
     this.instance.updateProjectionMatrix();
   }
 
-  #rotateToggleEvent() {
-    this.controls.autoRotate = !this.controls.autoRotate;
-    this.rotateToggleButton.style.background = this.controls.autoRotate
-      ? data.colors.activeButton
-      : data.colors.inactiveButton;
-    this.rotateToggleButton.style.color = this.controls.autoRotate ? data.colors.activeText : data.colors.inactiveText;
-    this.rotateToggleButton.innerHTML = this.controls.autoRotate
-      ? data.buttons.autoRotateOn
-      : data.buttons.autoRotateOff;
-  }
-
   setEventListeners() {
-    window.addEventListener('keydown', (e) => {
-      if (e.code === 'KeyC') {
-        this.controls.enabled = false;
-      }
-    });
-
-    window.addEventListener('keyup', (e) => {
-      if (e.code === 'KeyC') {
-        this.controls.enabled = true;
-      }
-    });
-
-    this.rotateToggleEventHandler = this.#rotateToggleEvent.bind(this);
     this.rotateToggleButton = document.getElementById('rotate-toggle');
-    this.rotateToggleButton.addEventListener('click', this.rotateToggleEventHandler);
+
+    this.rotateToggleButton.addEventListener('click', () => {
+      this.controls.autoRotate = !this.controls.autoRotate;
+      this.rotateToggleButton.style.background = this.controls.autoRotate
+        ? data.colors.activeButton
+        : data.colors.inactiveButton;
+      this.rotateToggleButton.style.color = this.controls.autoRotate
+        ? data.colors.activeText
+        : data.colors.inactiveText;
+      this.rotateToggleButton.innerHTML = this.controls.autoRotate
+        ? data.buttons.autoRotateOn
+        : data.buttons.autoRotateOff;
+    });
   }
 
   update() {

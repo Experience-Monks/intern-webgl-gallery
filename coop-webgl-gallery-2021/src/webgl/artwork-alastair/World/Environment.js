@@ -3,7 +3,7 @@ import { Lensflare, LensflareElement } from 'three/examples/jsm/objects/Lensflar
 
 import Experience from '../Experience.js';
 
-// import { getNestedElements } from '../Utils/basic-functions.js';
+import data from '../data.json';
 
 export default class Environment {
   constructor() {
@@ -12,9 +12,7 @@ export default class Environment {
     this.resources = this.experience.resources;
     this.debug = this.experience.debug;
 
-    this.debug.active && (this.debugFolder = this.debug.ui.addFolder('environment'));
-
-    this.fogColor = '#436575';
+    this.fogColor = data.colors.fogColor;
 
     this.scene.fog = new Fog(this.fogColor, 10, 40);
 
@@ -38,7 +36,6 @@ export default class Environment {
     this.spotLight.angle = Math.PI / 4;
     this.spotLight.penumbra = 0.5;
     this.spotLight.intensity = 150;
-    this.spotLight.castShadow = true;
     this.setLensflare();
     this.scene.add(this.spotLight);
   }
@@ -49,8 +46,6 @@ export default class Environment {
     this.studioModel.scale.set(0.145, 0.145, 0.145);
     this.studioModel.position.set(8, 7.4, 0);
     this.studioModel.rotation.set(0, -Math.PI * 0.5, 0);
-
-    // getNestedElements(this.studioModel);
 
     this.scene.add(this.studioModel);
   }
@@ -83,12 +78,5 @@ export default class Environment {
     };
 
     this.environmentMap.updateMaterials();
-
-    // if (this.debug.active) {
-    //   this.debugFolder.add(this.pointLight, 'intensity').name('sunLightIntensity').min(0).max(300).step(1);
-    //   this.debugFolder.add(this.pointLight.position, 'x').name('pointLightX').min(-5).max(5).step(0.001);
-    //   this.debugFolder.add(this.pointLight.position, 'y').name('pointLightY').min(-5).max(5).step(0.001);
-    //   this.debugFolder.add(this.pointLight.position, 'z').name('pointLightZ').min(-5).max(5).step(0.001);
-    // }
   }
 }

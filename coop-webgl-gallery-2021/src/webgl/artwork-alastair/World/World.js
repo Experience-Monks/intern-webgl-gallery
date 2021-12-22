@@ -14,6 +14,7 @@ export default class World {
 
     this.loadingBarElement = document.getElementById('loading-bar');
     this.controlsContainer = document.getElementById('controls-container');
+    this.hideControls = document.getElementById('hide-controls');
 
     // Styling
     this.loadingBarElement.style.position = 'absolute';
@@ -25,7 +26,8 @@ export default class World {
     this.loadingBarElement.style.transform = 'scaleX(0)';
 
     this.resources.manager.onLoad = () => {
-      this.controlsContainer.style.opacity = '1.0';
+      this.controlsContainer.style.opacity = 1;
+      this.hideControls.style.opacity = 1;
       this.loadingBarElement.style.transform = 'scaleX(0)';
       this.loadingBarElement.style.transformOrigin = `100% 0`;
 
@@ -43,6 +45,5 @@ export default class World {
 
   update() {
     this.beads && this.beads.update();
-    this.waves && this.waves.update();
   }
 }

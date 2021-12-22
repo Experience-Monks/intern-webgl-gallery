@@ -1,4 +1,4 @@
-import { memo, useRef } from 'react';
+import { memo, useRef, useState } from 'react';
 import classnames from 'classnames';
 import dynamic from 'next/dynamic';
 
@@ -20,31 +20,48 @@ const ArtCanvas = dynamic(() => import('./artwork'), {
 
 function Artwork({ className }: Props) {
   const containerRef = useRef<HTMLElement>(null);
+  const [hidden, setHidden] = useState(false);
 
   return (
     <main className={classnames(styles.Artwork, className)} ref={containerRef}>
       <Head title="Artwork" />
       <div className={styles.webgl}>{isBrowser && <ArtCanvas></ArtCanvas>}</div>
-      <div className={styles.controlsContainer} id="controls-container">
+      <div className={classnames(styles.controlsContainer, hidden && styles.hidden)} id="controls-container">
         <h1 className={styles.title}>{data.title}</h1>
         <div className={styles.controls}>
-          <div className={styles.button} id="create-mesh">
+          <div className={classnames(styles.button, styles.createMeshButton)} id="create-mesh">
             {data.buttons.create}
           </div>
-          <div className={styles.button} id="create-mug">
-            {data.buttons.coffeeMug}
+          <div className={styles.button} id="animate">
+            {data.buttons.animateOn}
           </div>
-          <div className={styles.button} id="create-mandalorian">
-            {data.buttons.mandalorian}
+          <div className={styles.button} id="color-type">
+            {data.buttons.colorTypeOn}
           </div>
-          <div className={classnames(styles.button, styles.resetButton)} id="reset-mesh">
+          <div className={styles.beadTypeButton}>
+            {data.buttons.beadType}
+            <select id="bead-type">
+              {Object.values(data.beadType).map((option, i) => (
+                <option key={i} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className={styles.button} id="reset-mesh">
             {data.buttons.reset}
           </div>
-          <div className={classnames(styles.button, styles.rotateToggleButton)} id="rotate-toggle">
+          <div className={styles.button} id="rotate-toggle">
             {data.buttons.autoRotateOn}
           </div>
-          <div className={styles.fileUpload}>{data.buttons.fileUpload}</div>
+          <div className={styles.fileUpload}>
+            <input type="file" id="file-upload" hidden />
+            <label htmlFor="file-upload"> {data.buttons.fileUpload}</label>
+          </div>
         </div>
+      </div>
+      <div className={styles.hideControls} onClick={() => setHidden(!hidden)} id="hide-controls">
+        {hidden ? data.buttons.show : data.buttons.hide}
       </div>
       <div id="loading-bar"></div>
     </main>
