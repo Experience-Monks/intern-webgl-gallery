@@ -86,6 +86,7 @@ export default class Renderer {
   }
 
   update() {
+    // this.instance.render(this.scene, this.camera.instance);
     this.bloomComposer.render();
     this.finalComposer.render();
   }

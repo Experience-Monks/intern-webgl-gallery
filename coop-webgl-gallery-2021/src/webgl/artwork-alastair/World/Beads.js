@@ -2,26 +2,21 @@ import {
   BoxGeometry,
   TetrahedronGeometry,
   SphereGeometry,
-  ShaderMaterial,
   InstancedMesh,
   MeshStandardMaterial,
   DynamicDrawUsage,
   Vector2,
   Matrix4,
   Color,
-  BufferAttribute
+  BufferAttribute,
+  LoadingManager
   // Raycaster
 } from 'three';
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { DragControls } from 'three/examples/jsm/controls/DragControls';
 
 import Experience from '../Experience.js';
 
 import data from '../data.json';
-import sources from '../sourcesImported.js';
-
-import beadVertexShader from './shaders/beads/vertex.glsl.js';
-import beadFragmentShader from './shaders/beads/fragment.glsl.js';
 
 export default class Beads {
   constructor() {
@@ -65,16 +60,6 @@ export default class Beads {
   }
 
   setMaterial() {
-    this.shaderMaterial = new ShaderMaterial({
-      uniforms: {
-        color: { value: new Color(0xffffff) },
-        pointTexture: { value: this.resources.items.beadParticle }
-      },
-      vertexShader: beadVertexShader,
-      fragmentShader: beadFragmentShader,
-      transparent: true
-    });
-
     this.material = new MeshStandardMaterial({
       precision: 'lowp',
       metalness: 1.0,
@@ -153,7 +138,7 @@ export default class Beads {
 
     for (let i = 0; i < vertices.length; i++) {
       this.animateLoad
-        ? this.mesh.setMatrixAt(i, matrix.setPosition(vertices[i][0], 0, vertices[i][2]))
+        ? this.mesh.setMatrixAt(i, matrix.setPosition(vertices[i][0], lowestVertexY, vertices[i][2]))
         : this.mesh.setMatrixAt(i, matrix.setPosition(...vertices[i]));
 
       multiColored
@@ -167,7 +152,6 @@ export default class Beads {
 
     this.mesh.scale.set(scale, scale, scale);
     this.mesh.position.set(0, positionY, 0);
-    this.mesh.castShadow = true;
     this.scene.add(this.mesh);
     this.objects.push(this.mesh);
   }
@@ -180,8 +164,6 @@ export default class Beads {
         HandBox: () => this.createMesh(this.resources.items.handModel, 'box', false),
         HandTetrahedron: () => this.createMesh(this.resources.items.handModel, 'tetrahedron', false),
         SkullModel: () => this.createMesh(this.resources.items.skullModel, 'tetrahedron', false),
-        MaleHeadModel: () => this.createMesh(this.resources.items.maleHeadModel),
-        LoadAsset: () => this.loadAsset(),
         Reset: () => this.resetMesh()
       };
 
@@ -189,8 +171,6 @@ export default class Beads {
       this.debugFolder.add(debugObject, 'HandBox');
       this.debugFolder.add(debugObject, 'HandTetrahedron');
       this.debugFolder.add(debugObject, 'SkullModel');
-      this.debugFolder.add(debugObject, 'MaleHeadModel');
-      this.debugFolder.add(debugObject, 'LoadAsset');
       this.debugFolder.add(debugObject, 'Reset');
     }
   }
@@ -219,20 +199,8 @@ export default class Beads {
   #meshEvent() {
     this.animateLoad = true;
     this.createMesh(this.resources.items.handModel);
-    this.handleMeshEvent();
+    this.#handleMeshEvent();
   }
-
-  // Temporary for demo
-  #mugEvent() {
-    this.createMesh(this.resources.items.coffeeMugModel, 'sphere', false);
-    this.handleMeshEvent();
-  }
-
-  #mandalorianEvent() {
-    this.createMesh(this.resources.items.mandalorianModel, 'tetrahedron');
-    this.handleMeshEvent();
-  }
-  // ---
 
   #resetMeshEvent() {
     this.resetMesh();
@@ -240,13 +208,9 @@ export default class Beads {
 
     this.resetMeshButton.removeEventListener('click', this.resetMeshEventHandler);
     this.createMeshButton.addEventListener('click', this.meshEventHandler);
-    this.createMugButton.addEventListener('click', this.mugEventHandler);
-    this.createMandalorianButton.addEventListener('click', this.mandalorianEventHandler);
 
     this.resetMeshButton.style.background = data.colors.inactiveButton;
     this.createMeshButton.style.background = data.colors.activeButton;
-    this.createMugButton.style.background = data.colors.activeButton;
-    this.createMandalorianButton.style.background = data.colors.activeButton;
   }
 
   setEventListeners() {
@@ -262,17 +226,36 @@ export default class Beads {
       e.code === 'KeyC' && this.dragControls.deactivate();
     });
 
+    document.addEventListener(
+      'dragover',
+      (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+      },
+      false
+    );
+
+    document.addEventListener(
+      'drop',
+      (e) => {
+        e.preventDefault();
+
+        if (e.dataTransfer.types[0] === 'text/plain') return;
+
+        e.dataTransfer.files && this.loadFiles(e.dataTransfer.files);
+      },
+      false
+    );
+
     this.meshEventHandler = this.#meshEvent.bind(this);
-    this.mugEventHandler = this.#mugEvent.bind(this);
-    this.mandalorianEventHandler = this.#mandalorianEvent.bind(this);
     this.resetMeshEventHandler = this.#resetMeshEvent.bind(this);
 
     this.createMeshButton = document.getElementById('create-mesh');
-    this.createMugButton = document.getElementById('create-mug');
-    this.createMandalorianButton = document.getElementById('create-mandalorian');
     this.resetMeshButton = document.getElementById('reset-mesh');
+    this.fileUploadButton = document.getElementById('file-upload');
 
     this.resetMeshButton.addEventListener('click', this.resetMeshEventHandler);
+    this.fileUploadButton.addEventListener('change', (e) => e.target.files && this.loadFiles(e.target.files));
 
     // document.addEventListener('mousemove', (event) => {
     //   this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -280,36 +263,113 @@ export default class Beads {
     // });
   }
 
-  handleMeshEvent() {
+  #handleMeshEvent() {
     this.createMeshButton.style.background = data.colors.inactiveButton;
-    this.createMugButton.style.background = data.colors.inactiveButton;
-    this.createMandalorianButton.style.background = data.colors.inactiveButton;
     this.resetMeshButton.style.background = data.colors.activeButton;
 
     this.createMeshButton.removeEventListener('click', this.meshEventHandler);
-    this.createMugButton.removeEventListener('click', this.mugEventHandler);
-    this.createMandalorianButton.removeEventListener('click', this.mandalorianEventHandler);
     this.resetMeshButton.addEventListener('click', this.resetMeshEventHandler);
   }
 
   //===== LOADING CUSTOM ASSET =====
-  loadAsset() {
-    this.loaders = {};
-    this.loaders.objLoader = new OBJLoader();
 
-    for (const source of sources) {
-      if (source.type === 'objModel') {
-        this.loaders.objLoader.load(
-          source.path,
-          (file) => {
-            this.createMesh(file);
-          },
-          () => {},
-          (e) => {
-            console.log(e);
-          }
-        );
+  loadFiles(files) {
+    function createFilesMap(files) {
+      let map = {};
+
+      for (let i = 0; i < files.length; i++) {
+        let file = files[i];
+        map[file.name] = file;
       }
+
+      return map;
+    }
+
+    if (files.length > 0) {
+      let filesMap = createFilesMap(files);
+
+      this.manager = new LoadingManager();
+      this.manager.onLoad = () => {
+        console.log('sources loaded');
+      };
+      this.manager.setURLModifier(function (url) {
+        url = url.replace(/^(\.?\/)/, ''); // remove './'
+
+        let file = filesMap[url];
+
+        if (file) {
+          return URL.createObjectURL(file);
+        }
+
+        return url;
+      });
+
+      for (let i = 0; i < files.length; i++) {
+        this.loadFile(files[i], this.manager);
+      }
+    }
+  }
+
+  loadFile(file, manager) {
+    const scope = this;
+    const filename = file.name;
+    const extension = filename.split('.').pop().toLowerCase();
+
+    const reader = new FileReader();
+    reader.addEventListener('progress', function (event) {
+      const size = '(' + Math.floor(event.total / 1000) + ' KB)';
+      const progress = Math.floor((event.loaded / event.total) * 100) + '%';
+
+      console.log('Loading', filename, size, progress);
+    });
+
+    switch (extension) {
+      case 'fbx':
+        reader.addEventListener(
+          'load',
+          async function (event) {
+            let contents = event.target.result;
+
+            let { FBXLoader } = await import('three/examples/jsm/loaders/FBXLoader.js');
+
+            let loader = new FBXLoader(manager);
+            let object = loader.parse(contents);
+
+            scope.resetMesh();
+            scope.createMesh(object);
+            scope.#handleMeshEvent();
+          },
+          false
+        );
+        reader.readAsArrayBuffer(file);
+
+        break;
+
+      case 'obj':
+        reader.addEventListener(
+          'load',
+          async (event) => {
+            let contents = event.target.result;
+
+            let { OBJLoader } = await import('three/examples/jsm/loaders/OBJLoader.js');
+
+            let object = new OBJLoader().parse(contents);
+            object.name = filename;
+
+            scope.resetMesh();
+            scope.createMesh(object);
+            scope.#handleMeshEvent();
+          },
+          false
+        );
+        reader.readAsText(file);
+
+        break;
+
+      default:
+        console.error('Unsupported file format (' + extension + ').');
+
+        break;
     }
   }
 

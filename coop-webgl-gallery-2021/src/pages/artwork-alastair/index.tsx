@@ -31,19 +31,16 @@ function Artwork({ className }: Props) {
           <div className={styles.button} id="create-mesh">
             {data.buttons.create}
           </div>
-          <div className={styles.button} id="create-mug">
-            {data.buttons.coffeeMug}
-          </div>
-          <div className={styles.button} id="create-mandalorian">
-            {data.buttons.mandalorian}
-          </div>
           <div className={classnames(styles.button, styles.resetButton)} id="reset-mesh">
             {data.buttons.reset}
           </div>
           <div className={classnames(styles.button, styles.rotateToggleButton)} id="rotate-toggle">
             {data.buttons.autoRotateOn}
           </div>
-          <div className={styles.fileUpload}>{data.buttons.fileUpload}</div>
+          <div className={styles.fileUpload}>
+            <input type="file" id="file-upload" hidden />
+            <label htmlFor="file-upload"> {data.buttons.fileUpload}</label>
+          </div>
         </div>
       </div>
       <div id="loading-bar"></div>

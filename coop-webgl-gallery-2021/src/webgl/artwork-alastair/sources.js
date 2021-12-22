@@ -25,11 +25,6 @@ export default [
     path: `${path_start}textures/cliff/cliff_Roughness.jpg`
   },
   {
-    name: 'beadParticle',
-    type: 'texture',
-    path: `${path_start}textures/beads/disc.png`
-  },
-  {
     name: 'lensflare0_Alpha',
     type: 'texture',
     path: `${path_start}textures/lensflare/lensflare0_alpha.png`
@@ -62,29 +57,9 @@ export default [
     path: `${path_start}models/coffeeMug1_free_obj/coffeeMug.obj`
   },
   {
-    name: 'mandalorianModel',
-    type: 'objModel',
-    path: `${path_start}models/mandalorian.obj`
-  },
-  {
     name: 'skullModel',
     type: 'objModel',
     path: `${path_start}models/skull.obj`
-  },
-  {
-    name: 'teapotModel',
-    type: 'objModel',
-    path: `${path_start}models/teapot.obj`
-  },
-  {
-    name: 'maleHeadModel',
-    type: 'objModel',
-    path: `${path_start}models/male_head.obj`
-  },
-  {
-    name: 'tvModel',
-    type: 'objModel',
-    path: `${path_start}models/tv.obj`
   },
   //===== ENVIRONMENT MAPS =====
   {
