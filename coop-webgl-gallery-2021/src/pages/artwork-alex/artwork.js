@@ -18,9 +18,8 @@ import {
   SpotLight,
   Texture,
   Vector3,
-  videoImageContext,
   WebGLRenderer
-} from 'three/build/three.module';
+} from 'three';
 
 // import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
@@ -103,7 +102,7 @@ function Art() {
     })();
 
     // Video to canvas
-    videoImageContext = videoImage.getContext('2d');
+    const videoImageContext = videoImage.getContext('2d');
     // Background color if no video is present
     videoImageContext.fillStyle = '#000000';
     videoImageContext.fillRect(0, 0, videoImage.width, videoImage.height);
