@@ -1,0 +1,1 @@
+{"version":3,"sources":["webpack://_N_E/index.module.scss"],"names":[],"mappings":"AAEA,+BACE,iBAAA,CACA,4DACE,iBAAA,CACA,KAAA","file":"static/css/020189f5ddbbdfc6.css","sourcesContent":["@import '../../styles/shared.scss';\n\n.Artwork {\n  position: relative;\n  .Piece {\n    position: absolute;\n    top: 0;\n  }\n}\n"],"sourceRoot":""}

@@ -1,2 +1,0 @@
-(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[992],{530:function(n,r,t){(window.__NEXT_P=window.__NEXT_P||[]).push(["/artwork-alastair/artwork",function(){return t(362)}])},6698:function(n,r,t){"use strict";t.d(r,{aD:function(){return e},Fw:function(){return u},FH:function(){return a}});var e="Jam3 Generator",u="The Relentless Pursuit of Better",a="/intern-webgl-gallery"}},function(n){n.O(0,[737,954,362,774,888,179],(function(){return r=530,n(n.s=r);var r}));var r=n.O();_N_E=r}]);
-//# sourceMappingURL=artwork-abf9ec3a88f4eb43.js.map
